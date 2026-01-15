@@ -1,12 +1,13 @@
-import './jquery.doubletap'
-import { MediaConfig } from './App/Config/MediaConfig'
-import { Helpers } from './App/Helpers/Helpers'
-import { MediaService } from './App/Services/MediaService'
-import { FolderService } from './App/Services/FolderService'
-import { UploadService } from './App/Services/UploadService'
-import { ActionsService } from './App/Services/ActionsService'
-import { DownloadService } from './App/Services/DownloadService'
-import { EditorService } from './integrate'
+import './filament-media-jquery-doubletap'
+import './filament-media-integrate'
+import { MediaConfig } from './App/Config/filament-media-MediaConfig'
+import { Helpers } from './App/Helpers/filament-media-Helpers'
+import { MediaService } from './App/Services/filament-media-MediaService'
+import { FolderService } from './App/Services/filament-media-FolderService'
+import { UploadService } from './App/Services/filament-media-UploadService'
+import { ActionsService } from './App/Services/filament-media-ActionsService'
+import { DownloadService } from './App/Services/filament-media-DownloadService'
+import { EditorService } from './filament-media-integrate'
 
 class MediaManagement {
     constructor() {

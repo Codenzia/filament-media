@@ -1,9 +1,9 @@
-import { RecentItems } from '../Config/MediaConfig'
-import { Helpers } from '../Helpers/Helpers'
-import { ActionsService } from './ActionsService'
-import { ContextMenuService } from './ContextMenuService'
-import { MediaList } from '../Views/MediaList'
-import { MediaDetails } from '../Views/MediaDetails'
+import { RecentItems } from '../Config/filament-media-MediaConfig'
+import { Helpers } from '../Helpers/filament-media-Helpers'
+import { ActionsService } from './filament-media-ActionsService'
+import { ContextMenuService } from './filament-media-ContextMenuService'
+import { MediaList } from '../Views/filament-media-MediaList'
+import { MediaDetails } from '../Views/filament-media-MediaDetails'
 
 export class MediaService {
     constructor() {

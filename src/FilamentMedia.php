@@ -238,21 +238,22 @@ class FilamentMedia
     {
         $default = $this->getConfig('default_image');
 
-        if ($placeholder = setting('media_default_placeholder_image')) {
-            $filename = pathinfo($placeholder, PATHINFO_FILENAME);
-
-            if ($size && $size = $this->getSize($size)) {
-                $placeholder = str_replace($filename, $filename . '-' . $size, $placeholder);
-            }
-
-            return Storage::url($placeholder);
-        }
+//         if ($placeholder = setting('media_default_placeholder_image')) {
+//             $filename = pathinfo($placeholder, PATHINFO_FILENAME);
+//
+//             if ($size && $size = $this->getSize($size)) {
+//                 $placeholder = str_replace($filename, $filename . '-' . $size, $placeholder);
+//             }
+//
+//             return Storage::url($placeholder);
+//         }
 
         if ($relative) {
             return $default;
         }
 
-        return $default ? url($default) : $default;
+        //return $default ? url($default) : $default;
+        return 'https://via.placeholder.com/150';
     }
 
     public function getSize(string $name): ?string

@@ -1,16 +1,3 @@
 <x-filament-panels::page>
-    @extends(BaseHelper::getAdminMasterLayoutTemplate())
-
-    @push('header')
-        {!! FilamentMedia::renderHeader() !!}
-    @endpush
-
-    @section('content')
-        {!! FilamentMedia::renderContent() !!}
-    @endsection
-
-    @push('footer')
-        {!! FilamentMedia::renderFooter() !!}
-    @endpush
-
+        @include('filament-media::partials.media')
 </x-filament-panels::page>

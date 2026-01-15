@@ -1,7 +1,7 @@
 import Cropper from 'cropperjs'
-import { RecentItems } from '../Config/MediaConfig'
-import { Helpers } from '../Helpers/Helpers'
-import { MessageService } from './MessageService'
+import { RecentItems } from '../Config/filament-media-MediaConfig'
+import { Helpers } from '../Helpers/filament-media-Helpers'
+import { MessageService } from './filament-media-MessageService'
 
 export class ActionsService {
     static handleDropdown() {

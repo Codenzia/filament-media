@@ -1,7 +1,7 @@
-import { MediaConfig } from '../Config/MediaConfig'
-import { MediaService } from './MediaService'
-import { MessageService } from './MessageService'
-import { Helpers } from '../Helpers/Helpers'
+import { MediaConfig } from '../Config/filament-media-MediaConfig'
+import { MediaService } from './filament-media-MediaService'
+import { MessageService } from './filament-media-MessageService'
+import { Helpers } from '../Helpers/filament-media-Helpers'
 
 export class FolderService {
     constructor() {

@@ -1,4 +1,4 @@
-import { MediaConfig, RecentItems } from '../Config/MediaConfig'
+import { MediaConfig, RecentItems } from '../Config/filament-media-MediaConfig'
 
 export class Helpers {
     static getUrlParam(paramName, url = null) {
