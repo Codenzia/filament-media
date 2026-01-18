@@ -28,6 +28,8 @@ export class MediaDetails {
         Helpers.forEach(data, (val, index) => {
             if (Helpers.inArray(_self.onlyFields, index) && val) {
                 if (!Helpers.inArray(['mime_type'], index)) {
+                    console.log('index', index);
+
                     description += _self.descriptionItemTemplate
                         .replace(/__title__/gi, Helpers.trans(index))
                         .replace(/__url__/gi,

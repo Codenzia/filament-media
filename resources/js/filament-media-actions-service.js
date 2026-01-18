@@ -346,7 +346,7 @@ export class ActionsService {
     static renderActions() {
         let hasFolderSelected = Helpers.getSelectedFolder().length > 0
 
-        let ACTION_TEMPLATE = $('#rv_action_item').html()
+        let ACTION_TEMPLATE = $('#rv_action_item').html() ?? ''
         let initializedItem = 0
         let $dropdownActions = $('.rv-dropdown-actions .dropdown-menu')
         $dropdownActions.empty()
@@ -491,7 +491,9 @@ export class ActionsService {
                         break
                 }
                 if (!is_break) {
-                    let template = ACTION_TEMPLATE.replace(/__action__/gi, item.action || '')
+                    const baseTemplate = typeof ACTION_TEMPLATE === 'string' ? ACTION_TEMPLATE : ''
+                    let template = baseTemplate
+                        .replace(/__action__/gi, item.action || '')
                         .replace(
                             '<i class="__icon__ dropdown-item-icon dropdown-item-icon"></i>',
                             '<span class="icon-tabler-wrapper dropdown-item-icon">__icon__</span>'

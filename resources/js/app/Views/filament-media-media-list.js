@@ -4,12 +4,12 @@ import { ActionsService } from '../../filament-media-actions-service'
 export class MediaList {
     constructor() {
         this.group = {}
-        this.group.list = $('#rv_media_items_list').html()
-        this.group.tiles = $('#rv_media_items_tiles').html()
+        this.group.list = $('#rv_media_items_list').html() ?? ''
+        this.group.tiles = $('#rv_media_items_tiles').html() ?? ''
 
         this.item = {}
-        this.item.list = $('#rv_media_items_list_element').html()
-        this.item.tiles = $('#rv_media_items_tiles_element').html()
+        this.item.list = $('#rv_media_items_list_element').html() ?? ''
+        this.item.tiles = $('#rv_media_items_tiles_element').html() ?? ''
 
         this.$groupContainer = $('.rv-media-items')
     }
@@ -17,7 +17,7 @@ export class MediaList {
     renderData(data, reload = false, load_more_file = false) {
         let _self = this
         let MediaConfig = Helpers.getConfigs()
-        let template = _self.group[Helpers.getRequestParams().view_type]
+        let template = _self.group[Helpers.getRequestParams().view_type] || _self.group['tiles']
 
         let view_in = Helpers.getRequestParams().view_in
 
@@ -75,7 +75,7 @@ export class MediaList {
                 </svg>`
         }
 
-        template = template
+        template = (typeof template === 'string' ? template : '')
             .replace(/__noItemIcon__/gi, icon)
             .replace(/__noItemTitle__/gi, Helpers.trans(`no_item.${view_in}.title`) || '')
             .replace(/__noItemMessage__/gi, Helpers.trans(`no_item.${view_in}.message`) || '')
@@ -94,7 +94,7 @@ export class MediaList {
         }
 
         Helpers.forEach(data.folders, (value) => {
-            let item = _self.item[Helpers.getRequestParams().view_type]
+            let item = _self.item[Helpers.getRequestParams().view_type] || ''
             item = item
                 .replace(/__type__/gi, 'folder')
                 .replace(/__id__/gi, value.id)
@@ -119,7 +119,7 @@ export class MediaList {
         })
 
         Helpers.forEach(data.files, (value) => {
-            let item = _self.item[Helpers.getRequestParams().view_type]
+            let item = _self.item[Helpers.getRequestParams().view_type] || ''
             item = item
                 .replace(/__type__/gi, 'file')
                 .replace(/__id__/gi, value.id)
