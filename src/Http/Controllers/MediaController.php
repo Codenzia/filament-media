@@ -95,7 +95,7 @@ class MediaController extends Controller
                     [
                         'id' => 0,
                         'name' => trans('core/media::media.all_media'),
-                        'icon' => BaseHelper::renderIcon('ti ti-photo'),
+                        'icon' => BaseHelper::renderIcon('heroicon-o-photo'),
                     ],
                 ];
 

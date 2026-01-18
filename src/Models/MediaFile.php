@@ -2,8 +2,8 @@
 
 namespace Codenzia\FilamentMedia\Models;
 
-use Codenzia\FilamentMedia\Facades\FilamentMedia as RvMedia;
-use Illuminate\Database\Eloquent\Model as BaseModel;
+use Codenzia\FilamentMedia\Facades\FilamentMedia;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Str;
 
-class MediaFile extends BaseModel
+
+class MediaFile extends Model
 {
     use SoftDeletes;
 
@@ -43,10 +44,10 @@ class MediaFile extends BaseModel
 
     protected static function booted(): void
     {
-        static::forceDeleted(fn (MediaFile $file) => RvMedia::deleteFile($file));
+        static::forceDeleted(fn (MediaFile $file) => FilamentMedia::deleteFile($file));
 
         static::addGlobalScope('ownMedia', function (Builder $query): void {
-            if (RvMedia::canOnlyViewOwnMedia()) {
+            if (FilamentMedia::canOnlyViewOwnMedia()) {
                 $query->where('media_files.user_id', auth()->id());
             }
         });
@@ -63,7 +64,7 @@ class MediaFile extends BaseModel
             get: function ($value, $attributes) {
                 $type = 'document';
 
-                foreach (RvMedia::getConfig('mime_types', []) as $key => $value) {
+                foreach (FilamentMedia::getConfig('mime_types', []) as $key => $value) {
                     if (in_array($attributes['mime_type'], $value)) {
                         $type = $key;
 
@@ -180,13 +181,13 @@ class MediaFile extends BaseModel
                 case 'png':
                 case 'gif':
                     if ($this->visibility === 'public') {
-                        $preview = RvMedia::url($this->url);
+                        $preview = FilamentMedia::url($this->url);
                     }
 
                     break;
                 case 'text':
                 case 'video':
-                    $preview = RvMedia::url($this->url);
+                    $preview = FilamentMedia::url($this->url);
 
                     break;
                 case 'document':
@@ -196,7 +197,7 @@ class MediaFile extends BaseModel
                 case 'excel':
                 case 'powerpoint':
                     if ($this->mime_type === 'application/pdf' && $this->visibility === 'public') {
-                        $preview = RvMedia::url($this->url);
+                        $preview = FilamentMedia::url($this->url);
 
                         break;
                     }
@@ -209,7 +210,7 @@ class MediaFile extends BaseModel
                         in_array($this->mime_type, Arr::get($config, 'mime_types', [])) &&
                         $url = Arr::get($config, 'providers.' . Arr::get($config, 'default'))
                     ) {
-                        $preview = Str::replace('{url}', urlencode(RvMedia::url($this->url)), $url);
+                        $preview = Str::replace('{url}', urlencode(FilamentMedia::url($this->url)), $url);
                     }
 
                     break;
@@ -238,7 +239,7 @@ class MediaFile extends BaseModel
 
     public function canGenerateThumbnails(): bool
     {
-        return (! $this->visibility || $this->visibility === 'public') && RvMedia::canGenerateThumbnails($this->mime_type);
+        return (! $this->visibility || $this->visibility === 'public') && FilamentMedia::canGenerateThumbnails($this->mime_type);
     }
 
     public static function createName(string $name, int|string|null $folder): string
@@ -261,13 +262,13 @@ class MediaFile extends BaseModel
         if (setting('media_use_original_name_for_file_path')) {
             $slug = $name;
         } else {
-            $slug = Str::slug($name, '-', ! RvMedia::turnOffAutomaticUrlTranslationIntoLatin() ? 'en' : false);
+            $slug = Str::slug($name, '-', ! FilamentMedia::turnOffAutomaticUrlTranslationIntoLatin() ? 'en' : false);
         }
 
         $index = 1;
         $baseSlug = $slug;
 
-        while (File::exists(RvMedia::getRealPath(rtrim($folderPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $slug . '.' . $extension))) {
+        while (File::exists(FilamentMedia::getRealPath(rtrim($folderPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $slug . '.' . $extension))) {
             $slug = $baseSlug . '-' . $index++;
         }
 

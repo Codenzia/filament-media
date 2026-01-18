@@ -40,7 +40,7 @@ use Illuminate\Validation\ValidationFile;
 class FilamentMedia
 {
     protected array $permissions = [];
-    
+
     public function __construct(
         protected ThumbnailService $thumbnailService,
         protected UploadsManager $uploadManager
@@ -1189,7 +1189,7 @@ class FilamentMedia
 
     public function turnOffAutomaticUrlTranslationIntoLatin(): bool
     {
-        return (int) setting('media_turn_off_automatic_url_translation_into_latin', 0) == 1;
+        return false;
     }
 
     public function getImageProcessingLibrary(): string
@@ -1199,7 +1199,7 @@ class FilamentMedia
 
     public function getMediaDriver(): string
     {
-        return setting('media_driver', 'public');
+        return 'public';
     }
 
     public function setS3Disk(array $config): void
@@ -1535,12 +1535,7 @@ class FilamentMedia
 
     public function canOnlyViewOwnMedia(): bool
     {
-        return true;
-        // return setting('user_can_only_view_own_media', false)
-        //     && AdminHelper::isInAdmin(true)
-        //     && ! App::runningInConsole()
-        //     && auth()->check()
-        //     && ! auth()->user()->isSuperUser();
+        return false;
     }
 
     public function responseDownloadFile(string $filePath)

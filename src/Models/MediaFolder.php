@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Codenzia\FilamentMedia\Models\SafeContent;
 
 class MediaFolder extends BaseModel
 {

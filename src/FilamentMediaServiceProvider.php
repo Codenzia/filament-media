@@ -130,6 +130,7 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
     {
         return [
             FilamentMediaCommand::class,
+            \Codenzia\FilamentMedia\Commands\SyncMediaCommand::class,
         ];
     }
 

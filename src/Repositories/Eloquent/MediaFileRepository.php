@@ -415,5 +415,4 @@ class MediaFileRepository extends BaseRepository implements MediaFileInterface
             $model = $newModel;
         }
     }
-
 }
