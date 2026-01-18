@@ -21,9 +21,31 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Mime\MimeTypes;
 use Throwable;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
+use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
+use Intervention\Image\Encoders\AutoEncoder;
+use Intervention\Image\Encoders\WebpEncoder;
+use Codenzia\FilamentMedia\Models\FileResource;
+use Codenzia\FilamentMedia\Events\MediaFileUploaded;
+use Codenzia\FilamentMedia\Events\MediaFileRenaming;
+use Codenzia\FilamentMedia\Events\MediaFileRenamed;
+use Codenzia\FilamentMedia\Events\MediaFolderRenaming;
+use Codenzia\FilamentMedia\Events\MediaFolderRenamed;
+use League\Flysystem\UnableToWriteFile;
+use Codenzia\FilamentMedia\Services\ThumbnailService;
+use Codenzia\FilamentMedia\Services\UploadsManager;
+use Illuminate\Validation\ValidationFile;
+
 class FilamentMedia
 {
     protected array $permissions = [];
+    
+    public function __construct(
+        protected ThumbnailService $thumbnailService,
+        protected UploadsManager $uploadManager
+    ) {
+    }
 
 
 

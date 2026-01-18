@@ -65,6 +65,14 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
         if (!class_exists('AdminHelper')) {
             class_alias(\Codenzia\FilamentMedia\Helpers\AdminHelper::class, 'AdminHelper');
         }
+
+        $this->app->bind(\Codenzia\FilamentMedia\Repositories\Interfaces\MediaFileInterface::class, function () {
+            return new \Codenzia\FilamentMedia\Repositories\Eloquent\MediaFileRepository(new \Codenzia\FilamentMedia\Models\MediaFile());
+        });
+
+        $this->app->bind(\Codenzia\FilamentMedia\Repositories\Interfaces\MediaFolderInterface::class, function () {
+            return new \Codenzia\FilamentMedia\Repositories\Eloquent\MediaFolderRepository(new \Codenzia\FilamentMedia\Models\MediaFolder());
+        });
     }
 
     public function packageBooted(): void
