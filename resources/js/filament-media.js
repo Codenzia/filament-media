@@ -1,14 +1,10 @@
-import $ from 'jquery'
-window.jQuery = window.$ = $
-import './filament-media-jquery-doubletap.js'
-import './filament-media-integrate.js'
-import { MediaConfig } from './App/Config/filament-media-MediaConfig'
-import { Helpers } from './App/Helpers/filament-media-Helpers.js'
-import { MediaService } from './App/Services/filament-media-MediaService.js'
-import { FolderService } from './App/Services/filament-media-FolderService.js'
-import { UploadService } from './App/Services/filament-media-UploadService'
-import { ActionsService } from './App/Services/filament-media-ActionsService.js'
-import { DownloadService } from './App/Services/filament-media-DownloadService'
+import { MediaConfig } from './filament-media-config.js'
+import { Helpers } from './filament-media-helpers.js'
+import { MediaService } from './filament-media-service.js'
+import { FolderService } from './filament-media-folder-service.js'
+import { UploadService } from './filament-media-upload-service.js'
+import { ActionsService } from './filament-media-actions-service.js'
+import { DownloadService } from './filament-media-download-service.js'
 import { EditorService } from './filament-media-integrate.js'
 
 class MediaManagement {

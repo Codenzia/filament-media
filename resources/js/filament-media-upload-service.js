@@ -1,5 +1,6 @@
-import { MediaService } from './filament-media-MediaService'
-import { Helpers } from '../Helpers/filament-media-Helpers'
+import $ from 'jquery'
+import { MediaService } from './filament-media-service'
+import { Helpers } from './filament-media-helpers'
 
 export class UploadService {
     constructor() {

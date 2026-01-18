@@ -1,6 +1,8 @@
-import { MediaConfig, RecentItems } from '../Config/filament-media-MediaConfig'
+import $ from 'jquery'
+import { MediaConfig, RecentItems } from './filament-media-config.js'
 
 export class Helpers {
+
     static getUrlParam(paramName, url = null) {
         if (!url) {
             url = window.location.search

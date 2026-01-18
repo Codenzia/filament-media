@@ -1,5 +1,5 @@
-import { ActionsService } from './filament-media-ActionsService'
-import { Helpers } from '../Helpers/filament-media-Helpers'
+import { ActionsService } from './filament-media-actions-service'
+import { Helpers } from './filament-media-helpers'
 
 export class ContextMenuService {
     static initContext() {

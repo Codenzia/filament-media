@@ -1,4 +1,5 @@
 let MediaConfig = $.parseJSON(localStorage.getItem('MediaConfig')) || {}
+console.log('MediaConfig', MediaConfig);
 
 let defaultConfig = {
     app_key: FilamentMediaConfig.random_hash ? FilamentMediaConfig.random_hash : '21d06709fe1d3abdf0e35ddda89c4b282',

@@ -103,7 +103,7 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
     {
         return [
             Js::make('filament-media-jquery', 'https://code.jquery.com/jquery-3.7.1.min.js'),
-            Js::make('filament-media', __DIR__ . '/../resources/dist/filament-media.js')->module(),
+            Js::make('filament-media', __DIR__ . '/../resources/js/filament-media.js')->module(),
             Css::make('filament-media', __DIR__ . '/../resources/css/filament-media.css'),
         ];
     }

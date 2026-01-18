@@ -1,6 +1,6 @@
-import { MediaService } from './filament-media-MediaService'
-import { MessageService } from './filament-media-MessageService'
-import { Helpers } from '../Helpers/filament-media-Helpers'
+import { MediaService } from './filament-media-service'
+import { MessageService } from './filament-media-message-service'
+import { Helpers } from './filament-media-helpers'
 
 export class DownloadService {
     constructor() {

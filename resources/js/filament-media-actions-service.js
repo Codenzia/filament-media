@@ -1,7 +1,8 @@
+import $ from 'jquery'
 import Cropper from 'cropperjs'
-import { RecentItems } from '../Config/filament-media-MediaConfig'
-import { Helpers } from '../Helpers/filament-media-Helpers'
-import { MessageService } from './filament-media-MessageService'
+import { RecentItems } from './filament-media-config'
+import { Helpers } from './filament-media-helpers'
+import { MessageService } from './filament-media-message-service'
 
 export class ActionsService {
     static handleDropdown() {

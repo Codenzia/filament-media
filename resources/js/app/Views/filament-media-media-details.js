@@ -1,4 +1,4 @@
-import { Helpers } from '../Helpers/filament-media-Helpers'
+import { Helpers } from '../../filament-media-helpers'
 
 export class MediaDetails {
     constructor() {

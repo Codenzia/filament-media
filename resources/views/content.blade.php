@@ -326,7 +326,7 @@
                                     <x-filament::input
                                         type="search"
                                         name="search"
-                                        class="w-100 bg-white dark:bg-gray-900 shadow-sm border border-end-0 rounded-end-0"
+                                        class="w-100 bg-white dark:bg-gray-900 border border-end-0 rounded-end-0"
                                         placeholder="{{ trans('core/media::media.search_file_and_folder') }}"
                                     />
                                     <x-filament::button
@@ -343,7 +343,14 @@
                     </div>
                     <div class="row w-100 p-2 border-bottom bg-white dark:bg-gray-900">
                         <div class="col p-2 d-flex align-items-center rv-media-breadcrumb">
-                            <ul class="breadcrumb"></ul>
+                            <ul class="breadcrumb">
+                                <li>
+                                    <a href="#" data-folder="0" class="text-decoration-none js-change-folder d-flex align-items-center gap-2">
+                                        <x-filament::icon icon="heroicon-m-photo" />
+                                        All media
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                         <div class="col-md-auto d-flex justify-content-between justify-content-md-end align-items-center rv-media-tools">
                             <div

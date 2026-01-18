@@ -1,9 +1,10 @@
-import { RecentItems } from '../Config/filament-media-MediaConfig'
-import { Helpers } from '../Helpers/filament-media-Helpers'
-import { ActionsService } from './filament-media-ActionsService'
-import { ContextMenuService } from './filament-media-ContextMenuService'
-import { MediaList } from '../Views/filament-media-MediaList'
-import { MediaDetails } from '../Views/filament-media-MediaDetails'
+import $ from 'jquery'
+import { MediaConfig } from './filament-media-config'
+import { Helpers } from './filament-media-helpers'
+import { ActionsService } from './filament-media-actions-service'
+import { ContextMenuService } from './filament-media-context-menu-service'
+import { MediaList } from './app/Views/filament-media-media-list'
+import { MediaDetails } from './app/Views/filament-media-media-details'
 
 export class MediaService {
     constructor() {
@@ -13,12 +14,12 @@ export class MediaService {
     }
 
     getMedia(reload = false, is_popup = false, load_more_file = false) {
-        if (typeof FilamentMediaConfig.pagination != 'undefined') {
-            if (FilamentMediaConfig.pagination.in_process_get_media) {
+        if (typeof MediaConfig.pagination != 'undefined') {
+            if (MediaConfig.pagination.in_process_get_media) {
                 return
             }
 
-            FilamentMediaConfig.pagination.in_process_get_media = true
+            MediaConfig.pagination.in_process_get_media = true
         }
 
         let _self = this
@@ -56,11 +57,11 @@ export class MediaService {
 
         params = { ...params, load_more_file }
 
-        if (typeof FilamentMediaConfig.pagination != 'undefined') {
+        if (typeof MediaConfig.pagination != 'undefined') {
             params = {
                 ...params,
-                paged: FilamentMediaConfig.pagination.paged,
-                posts_per_page: FilamentMediaConfig.pagination.posts_per_page,
+                paged: MediaConfig.pagination.paged,
+                posts_per_page: MediaConfig.pagination.posts_per_page,
             }
         }
 
@@ -75,21 +76,21 @@ export class MediaService {
                 MediaService.refreshFilter()
                 ActionsService.renderActions()
 
-                if (typeof FilamentMediaConfig.pagination != 'undefined') {
-                    if (typeof FilamentMediaConfig.pagination.paged != 'undefined') {
-                        FilamentMediaConfig.pagination.paged += 1
+                if (typeof MediaConfig.pagination != 'undefined') {
+                    if (typeof MediaConfig.pagination.paged != 'undefined') {
+                        MediaConfig.pagination.paged += 1
                     }
 
-                    if (typeof FilamentMediaConfig.pagination.in_process_get_media != 'undefined') {
-                        FilamentMediaConfig.pagination.in_process_get_media = false
+                    if (typeof MediaConfig.pagination.in_process_get_media != 'undefined') {
+                        MediaConfig.pagination.in_process_get_media = false
                     }
 
                     if (
-                        typeof FilamentMediaConfig.pagination.posts_per_page != 'undefined' &&
-                        data.data.files.length + data.data.folders.length < FilamentMediaConfig.pagination.posts_per_page &&
-                        typeof FilamentMediaConfig.pagination.has_more != 'undefined'
+                        typeof MediaConfig.pagination.posts_per_page != 'undefined' &&
+                        data.data.files.length + data.data.folders.length < MediaConfig.pagination.posts_per_page &&
+                        typeof MediaConfig.pagination.has_more != 'undefined'
                     ) {
-                        FilamentMediaConfig.pagination.has_more = false
+                        MediaConfig.pagination.has_more = false
                     }
                 }
             })
