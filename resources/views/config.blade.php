@@ -3,7 +3,7 @@
 
     var RV_MEDIA_URL = {{ Js::from(FilamentMedia::getUrls()) }};
 
-    var RV_MEDIA_CONFIG = {{ Js::from([
+    var FilamentMediaConfig = {{ Js::from([
         'permissions' => FilamentMedia::getPermissions(),
         'translations' => trans('core/media::media.javascript'),
         'pagination' => [
@@ -17,5 +17,5 @@
         'default_image' => FilamentMedia::getDefaultImage(),
     ]) }};
 
-    RV_MEDIA_CONFIG.translations.actions_list.other.properties = '{{ trans('core/media::media.javascript.actions_list.other.properties') }}';
+    FilamentMediaConfig.translations.actions_list.other.properties = '{{ trans('core/media::media.javascript.actions_list.other.properties') }}';
 </script>

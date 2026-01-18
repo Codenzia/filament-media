@@ -182,15 +182,15 @@ export class Helpers {
     }
 
     static resetPagination() {
-        RV_MEDIA_CONFIG.pagination = { paged: 1, posts_per_page: 40, in_process_get_media: false, has_more: true }
+        FilamentMediaConfig.pagination = { paged: 1, posts_per_page: 40, in_process_get_media: false, has_more: true }
     }
 
     static trans(key) {
-        return _.get(RV_MEDIA_CONFIG.translations, key, key)
+        return _.get(FilamentMediaConfig.translations, key, key)
     }
 
     static config(key, defaultValue = null) {
-        return _.get(RV_MEDIA_CONFIG, key, defaultValue)
+        return _.get(FilamentMediaConfig, key, defaultValue)
     }
 
     static hasPermission(key) {

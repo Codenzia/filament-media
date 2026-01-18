@@ -1,13 +1,15 @@
-import './filament-media-jquery-doubletap'
-import './filament-media-integrate'
+import $ from 'jquery'
+window.jQuery = window.$ = $
+import './filament-media-jquery-doubletap.js'
+import './filament-media-integrate.js'
 import { MediaConfig } from './App/Config/filament-media-MediaConfig'
-import { Helpers } from './App/Helpers/filament-media-Helpers'
-import { MediaService } from './App/Services/filament-media-MediaService'
-import { FolderService } from './App/Services/filament-media-FolderService'
+import { Helpers } from './App/Helpers/filament-media-Helpers.js'
+import { MediaService } from './App/Services/filament-media-MediaService.js'
+import { FolderService } from './App/Services/filament-media-FolderService.js'
 import { UploadService } from './App/Services/filament-media-UploadService'
-import { ActionsService } from './App/Services/filament-media-ActionsService'
+import { ActionsService } from './App/Services/filament-media-ActionsService.js'
 import { DownloadService } from './App/Services/filament-media-DownloadService'
-import { EditorService } from './filament-media-integrate'
+import { EditorService } from './filament-media-integrate.js'
 
 class MediaManagement {
     constructor() {
@@ -228,11 +230,11 @@ class MediaManagement {
 
                 Helpers.storeConfig()
 
-                if (typeof RV_MEDIA_CONFIG.pagination != 'undefined') {
-                    if (typeof RV_MEDIA_CONFIG.pagination.paged != 'undefined') {
-                        RV_MEDIA_CONFIG.pagination.paged = 1
-                    }
-                }
+                // if (typeof FilamentMediaConfig.pagination != 'undefined') {
+                //     if (typeof FilamentMediaConfig.pagination.paged != 'undefined') {
+                //         FilamentMediaConfig.pagination.paged = 1
+                //     }
+                // }
 
                 _self.MediaService.getMedia(true, false)
             })
@@ -724,7 +726,7 @@ class MediaManagement {
             let threshold = $target.closest('.media-modal').length > 0 ? 450 : 150
             let loadMore = scrollTop + innerHeight >= scrollHeight - threshold
 
-            if (loadMore && RV_MEDIA_CONFIG.pagination?.has_more) {
+            if (loadMore && FilamentMediaConfig.pagination?.has_more) {
                 _self.MediaService.getMedia(false, false, true)
             }
         })

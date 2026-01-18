@@ -1,4 +1,4 @@
-import { MediaService } from './MediaService'
+import { MediaService } from './filament-media-MediaService'
 import { Helpers } from '../Helpers/filament-media-Helpers'
 
 export class UploadService {
@@ -195,15 +195,15 @@ export class UploadService {
     getDropZoneConfig() {
         return {
             url: this.uploadUrl,
-            uploadMultiple: !RV_MEDIA_CONFIG.chunk.enabled,
-            chunking: RV_MEDIA_CONFIG.chunk.enabled,
+            uploadMultiple: !FilamentMediaConfig.chunk.enabled,
+            chunking: FilamentMediaConfig.chunk.enabled,
             forceChunking: true, // forces chunking when file.size < chunkSize
             parallelChunkUploads: false, // allows chunks to be uploaded in parallel (this is independent of the parallelUploads option)
-            chunkSize: RV_MEDIA_CONFIG.chunk.chunk_size, // chunk size 1,000,000 bytes (~1MB)
+            chunkSize: FilamentMediaConfig.chunk.chunk_size, // chunk size 1,000,000 bytes (~1MB)
             retryChunks: true, // retry chunks on failure
             retryChunksLimit: 3, // retry maximum of 3 times (default is 3)
             timeout: 0, // MB,
-            maxFilesize: RV_MEDIA_CONFIG.chunk.max_file_size, // MB
+            maxFilesize: FilamentMediaConfig.chunk.max_file_size, // MB
             maxFiles: null, // max files upload,
         }
     }

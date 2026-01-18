@@ -102,20 +102,9 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
     protected function getAssets(): array
     {
         return [
-            Js::make('filament-media-helpers', __DIR__ . '/../resources/js/App/Helpers/filament-media-Helpers.js')->module(),
-            Js::make('filament-media-config', __DIR__ . '/../resources/js/App/Config/filament-media-MediaConfig.js')->module(),
-            Js::make('filament-media-context-menu-service', __DIR__ . '/../resources/js/App/Services/filament-media-ContextMenuService.js')->module(),
-            Js::make('filament-media-actions-service', __DIR__ . '/../resources/js/App/Services/filament-media-ActionsService.js')->module(),
-            Js::make('filament-media-folder-service', __DIR__ . '/../resources/js/App/Services/filament-media-FolderService.js')->module(),
-            Js::make('filament-media-message-service', __DIR__ . '/../resources/js/App/Services/filament-media-MessageService.js')->module(),
-            Js::make('filament-media-download-service', __DIR__ . '/../resources/js/App/Services/filament-media-DownloadService.js')->module(),
-            Js::make('filament-media-upload-service', __DIR__ . '/../resources/js/App/Services/filament-media-UploadService.js')->module(),
-            Js::make('filament-media-service', __DIR__ . '/../resources/js/App/Services/filament-media-MediaService.js')->module(),
-            Js::make('filament-media-view-details', __DIR__ . '/../resources/js/App/Views/filament-media-MediaDetails.js')->module(),
-            Js::make('filament-media-view-list', __DIR__ . '/../resources/js/App/Views/filament-media-MediaList.js')->module(),
-            Js::make('filament-media-jquery-doubletap', __DIR__ . '/../resources/js/filament-media-jquery-doubletap.js')->module(),
-            Js::make('filament-media-integrate', __DIR__ . '/../resources/js/filament-media-integrate.js')->module(),
-            Js::make('filament-media', __DIR__ . '/../resources/js/filament-media.js')->module(),
+            Js::make('filament-media-jquery', 'https://code.jquery.com/jquery-3.7.1.min.js'),
+            Js::make('filament-media', __DIR__ . '/../resources/dist/filament-media.js')->module(),
+            Css::make('filament-media', __DIR__ . '/../resources/css/filament-media.css'),
         ];
     }
 

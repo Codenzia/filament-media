@@ -13,12 +13,12 @@ export class MediaService {
     }
 
     getMedia(reload = false, is_popup = false, load_more_file = false) {
-        if (typeof RV_MEDIA_CONFIG.pagination != 'undefined') {
-            if (RV_MEDIA_CONFIG.pagination.in_process_get_media) {
+        if (typeof FilamentMediaConfig.pagination != 'undefined') {
+            if (FilamentMediaConfig.pagination.in_process_get_media) {
                 return
             }
 
-            RV_MEDIA_CONFIG.pagination.in_process_get_media = true
+            FilamentMediaConfig.pagination.in_process_get_media = true
         }
 
         let _self = this
@@ -56,11 +56,11 @@ export class MediaService {
 
         params = { ...params, load_more_file }
 
-        if (typeof RV_MEDIA_CONFIG.pagination != 'undefined') {
+        if (typeof FilamentMediaConfig.pagination != 'undefined') {
             params = {
                 ...params,
-                paged: RV_MEDIA_CONFIG.pagination.paged,
-                posts_per_page: RV_MEDIA_CONFIG.pagination.posts_per_page,
+                paged: FilamentMediaConfig.pagination.paged,
+                posts_per_page: FilamentMediaConfig.pagination.posts_per_page,
             }
         }
 
@@ -75,21 +75,21 @@ export class MediaService {
                 MediaService.refreshFilter()
                 ActionsService.renderActions()
 
-                if (typeof RV_MEDIA_CONFIG.pagination != 'undefined') {
-                    if (typeof RV_MEDIA_CONFIG.pagination.paged != 'undefined') {
-                        RV_MEDIA_CONFIG.pagination.paged += 1
+                if (typeof FilamentMediaConfig.pagination != 'undefined') {
+                    if (typeof FilamentMediaConfig.pagination.paged != 'undefined') {
+                        FilamentMediaConfig.pagination.paged += 1
                     }
 
-                    if (typeof RV_MEDIA_CONFIG.pagination.in_process_get_media != 'undefined') {
-                        RV_MEDIA_CONFIG.pagination.in_process_get_media = false
+                    if (typeof FilamentMediaConfig.pagination.in_process_get_media != 'undefined') {
+                        FilamentMediaConfig.pagination.in_process_get_media = false
                     }
 
                     if (
-                        typeof RV_MEDIA_CONFIG.pagination.posts_per_page != 'undefined' &&
-                        data.data.files.length + data.data.folders.length < RV_MEDIA_CONFIG.pagination.posts_per_page &&
-                        typeof RV_MEDIA_CONFIG.pagination.has_more != 'undefined'
+                        typeof FilamentMediaConfig.pagination.posts_per_page != 'undefined' &&
+                        data.data.files.length + data.data.folders.length < FilamentMediaConfig.pagination.posts_per_page &&
+                        typeof FilamentMediaConfig.pagination.has_more != 'undefined'
                     ) {
-                        RV_MEDIA_CONFIG.pagination.has_more = false
+                        FilamentMediaConfig.pagination.has_more = false
                     }
                 }
             })

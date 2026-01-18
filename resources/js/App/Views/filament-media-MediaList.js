@@ -1,5 +1,5 @@
 import { Helpers } from '../Helpers/filament-media-Helpers'
-import { ActionsService } from '../Services/ActionsService'
+import { ActionsService } from '../Services/filament-media-ActionsService'
 
 export class MediaList {
     constructor() {

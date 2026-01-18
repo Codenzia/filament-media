@@ -17,7 +17,7 @@
                     <x-core::offcanvas.title>
                         {{ trans('core/media::media.menu_name') }}
                     </x-core::offcanvas.title>
-                    {{-- <x-core::offcanvas.close-button /> --}}
+                    <x-core::offcanvas.close-button />
                 </x-core::offcanvas.header>
 
                 <x-core::offcanvas.body class="p-0">
@@ -84,7 +84,6 @@
                             {{ trans('core/media::media.all_media') }}
                         </x-core::list-group.item>
 
-                        @if (FilamentMedia::hasAnyPermission(['folders.destroy', 'files.destroy']))
                             <x-core::list-group.item
                                 :action="true"
                                 class="js-rv-media-change-filter"
@@ -94,7 +93,6 @@
                                 <x-core::icon name="ti ti-trash" />
                                 {{ trans('core/media::media.trash') }}
                             </x-core::list-group.item>
-                        @endif
 
                         <x-core::list-group.item
                             :action="true"
@@ -121,194 +119,229 @@
 
             <div class="rv-media-main-wrapper">
                 <x-core::card.header class="flex-column rv-media-header p-0">
-                    <div class="w-100 p-2 rv-media-top-header flex-wrap gap-3 d-flex justify-content-between align-items-start border-bottom bg-body">
-                        <div class="d-flex gap-2 justify-content-between w-100 w-md-auto rv-media-actions">
-                            <x:core::button
-                                class="d-flex d-md-none"
-                                icon="ti ti-menu-2"
-                                :icon-only="true"
+                    <div class="w-100 rv-media-top-header flex-wrap gap-3 d-flex justify-content-between align-items-start border-bottom bg-body">
+                        <div class="d-flex flex-wrap gap-3 p-2 justify-content-between w-100 w-md-auto rv-media-actions  rounded-xl shadow-sm align-items-center">
+                            <x-filament::icon-button
+                                class="d-flex d-md-none bg-white dark:bg-gray-900"
+                                icon="heroicon-m-bars-3"
                                 data-bs-toggle="offcanvas"
                                 href="#rv-media-aside"
+                                :label="trans('core/media::media.menu_name')"
+                                color="gray"
+                                size="sm"
                             />
 
-                            <div class="btn-list">
-                                @if (FilamentMedia::hasPermission('files.create'))
-                                    <x-core::dropdown
-                                        :label="trans('core/media::media.upload')"
-                                        icon="ti ti-upload"
-                                        color="primary"
-                                    >
-                                        <x-core::dropdown.item
-                                            :label="trans('core/media::media.upload_from_local')"
-                                            class="js-dropzone-upload dropdown-item"
-                                            icon="ti ti-upload"
-                                        />
-
-                                        <x-core::dropdown.item
-                                            :label="trans('core/media::media.upload_from_url')"
-                                            class="js-download-action dropdown-item"
-                                            icon="ti ti-link"
-                                        />
-                                    </x-core::dropdown>
-                                @endif
-
-                                @if (FilamentMedia::hasPermission('folders.create'))
-                                    <x-core::button
-                                        type="button"
-                                        color="primary"
-                                        :tooltip="trans('core/media::media.create_folder')"
-                                        class="js-create-folder-action"
-                                        icon="ti ti-folder-plus"
-                                        :icon-only="true"
-                                    />
-                                @endif
-
-                                <x-core::button
-                                    type="button"
-                                    color="primary"
-                                    :tooltip="trans('core/media::media.refresh')"
-                                    class="js-change-action"
-                                    icon="ti ti-refresh"
-                                    :icon-only="true"
-                                    data-type="refresh"
-                                />
-
-                                @if (FilamentMedia::getConfig('sidebar_display') !== 'vertical')
-                                    <x-core::dropdown wrapper-class="d-none d-md-block">
-                                        <x-slot:trigger>
-                                            <x-core::button
-                                                type="button"
-                                                color="primary"
-                                                icon="ti ti-filter"
-                                                class="dropdown-toggle js-rv-media-change-filter-group js-filter-by-type"
-                                                data-bs-toggle="dropdown"
-                                                :tooltip="trans('core/media::media.filter')"
-                                            >
-                                                <span class="js-rv-media-filter-current"></span>
-                                            </x-core::button>
-                                        </x-slot:trigger>
-
-                                        <x-core::dropdown.item
-                                            :label="trans('core/media::media.everything')"
-                                            icon="ti ti-recycle"
-                                            class="js-rv-media-change-filter"
-                                            data-type="filter"
-                                            data-value="everything"
-                                        />
-
-                                        @if (array_key_exists('image', FilamentMedia::getConfig('mime_types', [])))
-                                            <x-core::dropdown.item
-                                                :label="trans('core/media::media.image')"
-                                                icon="ti ti-photo"
-                                                class="js-rv-media-change-filter"
-                                                data-type="filter"
-                                                data-value="image"
-                                            />
-                                        @endif
-
-                                        @if (array_key_exists('video', FilamentMedia::getConfig('mime_types', [])))
-                                            <x-core::dropdown.item
-                                                :label="trans('core/media::media.video')"
-                                                icon="ti ti-video"
-                                                class="js-rv-media-change-filter"
-                                                data-type="filter"
-                                                data-value="video"
-                                            />
-                                        @endif
-
-                                        <x-core::dropdown.item
-                                            :label="trans('core/media::media.document')"
-                                            icon="ti ti-file"
-                                            class="js-rv-media-change-filter"
-                                            data-type="filter"
-                                            data-value="document"
-                                        />
-                                    </x-core::dropdown>
-
-                                    <x-core::dropdown wrapper-class="d-none d-md-block">
-                                        <x-slot:trigger>
-                                            <x-core::button
-                                                type="button"
-                                                color="primary"
-                                                icon="ti ti-eye"
-                                                class="dropdown-toggle js-rv-media-change-filter-group js-filter-by-view-in"
-                                                data-bs-toggle="dropdown"
-                                                :tooltip="trans('core/media::media.view_in')"
-                                            >
-                                                <span class="js-rv-media-filter-current"></span>
-                                            </x-core::button>
-                                        </x-slot:trigger>
-
-                                        <x-core::dropdown.item
-                                            :label="trans('core/media::media.all_media')"
-                                            icon="ti ti-world"
+                            <div class="rv-media-actions__controls d-flex flex-wrap align-items-center gap-3 shadow-sm rounded-lg p-3">
+                                <x-filament::dropdown class="d-none d-md-block bg-white dark:bg-gray-900 rounded-lg">
+                                    <x-slot:trigger>
+                                        <x-filament::button
+                                            type="button"
+                                            icon="heroicon-m-arrow-up-tray"
+                                            color="primary"
+                                            size="lg"
+                                            class="bg-white dark:bg-gray-900"
+                                            :label="trans('core/media::media.upload')"
+                                        >
+                                            {{ trans('core/media::media.upload') }}
+                                        </x-filament::button>
+                                    </x-slot:trigger>
+                                    <x-filament::dropdown.list>
+                                        <x-filament::dropdown.list.item
+                                            icon="heroicon-m-globe-alt"
                                             class="js-rv-media-change-filter"
                                             data-type="view_in"
                                             data-value="all_media"
-                                        />
+                                        >
+                                            {{ trans('core/media::media.upload_from_local') }}
+                                        </x-filament::dropdown.list.item>
 
-                                        <x-core::dropdown.item
-                                            :label="trans('core/media::media.trash')"
-                                            icon="ti ti-trash"
+                                        <x-filament::dropdown.list.item
+                                            icon="heroicon-m-trash"
                                             class="js-rv-media-change-filter"
                                             data-type="view_in"
                                             data-value="trash"
-                                        />
+                                        >
+                                            {{ trans('core/media::media.upload_from_url') }}
+                                        </x-filament::dropdown.list.item>
+                                    </x-filament::dropdown.list>
 
-                                        <x-core::dropdown.item
-                                            :label="trans('core/media::media.recent')"
-                                            icon="ti ti-clock"
-                                            class="js-rv-media-change-filter"
-                                            data-type="view_in"
-                                            data-value="recent"
-                                        />
+                                </x-filament::dropdown>
 
-                                        <x-core::dropdown.item
-                                            :label="trans('core/media::media.favorites')"
-                                            icon="ti ti-star"
-                                            class="js-rv-media-change-filter"
-                                            data-type="view_in"
-                                            data-value="favorites"
-                                        />
-                                    </x-core::dropdown>
+                                <x-filament::button
+                                    type="button"
+                                    color="primary"
+                                    :tooltip="trans('core/media::media.create_folder')"
+                                    class="js-create-folder-action bg-white dark:bg-gray-900"
+                                    icon="heroicon-m-folder-plus"
+                                    :label="trans('core/media::media.create_folder')"
+                                    size="lg"
+                                >
+                                    {{ trans('core/media::media.create_folder') }}
+                                </x-filament::button>
+
+                                <x-filament::button
+                                    type="button"
+                                    color="primary"
+                                    :tooltip="trans('core/media::media.refresh')"
+                                    class="js-change-action bg-white dark:bg-gray-900"
+                                    icon="heroicon-m-arrow-path"
+                                    data-type="refresh"
+                                    :label="trans('core/media::media.refresh')"
+                                    size="lg"
+                                >
+                                    {{ trans('core/media::media.refresh') }}
+                                </x-filament::button>
+
+                                @if (FilamentMedia::getConfig('sidebar_display') !== 'vertical')
+                                    <x-filament::dropdown class="d-none d-md-block">
+                                        <x-slot:trigger>
+                                            <x-filament::button
+                                                type="button"
+                                                color="primary"
+                                                icon="heroicon-m-funnel"
+                                                class="js-rv-media-change-filter-group js-filter-by-type bg-white dark:bg-gray-900"
+                                                :tooltip="trans('core/media::media.filter')"
+                                                :label="trans('core/media::media.filter')"
+                                                size="lg"
+                                            >
+                                            {{ trans('core/media::media.filter') }}
+                                            </x-filament::button>
+                                        </x-slot:trigger>
+
+                                        <x-filament::dropdown.list>
+                                            <x-filament::dropdown.list.item
+                                                icon="heroicon-m-arrow-path"
+                                                class="js-rv-media-change-filter"
+                                                data-type="filter"
+                                                data-value="everything"
+                                            >
+                                                {{ trans('core/media::media.everything') }}
+                                            </x-filament::dropdown.list.item>
+
+                                            @if (array_key_exists('image', FilamentMedia::getConfig('mime_types', [])))
+                                                <x-filament::dropdown.list.item
+                                                    icon="heroicon-m-photo"
+                                                    class="js-rv-media-change-filter"
+                                                    data-type="filter"
+                                                    data-value="image"
+                                                >
+                                                    {{ trans('core/media::media.image') }}
+                                                </x-filament::dropdown.list.item>
+                                            @endif
+
+                                            @if (array_key_exists('video', FilamentMedia::getConfig('mime_types', [])))
+                                                <x-filament::dropdown.list.item
+                                                    icon="heroicon-m-film"
+                                                    class="js-rv-media-change-filter"
+                                                    data-type="filter"
+                                                    data-value="video"
+                                                >
+                                                    {{ trans('core/media::media.video') }}
+                                                </x-filament::dropdown.list.item>
+                                            @endif
+
+                                            <x-filament::dropdown.list.item
+                                                icon="heroicon-m-document-text"
+                                                class="js-rv-media-change-filter"
+                                                data-type="filter"
+                                                data-value="document"
+                                            >
+                                                {{ trans('core/media::media.document') }}
+                                            </x-filament::dropdown.list.item>
+                                        </x-filament::dropdown.list>
+                                    </x-filament::dropdown>
+
+                                    <x-filament::dropdown class="d-none d-md-block">
+                                        <x-slot:trigger>
+                                            <x-filament::button
+                                                type="button"
+                                                color="primary"
+                                                icon="heroicon-m-eye"
+                                                class="js-rv-media-change-filter-group js-filter-by-view-in bg-white dark:bg-gray-900"
+                                                :tooltip="trans('core/media::media.view_in')"
+                                                :label="trans('core/media::media.view_in')"
+                                                size="lg"
+                                            >
+                                                {{ trans('core/media::media.view_in') }}
+                                            </x-filament::button>
+                                        </x-slot:trigger>
+
+                                        <x-filament::dropdown.list>
+                                            <x-filament::dropdown.list.item
+                                                icon="heroicon-m-globe-alt"
+                                                class="js-rv-media-change-filter"
+                                                data-type="view_in"
+                                                data-value="all_media"
+                                            >
+                                                {{ trans('core/media::media.all_media') }}
+                                            </x-filament::dropdown.list.item>
+
+                                            <x-filament::dropdown.list.item
+                                                icon="heroicon-m-trash"
+                                                class="js-rv-media-change-filter"
+                                                data-type="view_in"
+                                                data-value="trash"
+                                            >
+                                                {{ trans('core/media::media.trash') }}
+                                            </x-filament::dropdown.list.item>
+
+                                            <x-filament::dropdown.list.item
+                                                icon="heroicon-m-clock"
+                                                class="js-rv-media-change-filter"
+                                                data-type="view_in"
+                                                data-value="recent"
+                                            >
+                                                {{ trans('core/media::media.recent') }}
+                                            </x-filament::dropdown.list.item>
+
+                                            <x-filament::dropdown.list.item
+                                                icon="heroicon-m-star"
+                                                class="js-rv-media-change-filter"
+                                                data-type="view_in"
+                                                data-value="favorites"
+                                            >
+                                                {{ trans('core/media::media.favorites') }}
+                                            </x-filament::dropdown.list.item>
+                                        </x-filament::dropdown.list>
+                                    </x-filament::dropdown>
                                 @endif
 
-                                @if (FilamentMedia::hasAnyPermission(['folders.destroy', 'files.destroy']))
-                                    <x-core::button
+                                    <x-filament::icon-button
                                         type="button"
                                         color="danger"
-                                        class="d-none js-files-action"
+                                        class="d-none js-files-action bg-white dark:bg-gray-900"
                                         data-action="empty_trash"
-                                        icon="ti ti-trash"
-                                    >
-                                        {{ trans('core/media::media.empty_trash') }}
-                                    </x-core::button>
-                                @endif
+                                        icon="heroicon-m-trash"
+                                        :label="trans('core/media::media.empty_trash')"
+                                        :tooltip="trans('core/media::media.empty_trash')"
+                                            size="lg"
+                                    />
                             </div>
-                        </div>
-                        <div class="rv-media-search">
-                            <form
-                                class="input-search-wrapper"
-                                action=""
-                                method="GET"
-                            >
-                                <div class="input-group">
-                                    <input
+                            <div class="rv-media-search">
+                                <form
+                                    class="input-search-wrapper d-flex align-items-center"
+                                    action=""
+                                    method="GET"
+                                >
+                                    <x-filament::input
                                         type="search"
-                                        class="form-control"
                                         name="search"
+                                        class="w-100 bg-white dark:bg-gray-900 shadow-sm border border-end-0 rounded-end-0"
                                         placeholder="{{ trans('core/media::media.search_file_and_folder') }}"
                                     />
-                                    <x-core::button
+                                    <x-filament::button
                                         type="submit"
-                                        icon="ti ti-search"
-                                        :icon-only="true"
-                                    />
-                                </div>
-                            </form>
+                                        color="primary"
+                                        icon="heroicon-m-magnifying-glass"
+                                        size="lg"
+                                        class="bg-white dark:bg-gray-900 border border-start-0 rounded-start-0 h-10"
+                                    >
+                                    </x-filament::button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                    <div class="row w-100 p-2">
+                    <div class="row w-100 p-2 border-bottom bg-white dark:bg-gray-900">
                         <div class="col p-2 d-flex align-items-center rv-media-breadcrumb">
                             <ul class="breadcrumb"></ul>
                         </div>
@@ -317,43 +350,56 @@
                                 class="btn-list"
                                 role="group"
                             >
-                                <x-core::dropdown
-                                    :label="trans('core/media::media.sort')"
-                                    icon="ti ti-sort-a-z"
-                                >
+                                <x-filament::dropdown>
+                                    <x-slot:trigger>
+                                        <x-filament::button
+                                            icon="heroicon-m-document-arrow-up"
+                                            outlined
+                                        >
+                                            {{ trans('core/media::media.sort') }}
+                                        </x-filament::button>
+                                    </x-slot:trigger>
 
-                                </x-core::dropdown>
+                                    <x-filament::dropdown.list />
+                                </x-filament::dropdown>
 
-                                <x-core::dropdown
-                                    :label="trans('core/media::media.actions')"
-                                    icon="ti ti-hand-finger"
-                                    wrapper-class="rv-dropdown-actions"
-                                    :disabled="true"
-                                />
+                                <x-filament::dropdown class="rv-dropdown-actions">
+                                    <x-slot:trigger>
+                                        <x-filament::button
+                                            icon="heroicon-m-hand-raised"
+                                            :disabled="true"
+                                            outlined
+                                        >
+                                            {{ trans('core/media::media.actions') }}
+                                        </x-filament::button>
+                                    </x-slot:trigger>
+
+                                    <x-filament::dropdown.list />
+                                </x-filament::dropdown>
                             </div>
                             <div
                                 class="btn-group js-rv-media-change-view-type ms-2"
                                 role="group"
                             >
-                                <x-core::button
+                                <x-filament::icon-button
                                     type="button"
                                     data-type="tiles"
-                                    icon="ti ti-layout-grid"
-                                    :icon-only="true"
+                                    icon="heroicon-m-squares-2x2"
+                                    :label="trans('core/media::media.view_type') ?? 'Tiles'"
                                 />
-                                <x-core::button
+                                <x-filament::icon-button
                                     type="button"
                                     data-type="list"
-                                    icon="ti ti-layout-list"
-                                    :icon-only="true"
+                                    icon="heroicon-m-list-bullet"
+                                    :label="trans('core/media::media.view_type') ?? 'List'"
                                 />
                             </div>
-                            <x-core::button
+                            <x-filament::icon-button
                                 tag="label"
                                 for="media_details_collapse"
                                 class="collapse-panel ms-2 d-none d-lg-flex"
-                                icon="ti ti-arrow-bar-right"
-                                :icon-only="true"
+                                icon="heroicon-m-chevron-double-right"
+                                :label="trans('core/media::media.details') ?? 'Toggle details'"
                             />
                         </div>
                     </div>
@@ -373,27 +419,26 @@
                     </div>
                 </main>
                 <footer class="d-none rv-media-footer">
-                    <x-core::button
+                    <x-filament::icon-button
                         type="button"
                         color="primary"
                         class="js-insert-to-editor"
-                    >
-                        {{ trans('core/media::media.insert') }}
-                    </x-core::button>
+                        icon="heroicon-m-check"
+                        :label="trans('core/media::media.insert')"
+                        :tooltip="trans('core/media::media.insert')"
+                    />
                 </footer>
             </div>
             <div class="rv-upload-progress hide-the-pane position-fixed bottom-0 end-0 ">
                 <x-core::card>
                     <x-core::card.header class="position-relative">
                         <h3 class="panel-title mb-0">{{ trans('core/media::media.upload_progress') }}</h3>
-                        <x-core::button
+                        <x-filament::icon-button
                             class="close-pane position-absolute top-50 bg-primary text-white text-center p-0"
-                        >
-                            <x-core::icon
-                                class="m-0"
-                                name="ti ti-x"
-                            />
-                        </x-core::button>
+                            color="primary"
+                            icon="heroicon-m-x-mark"
+                            :label="trans('core/media::media.close')"
+                        />
                     </x-core::card.header>
                     <div
                         class="table-responsive overflow-auto"
@@ -421,12 +466,12 @@
             :placeholder="trans('core/media::media.folder_name')"
         >
             <x-slot:append>
-                <x-core::button
+                <x-filament::icon-button
                     type="submit"
                     color="primary"
-                >
-                    {{ trans('core/media::media.create') }}
-                </x-core::button>
+                    icon="heroicon-m-check"
+                    :label="trans('core/media::media.create')"
+                />
             </x-slot:append>
         </x-core::form.text-input>
         <div class="modal-notice"></div>
@@ -442,12 +487,19 @@
         <div class="modal-notice"></div>
 
         <x-slot:footer>
-            <x-core::button data-bs-dismiss="modal">
-                {{ trans('core/media::media.close') }}
-            </x-core::button>
-            <x-core::button type="submit" color="primary">
-                {{ trans('core/media::media.save_changes') }}
-            </x-core::button>
+            <x-filament::icon-button
+                data-bs-dismiss="modal"
+                icon="heroicon-m-x-mark"
+                :label="trans('core/media::media.close')"
+                :tooltip="trans('core/media::media.close')"
+            />
+            <x-filament::icon-button
+                type="submit"
+                color="primary"
+                icon="heroicon-m-check"
+                :label="trans('core/media::media.save_changes')"
+                :tooltip="trans('core/media::media.save_changes')"
+            />
         </x-slot:footer>
     </x-core::modal>
 
@@ -461,12 +513,19 @@
         <div class="modal-notice"></div>
 
         <x-slot:footer>
-            <x-core::button data-bs-dismiss="modal">
-                {{ trans('core/media::media.close') }}
-            </x-core::button>
-            <x-core::button type="submit" color="primary">
-                {{ trans('core/media::media.save_changes') }}
-            </x-core::button>
+            <x-filament::icon-button
+                data-bs-dismiss="modal"
+                icon="heroicon-m-x-mark"
+                :label="trans('core/media::media.close')"
+                :tooltip="trans('core/media::media.close')"
+            />
+            <x-filament::icon-button
+                type="submit"
+                color="primary"
+                icon="heroicon-m-check"
+                :label="trans('core/media::media.save_changes')"
+                :tooltip="trans('core/media::media.save_changes')"
+            />
         </x-slot:footer>
     </x-core::modal>
 
@@ -591,9 +650,13 @@
                         </div>
                     </div>
 
-                    <x-core::button type="submit" color="primary" class="w-100">
-                        {{ trans('core/media::media.download_link') }}
-                    </x-core::button>
+                    <x-filament::icon-button
+                        type="submit"
+                        color="primary"
+                        class="w-100"
+                        icon="heroicon-m-arrow-down-tray"
+                        :label="trans('core/media::media.download_link')"
+                    />
                 </form>
                 <div
                     class="mt-2 modal-notice"
@@ -651,16 +714,20 @@ size="lg"
     </div>
 </div>
 <x-slot:footer>
-    <x-core::button data-bs-dismiss="modal">
-        {{ trans('core/media::media.close') }}
-    </x-core::button>
+    <x-filament::icon-button
+        data-bs-dismiss="modal"
+        icon="heroicon-m-x-mark"
+        :label="trans('core/media::media.close')"
+        :tooltip="trans('core/media::media.close')"
+    />
 
-    <x-core::button
+    <x-filament::icon-button
         type="submit"
         color="primary"
-    >
-        {{ trans('core/media::media.crop') }}
-    </x-core::button>
+        icon="heroicon-m-scissors"
+        :label="trans('core/media::media.crop')"
+        :tooltip="trans('core/media::media.crop')"
+    />
 </x-slot:footer>
 </x-core::modal>
 
@@ -710,16 +777,20 @@ size="lg"
     </div>
 </div>
 <x-slot:footer>
-    <x-core::button data-bs-dismiss="modal">
-        {{ trans('core/media::media.close') }}
-    </x-core::button>
+    <x-filament::icon-button
+        data-bs-dismiss="modal"
+        icon="heroicon-m-x-mark"
+        :label="trans('core/media::media.close')"
+        :tooltip="trans('core/media::media.close')"
+    />
 
-    <x-core::button
+    <x-filament::icon-button
         type="submit"
         color="primary"
-    >
-        {{ trans('core/media::media.crop') }}
-    </x-core::button>
+        icon="heroicon-m-scissors"
+        :label="trans('core/media::media.crop')"
+        :tooltip="trans('core/media::media.crop')"
+    />
 </x-slot:footer>
 </x-core::modal>
 
@@ -738,16 +809,20 @@ id="modal-properties"
 />
 
 <x-slot:footer>
-    <x-core::button data-bs-dismiss="modal">
-        {{ trans('core/media::media.close') }}
-    </x-core::button>
+    <x-filament::icon-button
+        data-bs-dismiss="modal"
+        icon="heroicon-m-x-mark"
+        :label="trans('core/media::media.close')"
+        :tooltip="trans('core/media::media.close')"
+    />
 
-    <x-core::button
+    <x-filament::icon-button
         type="submit"
         color="primary"
-    >
-        {{ trans('core/media::media.save_changes') }}
-    </x-core::button>
+        icon="heroicon-m-check"
+        :label="trans('core/media::media.save_changes')"
+        :tooltip="trans('core/media::media.save_changes')"
+    />
 </x-slot:footer>
 </x-core::modal>
 
@@ -789,15 +864,14 @@ id="modal_share_items"
     </div>
 
     <div class="mb-0 text-end">
-        <x-core::button
+        <x-filament::icon-button
             class="btn-icon"
             data-bb-toggle="clipboard"
             data-clipboard-parent="#modal_share_items .share-items"
             data-clipboard-target="[data-bb-value='share-result']"
-        >
-            <x-core::icon name="ti ti-clipboard" data-clipboard-icon="true" />
-            <x-core::icon name="ti ti-check" data-clipboard-success-icon="true" class="text-success d-none" />
-        </x-core::button>
+            icon="heroicon-m-clipboard"
+            :label="trans('core/media::media.copy') ?? 'Copy'"
+        />
     </div>
 </div>
 </x-core::modal>
