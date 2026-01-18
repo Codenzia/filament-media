@@ -153,9 +153,9 @@ class FilamentMedia
 
             $settingName = 'media_sizes_' . $name;
 
-            $width = setting($settingName . '_width', $size[0]);
+            $width = \setting($settingName . '_width', $size[0]);
 
-            $height = setting($settingName . '_height', $size[1]);
+            $height = \setting($settingName . '_height', $size[1]);
 
             if (! $width && ! $height) {
                 unset($sizes[$name]);
@@ -210,7 +210,7 @@ class FilamentMedia
         }
 
         if (
-            setting('media_enable_thumbnail_sizes', true) &&
+            \setting('media_enable_thumbnail_sizes', true) &&
             array_key_exists($size, $this->getSizes()) &&
             $this->canGenerateThumbnails($this->getMimeType($this->getRealPath($url)))
         ) {
@@ -243,8 +243,8 @@ class FilamentMedia
             return $path;
         }
 
-        if ($this->getMediaDriver() === 'do_spaces' && (int) setting('media_do_spaces_cdn_enabled')) {
-            $customDomain = setting('media_do_spaces_cdn_custom_domain');
+        if ($this->getMediaDriver() === 'do_spaces' && (int) \setting('media_do_spaces_cdn_enabled')) {
+            $customDomain = \setting('media_do_spaces_cdn_custom_domain');
 
             if ($customDomain) {
                 return $customDomain . '/' . ltrim($path, '/');
@@ -252,9 +252,9 @@ class FilamentMedia
 
             return str_replace('.digitaloceanspaces.com', '.cdn.digitaloceanspaces.com', Storage::url($path));
         } else {
-            if ($this->getMediaDriver() === 'backblaze' && (int) setting('media_backblaze_cdn_enabled')) {
-                $customDomain = setting('media_backblaze_cdn_custom_domain');
-                $currentEndpoint = setting('media_backblaze_endpoint');
+            if ($this->getMediaDriver() === 'backblaze' && (int) \setting('media_backblaze_cdn_enabled')) {
+                $customDomain = \setting('media_backblaze_cdn_custom_domain');
+                $currentEndpoint = \setting('media_backblaze_endpoint');
                 if ($customDomain) {
                     return $customDomain . '/' . ltrim($path, '/');
                 }
@@ -434,8 +434,8 @@ class FilamentMedia
 
     protected function getCustomS3Path(): string
     {
-        $customPath = trim(setting('media_s3_path', $this->getConfig('custom_s3_path')), '/');
-        $customPath = apply_filters('core_media_custom_s3_path', $customPath);
+        $customPath = trim(\setting('media_s3_path', $this->getConfig('custom_s3_path')), '/');
+        $customPath = \apply_filters('core_media_custom_s3_path', $customPath);
 
         return $customPath ? $customPath . '/' : '';
     }
@@ -447,7 +447,7 @@ class FilamentMedia
         bool $skipValidation = false,
         string $visibility = 'public'
     ): array {
-        $fileUpload = apply_filters('core_media_file_upload', $fileUpload);
+        $fileUpload = \apply_filters('core_media_file_upload', $fileUpload);
 
         $request = request();
 
@@ -495,7 +495,7 @@ class FilamentMedia
                 }
             }
 
-            $maxUploadFilesizeAllowed = setting('max_upload_filesize');
+            $maxUploadFilesizeAllowed = \setting('max_upload_filesize');
 
             if (
                 $maxUploadFilesizeAllowed
@@ -521,7 +521,7 @@ class FilamentMedia
             }
         }
 
-        $extraValidation = apply_filters('core_media_extra_validation', [], $fileUpload);
+        $extraValidation = \apply_filters('core_media_extra_validation', [], $fileUpload);
 
         if ($extraValidation && Arr::get($extraValidation, 'error')) {
             return [
@@ -559,7 +559,7 @@ class FilamentMedia
 
             $file = new MediaFile();
 
-            $fileName = apply_filters(
+            $fileName = \apply_filters(
                 'core_media_upload_filename',
                 File::name($fileUpload->getClientOriginalName()),
                 $fileUpload
@@ -591,9 +591,9 @@ class FilamentMedia
                 try {
                     $encoder = new AutoEncoder();
                     $shouldConvertToWebp = in_array($fileExtension, ['jpg', 'jpeg', 'png'])
-                        && setting('media_convert_image_to_webp', false);
+                        && \setting('media_convert_image_to_webp', false);
 
-                    $keepOriginalQuality = setting('media_keep_original_file_size_and_quality');
+                    $keepOriginalQuality = \setting('media_keep_original_file_size_and_quality');
 
                     if ($shouldConvertToWebp) {
                         $encoder = new WebpEncoder();
@@ -614,11 +614,11 @@ class FilamentMedia
                         if (
                             ! $keepOriginalQuality
                             && in_array($fileExtension, ['jpg', 'jpeg', 'png', 'webp'])
-                            && setting('media_reduce_large_image_size', false)
+                            && \setting('media_reduce_large_image_size', false)
                         ) {
-                            $maxWith = setting('media_image_max_width');
+                            $maxWith = \setting('media_image_max_width');
 
-                            $maxHeight = setting('media_image_max_height');
+                            $maxHeight = \setting('media_image_max_height');
 
                             if ($maxWith || $maxHeight) {
                                 $image->scaleDown($maxWith, $maxHeight);
@@ -657,9 +657,9 @@ class FilamentMedia
 
             MediaFileUploaded::dispatch($file);
 
-            do_action('core_media_file_uploaded', $file);
+            \do_action('core_media_file_uploaded', $file);
 
-            $customizedGeneratedThumbnails = apply_filters('core_media_customized_generate_thumbnails_function', null);
+            $customizedGeneratedThumbnails = \apply_filters('core_media_customized_generate_thumbnails_function', null);
 
             if (! $customizedGeneratedThumbnails) {
                 $this->generateThumbnails($file, $fileUpload);
@@ -727,7 +727,7 @@ class FilamentMedia
             return false;
         }
 
-        $folderIds = json_decode(setting('media_folders_can_add_watermark', ''), true);
+        $folderIds = json_decode(\setting('media_folders_can_add_watermark', ''), true);
 
         if (
             empty($folderIds) ||
@@ -737,7 +737,7 @@ class FilamentMedia
             $this->insertWatermark($file->url);
         }
 
-        if (! setting('media_enable_thumbnail_sizes', true)) {
+        if (! \setting('media_enable_thumbnail_sizes', true)) {
             return false;
         }
 
@@ -777,11 +777,11 @@ class FilamentMedia
 
     public function insertWatermark(string $image): bool
     {
-        if (! $image || ! setting('media_watermark_enabled', $this->getConfig('watermark.enabled'))) {
+        if (! $image || ! \setting('media_watermark_enabled', $this->getConfig('watermark.enabled'))) {
             return false;
         }
 
-        $watermarkImage = setting('media_watermark_source', $this->getConfig('watermark.source'));
+        $watermarkImage = \setting('media_watermark_source', $this->getConfig('watermark.source'));
 
         if (! $watermarkImage) {
             return false;
@@ -806,7 +806,7 @@ class FilamentMedia
         // 10% less than an actual image (play with this value)
         // Watermark will be 10 less than the actual width of the image
         $watermarkSize = (int) round(
-            $imageSource->width() * ((int) setting(
+            $imageSource->width() * ((int) \setting(
                 'media_watermark_size',
                 $this->getConfig('watermark.size')
             ) / 100),
@@ -818,18 +818,18 @@ class FilamentMedia
 
         $imageSource->place(
             $watermark,
-            setting('media_watermark_position', $this->getConfig('watermark.position')),
-            (int) setting(
+            \setting('media_watermark_position', $this->getConfig('watermark.position')),
+            (int) \setting(
                 'media_watermark_position_x',
-                setting('watermark_position_x') ?: $this->getConfig('watermark.x')
+                \setting('watermark_position_x') ?: $this->getConfig('watermark.x')
             ),
-            (int) setting(
+            (int) \setting(
                 'media_watermark_position_y',
-                setting('watermark_position_y') ?: $this->getConfig('watermark.y')
+                \setting('watermark_position_y') ?: $this->getConfig('watermark.y')
             ),
-            (int) setting(
+            (int) \setting(
                 'media_watermark_opacity',
-                setting('watermark_opacity') ?: $this->getConfig('watermark.opacity')
+                \setting('watermark_opacity') ?: $this->getConfig('watermark.opacity')
             )
         );
 
@@ -985,8 +985,8 @@ class FilamentMedia
     {
         $customFolder = $this->getConfig('default_upload_folder');
 
-        if (setting('media_customize_upload_path')) {
-            $customFolder = trim(setting('media_upload_path'), '/');
+        if (\setting('media_customize_upload_path')) {
+            $customFolder = trim(\setting('media_upload_path'), '/');
         }
 
         if ($customFolder) {
@@ -1000,8 +1000,8 @@ class FilamentMedia
     {
         $uploadUrl = $this->getConfig('default_upload_url') ?: asset('storage');
 
-        if (setting('media_customize_upload_path')) {
-            $uploadUrl = trim(asset(setting('media_upload_path')), '/');
+        if (\setting('media_customize_upload_path')) {
+            $uploadUrl = trim(asset(\setting('media_upload_path')), '/');
         }
 
         return str_replace('/index.php', '', $uploadUrl);
@@ -1009,7 +1009,7 @@ class FilamentMedia
 
     public function setUploadPathAndURLToPublic(): static
     {
-        add_action('init', function (): void {
+        \add_action('init', function (): void {
             config([
                 'filesystems.disks.public.root' => $this->getUploadPath(),
                 'filesystems.disks.public.url' => $this->getUploadURL(),
@@ -1168,7 +1168,7 @@ class FilamentMedia
 
     public function isChunkUploadEnabled(): bool
     {
-        return (bool) setting('media_chunk_enabled', (int) $this->getConfig('chunk.enabled') == 1);
+        return (bool) \setting('media_chunk_enabled', (int) $this->getConfig('chunk.enabled') == 1);
     }
 
     public function getConfig(?string $key = null, bool|string|null|array $default = null)
@@ -1189,12 +1189,12 @@ class FilamentMedia
 
     public function turnOffAutomaticUrlTranslationIntoLatin(): bool
     {
-        return false;
+        return (int) \setting('media_turn_off_automatic_url_translation_into_latin', 0) == 1;
     }
 
     public function getImageProcessingLibrary(): string
     {
-        return setting('media_image_processing_library') ?: 'gd';
+        return \setting('media_image_processing_library') ?: 'gd';
     }
 
     public function getMediaDriver(): string
@@ -1402,7 +1402,7 @@ class FilamentMedia
             return Html::tag('img', '', [...$attributes, 'src' => $url, 'alt' => $alt]);
         }
 
-        return apply_filters(
+        return \apply_filters(
             'core_media_image',
             Html::image($url, $alt, $attributes, $secure),
             $url,
@@ -1512,7 +1512,7 @@ class FilamentMedia
 
     public function refreshCache(): void
     {
-        setting()->forceSet('media_random_hash', md5((string) time()))->save();
+        \setting()->forceSet('media_random_hash', md5((string) time()))->save();
     }
 
     public function getFolderColors(): array
@@ -1559,7 +1559,7 @@ class FilamentMedia
 
     public function getAvailableDrivers(): array
     {
-        return apply_filters('core_media_drivers', [
+        return \apply_filters('core_media_drivers', [
             'public' => trans('core/setting::setting.media.local_disk'),
             's3' => 'Amazon S3',
             'r2' => 'Cloudflare R2',

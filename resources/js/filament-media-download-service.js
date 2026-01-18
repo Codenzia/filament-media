@@ -1,6 +1,7 @@
 import { MediaService } from './filament-media-service'
 import { MessageService } from './filament-media-message-service'
 import { Helpers } from './filament-media-helpers'
+import { $httpClient } from './filament-media-http-client'
 
 export class DownloadService {
     constructor() {
@@ -29,7 +30,7 @@ export class DownloadService {
             await new Promise((resolve, reject) => {
                 $httpClient
                     .make()
-                    .post(RV_MEDIA_URL.download_url, {
+                    .post(FilamentMedia_URL.download_url, {
                         folderId: Helpers.getRequestParams().folder_id,
                         url,
                     })

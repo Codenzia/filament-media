@@ -97,6 +97,7 @@ class MediaManagement {
     }
 
     handleMediaList() {
+        console.log('handleMediaList');
         let _self = this
 
         /*Ctrl key in Windows*/
@@ -225,12 +226,12 @@ class MediaManagement {
 
                 Helpers.storeConfig()
 
-                // if (typeof FilamentMediaConfig.pagination != 'undefined') {
-                //     if (typeof FilamentMediaConfig.pagination.paged != 'undefined') {
-                //         FilamentMediaConfig.pagination.paged = 1
-                //     }
-                // }
-
+                if (typeof MediaConfig.pagination != 'undefined') {
+                    if (typeof MediaConfig.pagination.paged != 'undefined') {
+                        MediaConfig.pagination.paged = 1
+                    }
+                }
+                console.log('changeViewType', MediaConfig.pagination);
                 _self.MediaService.getMedia(true, false)
             })
 

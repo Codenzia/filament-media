@@ -4,6 +4,12 @@ use Botble\Base\Facades\AdminHelper;
 use Illuminate\Support\Facades\Route;
 use Codenzia\FilamentMedia\Http\Controllers\MediaController;
 
+Route::get('media/files/{hash}/{id}', [
+    'as' => 'media.indirect.url',
+    'uses' => 'PublicMediaController@show',
+    'middleware' => 'throttle',
+]);
+
 Route::group(['prefix' => 'media', 'as' => 'media.', 'middleware' => ['web', 'auth']], function () {
     Route::get('/', [MediaController::class, 'index'])->name('index');
     Route::get('list', [MediaController::class, 'getList'])->name('list');

@@ -8,7 +8,7 @@ export class UploadService {
 
         this.dropZone = null
 
-        this.uploadUrl = RV_MEDIA_URL.upload_file
+        this.uploadUrl = FilamentMedia_URL.upload_file
 
         this.uploadProgressBox = $('.rv-upload-progress')
 

@@ -38,4 +38,9 @@ class BaseHelper
     {
         return 'filament::components.layout.index';
     }
+
+    public static function formatDate($date, $format = 'Y-m-d H:i:s'): string
+    {
+        return $date->format($format);
+    }
 }

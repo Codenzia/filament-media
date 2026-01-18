@@ -5,6 +5,7 @@ import { ActionsService } from './filament-media-actions-service'
 import { ContextMenuService } from './filament-media-context-menu-service'
 import { MediaList } from './app/Views/filament-media-media-list'
 import { MediaDetails } from './app/Views/filament-media-media-details'
+import { $httpClient } from './filament-media-http-client'
 
 export class MediaService {
     constructor() {
@@ -14,6 +15,7 @@ export class MediaService {
     }
 
     getMedia(reload = false, is_popup = false, load_more_file = false) {
+        console.log('getMedia', reload, is_popup, load_more_file);
         if (typeof MediaConfig.pagination != 'undefined') {
             if (MediaConfig.pagination.in_process_get_media) {
                 return
@@ -69,7 +71,7 @@ export class MediaService {
 
         $httpClient
             .make()
-            .get(RV_MEDIA_URL.get_media, params)
+            .get(FilamentMedia_URL.get_media, params)
             .then(({ data }) => {
                 _self.MediaList.renderData(data.data, reload, load_more_file)
                 _self.renderBreadcrumbs(data.data.breadcrumbs)

@@ -1,6 +1,7 @@
 import $ from 'jquery'
 import _ from 'lodash'
-import { MediaConfig, RecentItems } from './filament-media-config.js'
+import { MediaConfig } from './filament-media-config'
+import { $httpClient } from './filament-media-http-client'
 
 export class Helpers {
 

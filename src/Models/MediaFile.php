@@ -12,7 +12,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Str;
-
+use Codenzia\FilamentMedia\Helpers\BaseHelper;
 
 class MediaFile extends Model
 {
@@ -165,7 +165,7 @@ class MediaFile extends Model
                     default => 'ti ti-file',
                 };
 
-                return apply_filters('cms_media_file_icon', BaseHelper::renderIcon($icon), $this);
+                return 'heroicon-o-photo';
             }
         );
     }
@@ -228,7 +228,7 @@ class MediaFile extends Model
     protected function indirectUrl(): Attribute
     {
         return Attribute::get(function () {
-            $id = static::isUsingStringId()
+            $id = $this->getKey()
                 ? $this->getKey()
                 : dechex((int) $this->getKey());
             $hash = sha1($id);
@@ -255,14 +255,14 @@ class MediaFile extends Model
 
     public static function createSlug(string $name, string $extension, ?string $folderPath): string
     {
-        if (setting('media_convert_file_name_to_uuid')) {
+        if (\setting('media_convert_file_name_to_uuid')) {
             return Str::uuid() . '.' . $extension;
         }
 
-        if (setting('media_use_original_name_for_file_path')) {
+        if (\setting('media_use_original_name_for_file_path')) {
             $slug = $name;
         } else {
-            $slug = Str::slug($name, '-', ! FilamentMedia::turnOffAutomaticUrlTranslationIntoLatin() ? 'en' : false);
+            $slug = Str::slug($name, '-', ! RvMedia::turnOffAutomaticUrlTranslationIntoLatin() ? 'en' : false);
         }
 
         $index = 1;

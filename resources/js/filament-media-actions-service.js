@@ -3,6 +3,7 @@ import Cropper from 'cropperjs'
 import { RecentItems } from './filament-media-config'
 import { Helpers } from './filament-media-helpers'
 import { MessageService } from './filament-media-message-service'
+import { $httpClient } from './filament-media-http-client'
 
 export class ActionsService {
     static handleDropdown() {
@@ -228,7 +229,7 @@ export class ActionsService {
 
         $httpClient
             .make()
-            .post(RV_MEDIA_URL.global_actions, data)
+            .post(FilamentMedia_URL.global_actions, data)
             .then(({ data }) => {
                 Helpers.resetPagination()
 
@@ -526,7 +527,7 @@ export class ActionsService {
         $httpClient
             .make()
             .withResponseType('blob')
-            .post(RV_MEDIA_URL.download, { selected: files })
+            .post(FilamentMedia_URL.download, { selected: files })
             .then((response) => {
                 const fileName = (response.headers['content-disposition'] || '').split('filename=')[1].split(';')[0]
                 const objectUrl = URL.createObjectURL(response.data)

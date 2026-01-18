@@ -1,8 +1,7 @@
 <script>
     "use strict";
 
-    var RV_MEDIA_URL = {{ Js::from(FilamentMedia::getUrls()) }};
-    console.log(RV_MEDIA_URL);
+    var FilamentMedia_URL = {{ Js::from(FilamentMedia::getUrls()) }};
     var FilamentMediaConfig = {{ Js::from([
         'permissions' => FilamentMedia::getPermissions(),
         'translations' => trans('core/media::media.javascript'),

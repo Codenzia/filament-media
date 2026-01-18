@@ -3,6 +3,7 @@ import { MediaConfig } from './filament-media-config'
 import { MediaService } from './filament-media-service'
 import { MessageService } from './filament-media-message-service'
 import { Helpers } from './filament-media-helpers'
+import { $httpClient } from './filament-media-http-client'
 
 export class FolderService {
     constructor() {
@@ -19,7 +20,7 @@ export class FolderService {
         $httpClient
             .make()
             .withButtonLoading($(document).find('#modal_add_folder button[type=submit]'))
-            .post(RV_MEDIA_URL.create_folder, {
+            .post(FilamentMedia_URL.create_folder, {
                 parent_id: Helpers.getRequestParams().folder_id,
                 name: folderName,
             })
