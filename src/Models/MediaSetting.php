@@ -1,8 +1,8 @@
 <?php
 
-namespace Botble\Media\Models;
+namespace Codenzia\FilamentMedia\Models;
 
-use Botble\Base\Models\BaseModel;
+use Illuminate\Database\Eloquent\Model as BaseModel;
 
 class MediaSetting extends BaseModel
 {

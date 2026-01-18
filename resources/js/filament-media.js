@@ -75,7 +75,6 @@ class MediaManagement {
          */
         let $mediaDetailsCheckbox = $('#media_details_collapse')
         $mediaDetailsCheckbox.prop('checked', MediaConfig.hide_details_pane || false)
-
         setTimeout(() => {
             $('.rv-media-details').show()
         }, 300)

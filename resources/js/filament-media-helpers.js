@@ -1,4 +1,5 @@
 import $ from 'jquery'
+import _ from 'lodash'
 import { MediaConfig, RecentItems } from './filament-media-config.js'
 
 export class Helpers {
@@ -17,7 +18,7 @@ export class Helpers {
             return url
         }
 
-        let baseUrl = RV_MEDIA_URL.base_url.substr(-1, 1) !== '/' ? RV_MEDIA_URL.base_url + '/' : RV_MEDIA_URL.base_url
+        let baseUrl = MediaConfig.base_url.substr(-1, 1) !== '/' ? MediaConfig.base_url + '/' : MediaConfig.base_url
 
         if (url.substring(0, 1) === '/') {
             return baseUrl + url.substring(1)
@@ -116,7 +117,7 @@ export class Helpers {
         // Send the minimal file data to the server to store in recent items
         $httpClient
             .make()
-            .post(RV_MEDIA_URL.global_actions, {
+            .post(MediaConfig.global_actions, {
                 action: 'add_recent',
                 item: fileData
             })

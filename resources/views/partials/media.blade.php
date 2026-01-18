@@ -4,7 +4,7 @@
 
 
     @include('filament-media::footer')
-    @include('core/media::config')
+    @include('filament-media::config')
 </div>
 
 

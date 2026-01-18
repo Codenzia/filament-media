@@ -11,6 +11,16 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\UploadedFile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\HtmlString;
+use Codenzia\FilamentMedia\Helpers\BaseHelper;
+use Codenzia\FilamentMedia\Helpers\AdminHelper;
+use Codenzia\FilamentMedia\Models\MediaFile;
+use Codenzia\FilamentMedia\Models\MediaFolder;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\Mime\MimeTypes;
+use Throwable;
 class FilamentMedia
 {
     protected array $permissions = [];
@@ -27,17 +37,17 @@ class FilamentMedia
     public function getUrls(): array
     {
         return [
-            // 'base_url' => url(''),
-            // 'base' => route('media.index'),
-            // 'get_media' => route('media.list'),
-            // 'create_folder' => route('media.folders.create'),
-            // 'popup' => route('media.popup'),
-            // 'download' => route('media.download'),
-            // 'upload_file' => route('media.files.upload'),
-            // 'get_breadcrumbs' => route('media.breadcrumbs'),
-            // 'global_actions' => route('media.global_actions'),
-            // 'media_upload_from_editor' => route('media.files.upload.from.editor'),
-            // 'download_url' => route('media.download_url'),
+            'base_url' => url(''),
+            'base' => route('media.index'),
+            'get_media' => route('media.list'),
+            'create_folder' => route('media.folders.create'),
+            'popup' => route('media.popup'),
+            'download' => route('media.download'),
+            'upload_file' => route('media.files.upload'),
+            'get_breadcrumbs' => route('media.breadcrumbs'),
+            'global_actions' => route('media.global_actions'),
+            'media_upload_from_editor' => route('media.files.upload.from.editor'),
+            'download_url' => route('media.download_url'),
         ];
     }
 
@@ -1503,11 +1513,12 @@ class FilamentMedia
 
     public function canOnlyViewOwnMedia(): bool
     {
-        return setting('user_can_only_view_own_media', false)
-            && AdminHelper::isInAdmin(true)
-            && ! App::runningInConsole()
-            && auth()->check()
-            && ! auth()->user()->isSuperUser();
+        return true;
+        // return setting('user_can_only_view_own_media', false)
+        //     && AdminHelper::isInAdmin(true)
+        //     && ! App::runningInConsole()
+        //     && auth()->check()
+        //     && ! auth()->user()->isSuperUser();
     }
 
     public function responseDownloadFile(string $filePath)
@@ -1540,5 +1551,131 @@ class FilamentMedia
             'bunnycdn' => 'BunnyCDN',
             'backblaze' => 'Backblaze B2',
         ]);
+    }
+
+    public function getList($request)
+    {
+        $folderId = $request->input('folder_id', 0);
+        $search = $request->input('search');
+
+        $folders = MediaFolder::query()
+            ->where('parent_id', $folderId)
+            ->when($search, fn($query) => $query->where('name', 'LIKE', "%$search%"))
+            ->orderBy('name', 'asc')
+            ->get();
+
+        $files = MediaFile::query()
+            ->where('folder_id', $folderId)
+            ->when($search, fn($query) => $query->where('name', 'LIKE', "%$search%"))
+            ->orderBy('name', 'asc')
+            ->get();
+
+        return $this->responseSuccess([
+            'folders' => $folders,
+            'files' => $files,
+            'breadcrumbs' => $this->getBreadcrumbsData($folderId),
+        ]);
+    }
+
+    protected function getBreadcrumbsData($folderId)
+    {
+        $breadcrumbs = [
+            [
+                'id' => 0,
+                'name' => trans('core/media::media.all_media'),
+                'icon' => 'ti ti-folder',
+            ]
+        ];
+
+        if ($folderId) {
+            $folder = MediaFolder::find($folderId);
+            if ($folder) {
+                $parents = $folder->parents;
+                foreach ($parents->reverse() as $parent) {
+                    $breadcrumbs[] = [
+                        'id' => $parent->id,
+                        'name' => $parent->name,
+                    ];
+                }
+                $breadcrumbs[] = [
+                    'id' => $folder->id,
+                    'name' => $folder->name,
+                ];
+            }
+        }
+
+        return $breadcrumbs;
+    }
+
+    public function postCreateFolder($request)
+    {
+        $name = $request->input('name');
+        $parentId = $request->input('parent_id', 0);
+
+        $folderId = $this->createFolder($name, $parentId);
+
+        return $this->responseSuccess(['id' => $folderId], trans('core/media::media.folder_created'));
+    }
+
+    public function postUploadFile($request)
+    {
+        $result = $this->handleUpload($request->file('file'), $request->input('folder_id', 0));
+
+        if ($result['error']) {
+            return $this->responseError($result['message']);
+        }
+
+        return $this->responseSuccess($result['data']->toArray());
+    }
+
+    public function postGlobalActions($request)
+    {
+        $action = $request->input('action');
+        $selected = $request->input('selected', []);
+
+        switch ($action) {
+            case 'delete':
+                foreach ($selected as $item) {
+                    if ($item['is_folder']) {
+                        MediaFolder::where('id', $item['id'])->delete();
+                    } else {
+                        MediaFile::where('id', $item['id'])->delete();
+                    }
+                }
+                return $this->responseSuccess([], trans('core/media::media.delete_success'));
+        }
+
+        return $this->responseError(trans('core/media::media.invalid_action'));
+    }
+
+    public function postDownloadUrl($request)
+    {
+        $urls = $request->input('urls');
+        $urls = explode("\n", $urls);
+        $folderId = $request->input('folder_id', 0);
+
+        foreach ($urls as $url) {
+            $url = trim($url);
+            if ($url) {
+                $this->uploadFromUrl($url, $folderId);
+            }
+        }
+
+        return $this->responseSuccess([], trans('core/media::media.add_success'));
+    }
+
+    public function getBreadcrumbs($request)
+    {
+        return $this->responseSuccess($this->getBreadcrumbsData($request->input('folder_id', 0)));
+    }
+
+    public function download($request)
+    {
+        return $this->responseDownloadFile($request->input('path'));
+    }
+
+    public function postUploadFromEditor($request)
+    {
+        return $this->uploadFromEditor($request);
     }
 }

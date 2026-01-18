@@ -1,10 +1,9 @@
 <?php
 
-namespace Botble\Media\Models;
+namespace Codenzia\FilamentMedia\Models;
 
-use Botble\Base\Casts\SafeContent;
-use Botble\Base\Models\BaseModel;
-use Botble\Media\Facades\RvMedia;
+use Codenzia\FilamentMedia\Facades\FilamentMedia as RvMedia;
+use Illuminate\Database\Eloquent\Model as BaseModel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

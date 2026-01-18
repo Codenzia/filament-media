@@ -334,7 +334,7 @@
                                         color="primary"
                                         icon="heroicon-m-magnifying-glass"
                                         size="lg"
-                                        class="bg-white dark:bg-gray-900 border border-start-0 rounded-start-0 h-10"
+                                        class="bg-white dark:bg-gray-900 border border-start-0 border-transparent rounded-start-0 h-10"
                                     >
                                     </x-filament::button>
                                 </form>

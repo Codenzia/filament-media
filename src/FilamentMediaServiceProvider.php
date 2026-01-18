@@ -9,12 +9,10 @@ use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Blade;
-use Livewire\Features\SupportTesting\Testable;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Codenzia\FilamentMedia\Commands\FilamentMediaCommand;
-use Codenzia\FilamentMedia\Testing\TestsFilamentMedia;
 
 class FilamentMediaServiceProvider extends PackageServiceProvider
 {
@@ -31,6 +29,7 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
          */
         $package->name(static::$name)
             ->hasCommands($this->getCommands())
+            ->hasRoutes()
             ->hasInstallCommand(function (InstallCommand $command) {
                 $command
                     ->publishConfigFile()
@@ -58,14 +57,22 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
         }
     }
 
-    public function packageRegistered(): void {}
+    public function packageRegistered(): void
+    {
+        if (!class_exists('BaseHelper')) {
+            class_alias(\Codenzia\FilamentMedia\Helpers\BaseHelper::class, 'BaseHelper');
+        }
+        if (!class_exists('AdminHelper')) {
+            class_alias(\Codenzia\FilamentMedia\Helpers\AdminHelper::class, 'AdminHelper');
+        }
+    }
 
     public function packageBooted(): void
     {
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'core/media');
         $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'core/media');
         Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components', 'core');
-
+        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         // Asset Registration
         FilamentAsset::register(
             $this->getAssets(),
