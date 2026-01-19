@@ -14,12 +14,15 @@ export class MediaService {
     }
 
     getMedia(reload = false, is_popup = false, load_more_file = false) {
-        if (typeof MediaConfig.pagination != 'undefined') {
-            if (MediaConfig.pagination.in_process_get_media) {
+        const pagination = FilamentMediaConfig.pagination ?? MediaConfig.pagination
+        const hasPagination = typeof pagination !== 'undefined'
+
+        if (hasPagination) {
+            if (pagination.in_process_get_media) {
                 return
             }
 
-            MediaConfig.pagination.in_process_get_media = true
+            pagination.in_process_get_media = true
         }
 
         let _self = this
@@ -57,11 +60,11 @@ export class MediaService {
 
         params = { ...params, load_more_file }
 
-        if (typeof MediaConfig.pagination != 'undefined') {
+        if (hasPagination) {
             params = {
                 ...params,
-                paged: MediaConfig.pagination.paged,
-                posts_per_page: MediaConfig.pagination.posts_per_page,
+                paged: pagination.paged,
+                posts_per_page: pagination.posts_per_page,
             }
         }
 
@@ -76,25 +79,28 @@ export class MediaService {
                 MediaService.refreshFilter()
                 ActionsService.renderActions()
 
-                if (typeof MediaConfig.pagination != 'undefined') {
-                    if (typeof MediaConfig.pagination.paged != 'undefined') {
-                        MediaConfig.pagination.paged += 1
+                if (hasPagination) {
+                    if (typeof pagination.paged != 'undefined') {
+                        pagination.paged += 1
                     }
 
-                    if (typeof MediaConfig.pagination.in_process_get_media != 'undefined') {
-                        MediaConfig.pagination.in_process_get_media = false
+                    if (typeof pagination.posts_per_page != 'undefined') {
+                        const returned = data.data.files.length + data.data.folders.length
+                        if (returned < pagination.posts_per_page && typeof pagination.has_more != 'undefined') {
+                            pagination.has_more = false
+                        }
                     }
 
-                    if (
-                        typeof MediaConfig.pagination.posts_per_page != 'undefined' &&
-                        data.data.files.length + data.data.folders.length < MediaConfig.pagination.posts_per_page &&
-                        typeof MediaConfig.pagination.has_more != 'undefined'
-                    ) {
-                        MediaConfig.pagination.has_more = false
-                    }
+                    FilamentMediaConfig.pagination = pagination
+                    MediaConfig.pagination = pagination
                 }
             })
-            .finally(() => Helpers.hideAjaxLoading())
+            .finally(() => {
+                if (hasPagination && typeof pagination.in_process_get_media != 'undefined') {
+                    pagination.in_process_get_media = false
+                }
+                Helpers.hideAjaxLoading()
+            })
     }
 
     getFileDetails(data) {

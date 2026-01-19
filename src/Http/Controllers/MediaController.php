@@ -14,6 +14,7 @@ use Codenzia\FilamentMedia\Repositories\Interfaces\MediaFolderInterface;
 use Codenzia\FilamentMedia\Services\UploadsManager;
 use Codenzia\FilamentMedia\Http\Resources\FolderResource;
 use Codenzia\FilamentMedia\Http\Resources\FileResource;
+use Illuminate\Support\Facades\Auth;
 class MediaController extends Controller
 {
     public function __construct(

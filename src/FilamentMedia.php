@@ -1173,7 +1173,7 @@ class FilamentMedia
 
     public function getConfig(?string $key = null, bool|string|null|array $default = null)
     {
-        $configs = config('core.media.media');
+        $configs = config('filament-media.media') ?? config('media');
 
         if (! $key) {
             return $configs;
@@ -1512,7 +1512,7 @@ class FilamentMedia
 
     public function refreshCache(): void
     {
-        \setting()->forceSet('media_random_hash', md5((string) time()))->save();
+        \setting(['media_random_hash' => md5((string) time())])->save();
     }
 
     public function getFolderColors(): array

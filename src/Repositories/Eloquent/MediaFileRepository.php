@@ -3,11 +3,13 @@
 namespace Codenzia\FilamentMedia\Repositories\Eloquent;
 
 use Codenzia\FilamentMedia\Models\MediaFile;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Codenzia\FilamentMedia\Repositories\Interfaces\MediaFileInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Codenzia\FilamentMedia\Models\MediaFolder;
+use Codenzia\FilamentMedia\Facades\FilamentMedia;
 class MediaFileRepository extends BaseRepository implements MediaFileInterface
 {
     public function createName(string $name, int|string|null $folder): string
@@ -198,7 +200,7 @@ class MediaFileRepository extends BaseRepository implements MediaFileInterface
                  * @var EloquentBuilder $query
                  */
                 $allMimes = [];
-                foreach (RvMedia::getConfig('mime_types') as $key => $value) {
+                 foreach (FilamentMedia::getConfig('mime_types') as $key => $value) {
                     if ($key == $params['filter']) {
                         return $query->whereIn('media_files.mime_type', $value);
                     }

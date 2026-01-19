@@ -77,6 +77,7 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
+        $this->loadHelpers();
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'core/media');
         $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'core/media');
         Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components', 'core');
@@ -104,6 +105,15 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
             }
         }
 
+    }
+
+    protected function loadHelpers(): void
+    {
+        $helperPath = __DIR__ . '/Helpers/helpers.php';
+
+        if (file_exists($helperPath)) {
+            require_once $helperPath;
+        }
     }
 
     protected function getAssetPackageName(): ?string

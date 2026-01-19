@@ -2,7 +2,6 @@
 
 namespace Codenzia\FilamentMedia\Services;
 
-use Codenzia\FilamentMedia\Facades\FilamentMedia as RvMedia;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\UploadedFile;
@@ -10,6 +9,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToRetrieveMetadata;
+use Codenzia\FilamentMedia\Facades\FilamentMedia;
 
 class UploadsManager
 {
@@ -18,7 +18,7 @@ class UploadsManager
         return [
             'filename' => File::basename($path),
             'url' => $path,
-            'mime_type' => $this->fileMimeType(RvMedia::getRealPath($path)),
+            'mime_type' => $this->fileMimeType(FilamentMedia::getRealPath($path)),
             'size' => $this->fileSize($path),
             'modified' => $this->fileModified($path),
         ];
@@ -26,7 +26,7 @@ class UploadsManager
 
     public function fileMimeType(string $path): ?string
     {
-        return RvMedia::getMimeType($path);
+        return FilamentMedia::getMimeType($path);
     }
 
     public function fileSize(string $path): int
@@ -89,13 +89,13 @@ class UploadsManager
         ?UploadedFile $file = null,
         string $visibility = 'public'
     ): bool {
-        $storage = Storage::disk(RvMedia::getConfig('disk'));
+        $storage = Storage::disk(FilamentMedia::getConfig('disk'));
 
-        if ($visibility === 'private' && ! RvMedia::isUsingCloud()) {
+        if ($visibility === 'private' && ! FilamentMedia::isUsingCloud()) {
             $storage = Storage::disk('local');
         }
 
-        if (! RvMedia::isChunkUploadEnabled() || ! $file) {
+        if (! FilamentMedia::isChunkUploadEnabled() || ! $file) {
             try {
                 return $storage->put($this->cleanFolder($path), $content, ['visibility' => $visibility]);
             } catch (Exception|FilesystemException) {
@@ -103,8 +103,8 @@ class UploadsManager
             }
         }
 
-        $currentChunksPath = RvMedia::getConfig('chunk.storage.chunks') . '/' . $file->getFilename();
-        $disk = Storage::disk(RvMedia::getConfig('chunk.storage.disk'));
+        $currentChunksPath = FilamentMedia::getConfig('chunk.storage.chunks') . '/' . $file->getFilename();
+        $disk = Storage::disk(FilamentMedia::getConfig('chunk.storage.disk'));
 
         try {
             $stream = $disk->getDriver()->readStream($currentChunksPath);

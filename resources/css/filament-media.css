@@ -285,7 +285,8 @@
 
 .rv-media-container .rv-media-items .rv-media-item {
     background-color: var(--bb-body-bg);
-    overflow: hidden
+    overflow: hidden;
+    border-radius: 5px;
 }
 
 .rv-media-container .rv-media-details {
@@ -502,6 +503,7 @@ li.context-menu-item.context-menu-icon-updated.media-action-trash {
 }
 
 .rv-media-grid li .rv-media-description {
+    border-top: 1px #000 solid;
     padding: 8px 10px;
     text-align: center;
     transition: all .1s ease-in-out
@@ -1158,7 +1160,7 @@ li.context-menu-item.context-menu-icon-updated.media-action-trash {
     --bb-body-line-height: 1.4285714286;
     --bb-body-color: #1f2937;
     --bb-body-color-rgb: 31, 41, 55;
-    --bb-body-bg: #f9fafb;
+    --bb-body-bg: #16181c;
     --bb-body-bg-rgb: 249, 250, 251;
     --bb-emphasis-color: #374151;
     --bb-emphasis-color-rgb: 55, 65, 81;

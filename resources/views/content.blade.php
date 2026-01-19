@@ -31,7 +31,7 @@
                             data-type="filter"
                             data-value="everything"
                         >
-                            <x-core::icon name="ti ti-recycle" />
+                            <x-filament::icon icon="heroicon-m-funnel" />
                             {{ trans('core/media::media.everything') }}
                         </x-core::list-group.item>
 
@@ -42,7 +42,7 @@
                                 data-type="filter"
                                 data-value="video"
                             >
-                                <x-core::icon name="ti ti-photo" />
+                                <x-filament::icon icon="heroicon-m-photo" />
                                 {{ trans('core/media::media.image') }}
                             </x-core::list-group.item>
                         @endif
@@ -54,7 +54,7 @@
                                 data-type="filter"
                                 data-value="document"
                             >
-                                <x-core::icon name="ti ti-video" />
+                                <x-filament::icon icon="heroicon-m-film" />
                                 {{ trans('core/media::media.video') }}
                             </x-core::list-group.item>
                         @endif
@@ -65,7 +65,7 @@
                             data-type="filter"
                             data-value="image"
                         >
-                            <x-core::icon name="ti ti-file" />
+                            <x-filament::icon icon="heroicon-m-document" />
                             {{ trans('core/media::media.document') }}
                         </x-core::list-group.item>
                     </x-core::list-group>
@@ -80,7 +80,7 @@
                             data-type="view_in"
                             data-value="all_media"
                         >
-                            <x-core::icon name="ti ti-world" />
+                            <x-filament::icon icon="heroicon-m-globe-alt" />
                             {{ trans('core/media::media.all_media') }}
                         </x-core::list-group.item>
 
@@ -90,7 +90,7 @@
                                 data-type="view_in"
                                 data-value="trash"
                             >
-                                <x-core::icon name="ti ti-trash" />
+                                <x-filament::icon icon="heroicon-m-trash" />
                                 {{ trans('core/media::media.trash') }}
                             </x-core::list-group.item>
 
@@ -100,7 +100,7 @@
                             data-type="view_in"
                             data-value="recent"
                         >
-                            <x-core::icon name="ti ti-clock" />
+                            <x-filament::icon icon="heroicon-m-clock" />
                             {{ trans('core/media::media.recent') }}
                         </x-core::list-group.item>
 
@@ -110,7 +110,7 @@
                             data-type="view_in"
                             data-value="favorites"
                         >
-                            <x-core::icon name="ti ti-star" />
+                            <x-filament::icon icon="heroicon-m-star" />
                             {{ trans('core/media::media.favorites') }}
                         </x-core::list-group.item>
                     </x-core::list-group>
@@ -416,7 +416,7 @@
                     <div class="rv-media-items"></div>
                     <div class="rv-media-details" style="display: none">
                         <div class="rv-media-thumbnail">
-                            <x-core::icon name="ti ti-photo" />
+                            <x-filament::icon icon="heroicon-m-photo" />
                         </div>
                         <div class="rv-media-description">
                             <div class="rv-media-name">
@@ -629,7 +629,7 @@
                     data-downloading="{{ trans('core/media::media.downloading') }}"
                     data-text="{{ trans('core/media::media.download_link') }}"
                 >
-                    <x-core::icon name="ti ti-download" />
+                    <x-filament::icon icon="heroicon-m-arrow-down-tray" />
                     {{ trans('core/media::media.download_link') }}
                 </h4>
                 <button
@@ -904,14 +904,14 @@ id="modal_share_items"
     <div class="rv-media-list">
         <ul>
             <li class="no-items">
-                <x-core::icon name="ti ti-upload" />
+                <x-filament::icon icon="heroicon-m-cloud-arrow-up" />
                 <h3>Drop files and folders here</h3>
                 <p>Or use the upload button above.</p>
             </li>
             <li class="rv-media-list-title up-one-level js-up-one-level" title="{{ trans('core/media::media.up_level') }}">
                 <div class="custom-checkbox"></div>
                 <div class="rv-media-file-name">
-                    <x-core::icon name="ti ti-corner-up-left" />
+                    <x-filament::icon icon="heroicon-m-arrow-up-left" />
                     <span>...</span>
                 </div>
                 <div class="rv-media-file-size"></div>
@@ -932,7 +932,7 @@ id="modal_share_items"
             <li class="rv-media-list-title up-one-level js-up-one-level">
                 <div class="rv-media-item" data-context="__type__" title="{{ trans('core/media::media.up_level') }}">
                     <div class="rv-media-thumbnail">
-                        <x-core::icon name="ti ti-corner-up-left" size="lg" />
+                        <x-filament::icon icon="heroicon-m-arrow-up-left"  />
                     </div>
                     <div class="rv-media-description">
                         <div class="title">...</div>
