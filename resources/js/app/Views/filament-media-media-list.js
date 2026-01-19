@@ -75,8 +75,7 @@ export class MediaList {
                 </svg>`
         }
 
-        template = (typeof template === 'string' ? template : '')
-            .replace(/__noItemIcon__/gi, icon)
+        template = template.replace(/__noItemIcon__/gi, icon)
             .replace(/__noItemTitle__/gi, Helpers.trans(`no_item.${view_in}.title`) || '')
             .replace(/__noItemMessage__/gi, Helpers.trans(`no_item.${view_in}.message`) || '')
 

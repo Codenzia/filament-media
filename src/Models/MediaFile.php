@@ -151,21 +151,21 @@ class MediaFile extends Model
                 }
 
                 $icon = match ($type) {
-                    'image' => 'ti ti-photo',
-                    'video' => 'ti ti-video',
-                    'pdf' => 'ti ti-file-type-pdf',
-                    'excel' => 'ti ti-file-spreadsheet',
-                    'zip' => 'ti ti-file-zip',
-                    'docx' => 'ti ti-file-type-docx',
-                    'doc' => 'ti ti-file-type-doc',
-                    'powerpoint' => 'ti ti-presentation',
-                    'jpeg' => 'ti ti-jpg',
-                    'png' => 'ti ti-png',
-                    'gif' => 'ti ti-gif',
-                    default => 'ti ti-file',
+                    'image' => 'heroicon-m-photo',
+                    'video' => 'heroicon-m-video-camera',
+                    'pdf' => 'heroicon-m-document',
+                    'excel' => 'heroicon-m-table-cells',
+                    'zip' => 'heroicon-m-archive-box',
+                    'docx' => 'heroicon-m-document-text',
+                    'doc' => 'heroicon-m-document-text',
+                    'powerpoint' => 'heroicon-m-presentation-chart-bar',
+                    'jpeg' => 'heroicon-m-photo',
+                    'png' => 'heroicon-m-photo',
+                    'gif' => 'heroicon-m-photo',
+                    default => 'heroicon-m-document',
                 };
 
-                return 'heroicon-o-photo';
+                return BaseHelper::renderIcon($icon);
             }
         );
     }

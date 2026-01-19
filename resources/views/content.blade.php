@@ -883,6 +883,161 @@ id="modal_share_items"
 </div>
 </x-core::modal>
 
+<button class="d-none js-rv-clipboard-temp"></button>
+
+
+
+{{-- <div id="rv_media_loading">
+    <x-core::loading />
+</div> --}}
+
+{{-- <div id="rv_action_item">
+    <x-core::dropdown.item
+        class="js-files-action"
+        data-action="__action__"
+        icon="__icon__"
+        label="__name__"
+    />
+</div> --}}
+
+<div id="rv_media_items_list">
+    <div class="rv-media-list">
+        <ul>
+            <li class="no-items">
+                <x-core::icon name="ti ti-upload" />
+                <h3>Drop files and folders here</h3>
+                <p>Or use the upload button above.</p>
+            </li>
+            <li class="rv-media-list-title up-one-level js-up-one-level" title="{{ trans('core/media::media.up_level') }}">
+                <div class="custom-checkbox"></div>
+                <div class="rv-media-file-name">
+                    <x-core::icon name="ti ti-corner-up-left" />
+                    <span>...</span>
+                </div>
+                <div class="rv-media-file-size"></div>
+                <div class="rv-media-created-at"></div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div id="rv_media_items_tiles" class="hidden">
+    <div class="rv-media-grid">
+        <ul>
+            <li class="no-items">
+                __noItemIcon__
+                <h3>__noItemTitle__</h3>
+                <p>__noItemMessage__</p>
+            </li>
+            <li class="rv-media-list-title up-one-level js-up-one-level">
+                <div class="rv-media-item" data-context="__type__" title="{{ trans('core/media::media.up_level') }}">
+                    <div class="rv-media-thumbnail">
+                        <x-core::icon name="ti ti-corner-up-left" size="lg" />
+                    </div>
+                    <div class="rv-media-description">
+                        <div class="title">...</div>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div id="rv_media_items_list_element">
+    <li class="rv-media-list-title js-media-list-title js-context-menu" data-context="__type__" title="__name__" data-id="__id__">
+        <div class="custom-checkbox">
+            <label>
+                <input type="checkbox">
+                <span></span>
+            </label>
+        </div>
+        <div class="rv-media-file-name flex gap-2">
+            __thumb__
+            <span>__name__</span>
+        </div>
+        <div class="rv-media-file-size">__size__</div>
+        <div class="rv-media-created-at">__date__</div>
+    </li>
+</div>
+
+<div id="rv_media_items_tiles_element">
+    <li class="rv-media-list-title js-media-list-title js-context-menu" data-context="__type__" data-id="__id__">
+        <input type="checkbox" class="hidden">
+        <div class="rv-media-item" title="__name__">
+            <span class="media-item-selected">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                    <path d="M186.301 339.893L96 249.461l-32 30.507L186.301 402 448 140.506 416 110z"></path>
+                </svg>
+            </span>
+            <div class="rv-media-thumbnail">
+                __thumb__
+            </div>
+            <div class="rv-media-description">
+                <div class="title title">__name__</div>
+            </div>
+        </div>
+    </li>
+</div>
+
+<div id="rv_media_upload_progress_item">
+    <x-core::table.body.row>
+        <x-core::table.body.cell>
+            <span class="file-name">__fileName__</span>
+            <div class="file-error"></div>
+        </x-core::table.body.cell>
+        <x-core::table.body.cell>
+            <span class="file-size">__fileSize__</span>
+        </x-core::table.body.cell>
+        <x-core::table.body.cell>
+            <span class="file-status text-__status__">__message__</span>
+            <span class="progress-percent"></span>
+        </x-core::table.body.cell>
+    </x-core::table.body.row>
+</div>
+
+<div id="rv_media_breadcrumb_item">
+    <li>
+        <a href="#" data-folder="__folderId__" class="text-decoration-none js-change-folder">
+            __icon__
+            __name__
+        </a>
+    </li>
+</div>
+
+{{-- <div id="rv_media_rename_item">
+    <div class="mb-3">
+        <div class="input-group">
+            <div class="input-group-text">__icon__</div>
+            <input class="form-control" placeholder="__placeholder__" value="__value__">
+        </div>
+    </div>
+
+    <x-core::form.checkbox
+        data-folder-label="{{ trans('core/media::media.rename_physical_folder') }}"
+        data-file-label="{{ trans('core/media::media.rename_physical_file') }}"
+        label="__label__"
+        name="rename_physical_file"
+        data-bb-toggle="collapse"
+        data-bb-target=".rename-physical-file-warning"
+    />
+
+    <x-core::alert type="warning" class="rename-physical-file-warning" style="display: none">
+        {{ trans('core/media::media.rename_physical_file_warning') }}
+    </x-core::alert>
+</div> --}}
+
+{{-- <div id="rv_media_alt_text_item">
+    <div class="mb-3">
+        <div class="input-group">
+            <div class="input-group-text">
+                __icon__
+            </div>
+            <input class="form-control" placeholder="__placeholder__" value="__value__">
+        </div>
+    </div>
+</div> --}}
+
+
 
 <div class="media-download-popup" style="display: none">
     <x-core::alert type="success">{{ trans('core/media::media.prepare_file_to_download') }}</x-core::alert>

@@ -24,7 +24,7 @@ class BaseHelper
 
     public static function renderIcon(string $icon): string
     {
-        return '<i class="' . $icon . '"></i>';
+        return '<x-filament::icon icon="' . $icon . '"></x-filament::icon>';
     }
 
     public static function logError(\Throwable $exception): void
