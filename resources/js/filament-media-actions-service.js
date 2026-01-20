@@ -49,7 +49,7 @@ export class ActionsService {
         })
 
         if (Helpers.size(selected) > 0) {
-            Botble.lightbox(selected)
+            FilamentMedia.lightbox(selected)
         } else {
             this.handleGlobalAction('download')
         }
@@ -122,7 +122,7 @@ export class ActionsService {
             links += value.full_url
         })
 
-        await Botble.copyToClipboard(links)
+        await FilamentMedia.copyToClipboard(links)
 
         MessageService.showMessage(
             'success',
@@ -142,7 +142,7 @@ export class ActionsService {
             links += value.indirect_url
         })
 
-        await Botble.copyToClipboard(links)
+        await FilamentMedia.copyToClipboard(links)
 
         MessageService.showMessage(
             'success',
@@ -286,7 +286,7 @@ export class ActionsService {
 
             $itemsWrapper.append($item)
 
-            Botble.initFieldCollapse()
+            FilamentMedia.initFieldCollapse()
         })
     }
 

@@ -1,6 +1,6 @@
 import $ from 'jquery'
 import _ from 'lodash'
-import { MediaConfig } from './filament-media-config'
+import { MediaConfig ,RecentItems } from './filament-media-config'
 import { $httpClient } from './filament-media-http-client'
 
 export class Helpers {
@@ -118,7 +118,7 @@ export class Helpers {
         // Send the minimal file data to the server to store in recent items
         $httpClient
             .make()
-            .post(MediaConfig.global_actions, {
+            .post(FilamentMedia_URL.global_actions, {
                 action: 'add_recent',
                 item: fileData
             })

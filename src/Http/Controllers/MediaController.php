@@ -15,6 +15,7 @@ use Codenzia\FilamentMedia\Services\UploadsManager;
 use Codenzia\FilamentMedia\Http\Resources\FolderResource;
 use Codenzia\FilamentMedia\Http\Resources\FileResource;
 use Illuminate\Support\Facades\Auth;
+use Codenzia\FilamentMedia\Services\ThumbnailService;
 class MediaController extends Controller
 {
     public function __construct(
@@ -350,7 +351,7 @@ class MediaController extends Controller
 
     public function postGlobalActions(Request $request, ThumbnailService $thumbnailService)
     {
-        $response = RvMedia::responseError(trans('core/media::media.invalid_action'));
+        $response = FilamentMedia::responseError(trans('core/media::media.invalid_action'));
 
         $type = $request->input('action');
 
@@ -386,12 +387,12 @@ class MediaController extends Controller
                 }
 
                 if ($error) {
-                    $response = RvMedia::responseError(trans('core/media::media.trash_error'));
+                    $response = FilamentMedia::responseError(trans('core/media::media.trash_error'));
 
                     break;
                 }
 
-                $response = RvMedia::responseSuccess([], trans('core/media::media.trash_success'));
+                $response = FilamentMedia::responseSuccess([], trans('core/media::media.trash_success'));
 
                 break;
 
@@ -412,12 +413,12 @@ class MediaController extends Controller
                 }
 
                 if ($error) {
-                    $response = RvMedia::responseError(trans('core/media::media.restore_error'));
+                    $response = FilamentMedia::responseError(trans('core/media::media.restore_error'));
 
                     break;
                 }
 
-                $response = RvMedia::responseSuccess([], trans('core/media::media.restore_success'));
+                $response = FilamentMedia::responseSuccess([], trans('core/media::media.restore_success'));
 
                 break;
 
@@ -451,12 +452,12 @@ class MediaController extends Controller
                 }
 
                 if ($error) {
-                    $response = RvMedia::responseError(trans('core/media::media.move_error'));
+                    $response = FilamentMedia::responseError(trans('core/media::media.move_error'));
 
                     break;
                 }
 
-                $response = RvMedia::responseSuccess([], trans('core/media::media.move_success'));
+                $response = FilamentMedia::responseSuccess([], trans('core/media::media.move_success'));
 
                 break;
 
@@ -548,7 +549,7 @@ class MediaController extends Controller
                     }
                 }
 
-                $response = RvMedia::responseSuccess([], trans('core/media::media.copy_success'));
+                $response = FilamentMedia::responseSuccess([], trans('core/media::media.copy_success'));
 
                 break;
 
@@ -566,7 +567,7 @@ class MediaController extends Controller
                     }
                 }
 
-                $response = RvMedia::responseSuccess([], trans('core/media::media.delete_success'));
+                $response = FilamentMedia::responseSuccess([], trans('core/media::media.delete_success'));
 
                 break;
 
@@ -584,7 +585,7 @@ class MediaController extends Controller
 
                 $meta->save();
 
-                $response = RvMedia::responseSuccess([], trans('core/media::media.favorite_success'));
+                $response = FilamentMedia::responseSuccess([], trans('core/media::media.favorite_success'));
 
                 break;
 
@@ -611,7 +612,7 @@ class MediaController extends Controller
                     }
                 }
 
-                $response = RvMedia::responseSuccess([], trans('core/media::media.remove_favorite_success'));
+                $response = FilamentMedia::responseSuccess([], trans('core/media::media.remove_favorite_success'));
 
                 break;
 
@@ -621,7 +622,7 @@ class MediaController extends Controller
 
                 // If the item ID is not valid, return an error
                 if (empty($itemId)) {
-                    $response = RvMedia::responseError('Invalid item ID');
+                    $response = FilamentMedia::responseError('Invalid item ID');
 
                     break;
                 }
@@ -661,7 +662,7 @@ class MediaController extends Controller
                 $meta->value = $value;
                 $meta->save();
 
-                $response = RvMedia::responseSuccess([], trans('core/media::media.add_recent_success'));
+                $response = FilamentMedia::responseSuccess([], trans('core/media::media.add_recent_success'));
 
                 break;
 
@@ -686,7 +687,7 @@ class MediaController extends Controller
                 $file = MediaFile::query()->findOrFail($validated['imageId']);
 
                 if (! $file->canGenerateThumbnails()) {
-                    $response = RvMedia::responseError(trans('core/media::media.failed_to_crop_image'));
+                    $response = FilamentMedia::responseError(trans('core/media::media.failed_to_crop_image'));
 
                     break;
                 }
@@ -700,7 +701,7 @@ class MediaController extends Controller
 
                 try {
                     $thumbnailService
-                        ->setImage(RvMedia::getRealPath($fileUrl))
+                        ->setImage(FilamentMedia::getRealPath($fileUrl))
                         ->setSize((int) $cropData['width'], (int) $cropData['height'])
                         ->setCoordinates((int) $cropData['x'], (int) $cropData['y'])
                         ->setDestinationPath(File::dirname($fileUrl))
@@ -709,21 +710,21 @@ class MediaController extends Controller
                 } catch (UnableToWriteFile $exception) {
                     $message = $exception->getMessage();
 
-                    if (! RvMedia::isUsingCloud()) {
-                        $message = trans('core/media::media.unable_to_write', ['folder' => RvMedia::getUploadPath()]);
+                    if (! FilamentMedia::isUsingCloud()) {
+                        $message = trans('core/media::media.unable_to_write', ['folder' => FilamentMedia::getUploadPath()]);
                     }
 
-                    return RvMedia::responseError($message);
+                    return FilamentMedia::responseError($message);
                 } catch (Throwable $exception) {
-                    return RvMedia::responseError($exception->getMessage());
+                    return FilamentMedia::responseError($exception->getMessage());
                 }
 
                 $file->url = $fileUrl . '?v=' . time();
                 $file->save();
 
-                RvMedia::generateThumbnails($file);
+                FilamentMedia::generateThumbnails($file);
 
-                $response = RvMedia::responseSuccess([], trans('core/media::media.crop_success'));
+                $response = FilamentMedia::responseSuccess([], trans('core/media::media.crop_success'));
 
                 break;
 
@@ -745,7 +746,7 @@ class MediaController extends Controller
                         $file = MediaFile::query()->find($id);
 
                         if (! empty($file)) {
-                            RvMedia::renameFile(
+                            FilamentMedia::renameFile(
                                 file: $file,
                                 newName: $item['name'],
                                 renameOnDisk: Arr::get($item, 'rename_physical_file', false)
@@ -759,7 +760,7 @@ class MediaController extends Controller
                         $folder = MediaFolder::query()->find($id);
 
                         if (! empty($folder)) {
-                            RvMedia::renameFolder(
+                            FilamentMedia::renameFolder(
                                 folder: $folder,
                                 newName: $name,
                                 renameOnDisk: Arr::get($item, 'rename_physical_file', false)
@@ -768,7 +769,7 @@ class MediaController extends Controller
                     }
                 }
 
-                $response = RvMedia::responseSuccess([], trans('core/media::media.rename_success'));
+                $response = FilamentMedia::responseSuccess([], trans('core/media::media.rename_success'));
 
                 break;
 
@@ -787,20 +788,20 @@ class MediaController extends Controller
                     MediaFile::query()->where('id', $item['id'])->update(['alt' => $item['alt']]);
                 }
 
-                $response = RvMedia::responseSuccess([], trans('core/media::media.update_alt_text_success'));
+                $response = FilamentMedia::responseSuccess([], trans('core/media::media.update_alt_text_success'));
 
                 break;
             case 'empty_trash':
                 $this->fileRepository->emptyTrash();
                 $this->folderRepository->emptyTrash();
 
-                $response = RvMedia::responseSuccess([], trans('core/media::media.empty_trash_success'));
+                $response = FilamentMedia::responseSuccess([], trans('core/media::media.empty_trash_success'));
 
                 break;
 
             case 'properties':
                 Validator::validate($request->input(), [
-                    'color' => ['required', 'string', Rule::in(RvMedia::getFolderColors())],
+                    'color' => ['required', 'string', Rule::in(FilamentMedia::getFolderColors())],
                     'selected' => ['required', 'array'],
                     'selected.*' => ['required', 'string', 'exists:media_folders,id'],
                 ]);
@@ -809,7 +810,7 @@ class MediaController extends Controller
                     'color' => $request->input('color'),
                 ]);
 
-                $response = RvMedia::responseSuccess([], trans('core/media::media.update_properties_success'));
+                $response = FilamentMedia::responseSuccess([], trans('core/media::media.update_properties_success'));
 
                 break;
         }
@@ -834,19 +835,19 @@ class MediaController extends Controller
 
             $path = $path . File::name($file->url) . '-(copy)' . '.' . File::extension($file->url);
 
-            $filePath = RvMedia::getRealPath($file->url);
+            $filePath = FilamentMedia::getRealPath($file->url);
             if (Storage::exists($filePath)) {
                 $content = File::get($filePath);
 
                 $this->uploadManager->saveFile($path, $content);
                 $file->url = $path;
 
-                RvMedia::generateThumbnails($file);
+                FilamentMedia::generateThumbnails($file);
             }
         } else {
             $file->url = str_replace(
-                RvMedia::getRealPath(File::dirname($file->url)),
-                RvMedia::getRealPath($this->folderRepository->getFullPath($newFolderId)),
+                FilamentMedia::getRealPath(File::dirname($file->url)),
+                FilamentMedia::getRealPath($this->folderRepository->getFullPath($newFolderId)),
                 $file->url
             );
 
@@ -869,15 +870,15 @@ class MediaController extends Controller
             return $file;
         }
 
-        $oldPath = RvMedia::getRealPath($file->url);
-        $newFolderPath = RvMedia::getRealPath($this->folderRepository->getFullPath($newFolderId));
+        $oldPath = FilamentMedia::getRealPath($file->url);
+        $newFolderPath = FilamentMedia::getRealPath($this->folderRepository->getFullPath($newFolderId));
         $newPath = $newFolderPath . '/' . File::basename($file->url);
 
         if (Storage::exists($oldPath)) {
             Storage::move($oldPath, $newPath);
             $file->url = str_replace(
-                RvMedia::getRealPath(File::dirname($file->url)),
-                RvMedia::getRealPath($this->folderRepository->getFullPath($newFolderId)),
+                FilamentMedia::getRealPath(File::dirname($file->url)),
+                FilamentMedia::getRealPath($this->folderRepository->getFullPath($newFolderId)),
                 $file->url
             );
             $file->folder_id = $newFolderId;
@@ -894,7 +895,7 @@ class MediaController extends Controller
         if (count($items) == 1 && ! $items[0]['is_folder']) {
             $file = MediaFile::query()->withTrashed()->find($items[0]['id']);
             if (! empty($file) && $file->type != 'video') {
-                return RvMedia::responseDownloadFile($file->url);
+                return FilamentMedia::responseDownloadFile($file->url);
             }
         } else {
             $fileName = Storage::disk('local')->path('download-' . Carbon::now()->format('Y-m-d-h-i-s') . '.zip');
@@ -905,8 +906,8 @@ class MediaController extends Controller
                 if (! $item['is_folder']) {
                     $file = MediaFile::query()->withTrashed()->find($id);
                     if (! empty($file) && $file->type != 'video') {
-                        $filePath = RvMedia::getRealPath($file->url);
-                        if (! RvMedia::isUsingCloud()) {
+                        $filePath = FilamentMedia::getRealPath($file->url);
+                        if (! FilamentMedia::isUsingCloud()) {
                             if (File::exists($filePath)) {
                                 $zip->add($filePath);
                             }
@@ -920,8 +921,8 @@ class MediaController extends Controller
                 } else {
                     $folder = MediaFolder::query()->withTrashed()->find($id);
                     if (! empty($folder)) {
-                        if (! RvMedia::isUsingCloud()) {
-                            $folderPath = RvMedia::getRealPath($this->folderRepository->getFullPath($folder->id));
+                        if (! FilamentMedia::isUsingCloud()) {
+                            $folderPath = FilamentMedia::getRealPath($this->folderRepository->getFullPath($folder->id));
                             if (File::isDirectory($folderPath)) {
                                 $zip->add($folderPath);
                             }
@@ -930,7 +931,7 @@ class MediaController extends Controller
                             foreach ($allFiles as $file) {
                                 $zip->addString(
                                     File::basename($file),
-                                    Http::withoutVerifying()->get(RvMedia::getRealPath($file))->body()
+                                    Http::withoutVerifying()->get(FilamentMedia::getRealPath($file))->body()
                                 );
                             }
                         }
@@ -946,9 +947,9 @@ class MediaController extends Controller
                     ->deleteFileAfterSend();
             }
 
-            return RvMedia::responseError(trans('core/media::media.download_file_error'));
+            return FilamentMedia::responseError(trans('core/media::media.download_file_error'));
         }
 
-        return RvMedia::responseError(trans('core/media::media.can_not_download_file'));
+        return FilamentMedia::responseError(trans('core/media::media.can_not_download_file'));
     }
 }

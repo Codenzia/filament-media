@@ -14,7 +14,7 @@ Route::group(['prefix' => 'media', 'as' => 'media.', 'middleware' => ['web', 'au
     Route::get('list', [MediaController::class, 'getList'])->name('list');
     Route::post('folders/create', [MediaController::class, 'postCreateFolder'])->name('folders.create');
     Route::get('popup', [MediaController::class, 'getPopup'])->name('popup');
-    Route::get('download', [MediaController::class, 'getDownload'])->name('download');
+    Route::post('download', [MediaController::class, 'download'])->name('download');
     Route::post('files/upload', [MediaController::class, 'postUploadFile'])->name('files.upload');
     Route::get('breadcrumbs', [MediaController::class, 'getBreadcrumbs'])->name('breadcrumbs');
     Route::post('global-actions', [MediaController::class, 'postGlobalActions'])->name('global_actions');

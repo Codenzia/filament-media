@@ -358,7 +358,7 @@ class MediaManagement {
                 const url = $input.val()
                 const remainUrls = []
 
-                Botble.showButtonLoading($button)
+                FilamentMedia.showButtonLoading($button)
 
                 $wrapper.slideUp()
 
@@ -409,7 +409,7 @@ class MediaManagement {
                         </svg>
                         ${$header.data('text')}
                     `)
-                        Botble.hideButtonLoading($button)
+                        FilamentMedia.hideButtonLoading($button)
                     }
                 )
                 return false
@@ -460,7 +460,7 @@ class MediaManagement {
 
                 const $modal = $(event.currentTarget).closest('.modal')
 
-                Botble.showButtonLoading($modal.find('button[type="submit"]'))
+                FilamentMedia.showButtonLoading($modal.find('button[type="submit"]'))
 
                 ActionsService.processAction(
                     {
@@ -470,7 +470,7 @@ class MediaManagement {
                     },
                     () => {
                         $modal.modal('hide')
-                        Botble.hideButtonLoading($modal.find('button[type="submit"]'))
+                        FilamentMedia.hideButtonLoading($modal.find('button[type="submit"]'))
 
                         _self.MediaService.getMedia(true)
                     }
@@ -484,7 +484,7 @@ class MediaManagement {
 
                 const $form = $(event.currentTarget)
 
-                Botble.showButtonLoading($form.find('button[type="submit"]'))
+                FilamentMedia.showButtonLoading($form.find('button[type="submit"]'))
 
                 const imageId = $form.find('input[name="image_id"]').val()
                 const cropData = $form.find('input[name="crop_data"]').val()
@@ -500,7 +500,7 @@ class MediaManagement {
                             _self.MediaService.getMedia(true)
                         }
 
-                        Botble.hideButtonLoading($form.find('button[type="submit"]'))
+                        FilamentMedia.hideButtonLoading($form.find('button[type="submit"]'))
                     }
                 )
             })
@@ -519,7 +519,7 @@ class MediaManagement {
                     items.push(data)
                 })
 
-                Botble.showButtonLoading($form.find('button[type="submit"]'))
+                FilamentMedia.showButtonLoading($form.find('button[type="submit"]'))
 
                 ActionsService.processAction(
                     {
@@ -541,7 +541,7 @@ class MediaManagement {
                             })
                         }
 
-                        Botble.hideButtonLoading($form.find('button[type="submit"]'))
+                        FilamentMedia.hideButtonLoading($form.find('button[type="submit"]'))
                     }
                 )
             })
@@ -561,7 +561,7 @@ class MediaManagement {
                     items.push(data)
                 })
 
-                Botble.showButtonLoading($form.find('button[type="submit"]'))
+                FilamentMedia.showButtonLoading($form.find('button[type="submit"]'))
 
                 ActionsService.processAction(
                     {
@@ -583,7 +583,7 @@ class MediaManagement {
                             })
                         }
 
-                        Botble.hideButtonLoading($form.find('button[type="submit"]'))
+                        FilamentMedia.hideButtonLoading($form.find('button[type="submit"]'))
                     }
                 )
             })
@@ -594,7 +594,7 @@ class MediaManagement {
             let items = []
             let $form = $(event.currentTarget)
 
-            Botble.showButtonLoading($form.find('button[type="submit"]'))
+            FilamentMedia.showButtonLoading($form.find('button[type="submit"]'))
 
             Helpers.each(Helpers.getSelectedItems(), (value) => {
                 items.push({
@@ -617,7 +617,7 @@ class MediaManagement {
 
                     $form.find('input[name="skip_trash"]').prop('checked', false)
 
-                    Botble.hideButtonLoading($form.find('button[type="submit"]'))
+                    FilamentMedia.hideButtonLoading($form.find('button[type="submit"]'))
                 }
             )
         })
@@ -629,7 +629,7 @@ class MediaManagement {
                 event.preventDefault()
                 let $form = $(event.currentTarget)
 
-                Botble.showButtonLoading($form.find('button[type="submit"]'))
+                FilamentMedia.showButtonLoading($form.find('button[type="submit"]'))
 
                 ActionsService.processAction(
                     {
@@ -639,7 +639,7 @@ class MediaManagement {
                         $form.closest('.modal').modal('hide')
                         _self.MediaService.getMedia(true)
 
-                        Botble.hideButtonLoading($form.find('button[type="submit"]'))
+                        FilamentMedia.hideButtonLoading($form.find('button[type="submit"]'))
                     }
                 )
             })

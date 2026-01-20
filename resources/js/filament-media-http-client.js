@@ -39,23 +39,26 @@ export class HttpClient {
             url: url,
             type: method,
             data: data,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+            },
             ...this.configs,
         }
 
-        if (this.button && typeof Botble !== 'undefined') {
+        if (this.button && typeof FilamentMedia !== 'undefined') {
             const button = this.button;
             const originalBeforeSend = options.beforeSend;
             const originalComplete = options.complete;
 
             options.beforeSend = (xhr, settings) => {
-                Botble.showButtonLoading(button);
+                FilamentMedia.showButtonLoading(button);
                 if (originalBeforeSend) {
                     originalBeforeSend(xhr, settings);
                 }
             };
 
             options.complete = (xhr, status) => {
-                Botble.hideButtonLoading(button);
+                FilamentMedia.hideButtonLoading(button);
                 if (originalComplete) {
                     originalComplete(xhr, status);
                 }
