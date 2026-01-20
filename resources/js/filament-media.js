@@ -1,3 +1,4 @@
+import './filament-media-jquery-doubletap'
 import { MediaConfig } from './filament-media-config.js'
 import { Helpers } from './filament-media-helpers.js'
 import { MediaService } from './filament-media-service.js'
@@ -252,8 +253,8 @@ class MediaManagement {
 
                 MediaConfig.request_params[data.type] = data.value
 
-                if (window.rvMedia.options && data.type === 'view_in') {
-                    window.rvMedia.options.view_in = data.value
+                if (window.FilamentMedia.options && data.type === 'view_in') {
+                    window.FilamentMedia.options.view_in = data.value
                 }
 
                 if (data.type === 'view_in') {
@@ -303,7 +304,7 @@ class MediaManagement {
                 Helpers.resetPagination()
 
                 let ele_options =
-                    typeof window.rvMedia.$el !== 'undefined' ? window.rvMedia.$el.data('rv-media') : undefined
+                    typeof window.FilamentMedia.$el !== 'undefined' ? window.FilamentMedia.$el.data('rv-media') : undefined
                 if (
                     typeof ele_options !== 'undefined' &&
                     ele_options.length > 0 &&
@@ -652,9 +653,9 @@ class MediaManagement {
     }
 
     checkFileTypeSelect(selectedFiles) {
-        if (typeof window.rvMedia.$el !== 'undefined') {
+        if (typeof window.FilamentMedia.$el !== 'undefined') {
             let firstItem = Helpers.arrayFirst(selectedFiles)
-            let ele_options = window.rvMedia.$el.data('rv-media')
+            let ele_options = window.FilamentMedia.$el.data('rv-media')
             if (
                 typeof ele_options !== 'undefined' &&
                 typeof ele_options[0] !== 'undefined' &&
@@ -683,7 +684,7 @@ class MediaManagement {
             event.preventDefault()
             let selectedFiles = Helpers.getSelectedFiles()
             if (Helpers.size(selectedFiles) > 0) {
-                window.rvMedia.options.onSelectFiles(selectedFiles, window.rvMedia.$el)
+                window.FilamentMedia.options.onSelectFiles(selectedFiles, window.FilamentMedia.$el)
                 if (_self.checkFileTypeSelect(selectedFiles)) {
                     $mainModal.find('.btn-close').trigger('click')
                 }
@@ -697,7 +698,7 @@ class MediaManagement {
                 if (Helpers.getConfigs().request_params.view_in !== 'trash') {
                     let selectedFiles = Helpers.getSelectedFiles()
                     if (Helpers.size(selectedFiles) > 0) {
-                        window.rvMedia.options.onSelectFiles(selectedFiles, window.rvMedia.$el)
+                        window.FilamentMedia.options.onSelectFiles(selectedFiles, window.FilamentMedia.$el)
                         if (_self.checkFileTypeSelect(selectedFiles)) {
                             $mainModal.find('.btn-close').trigger('click')
                         }
@@ -731,7 +732,6 @@ class MediaManagement {
 }
 
 $(() => {
-    window.rvMedia = window.rvMedia || {}
-
+    window.FilamentMedia = window.FilamentMedia || {}
     new MediaManagement().init()
 })

@@ -1,5 +1,3 @@
-import $ from 'jquery'
-
 ;(function ($) {
     $.event.special.doubletap = {
         bindType: 'touchend',
@@ -7,7 +5,7 @@ import $ from 'jquery'
 
         handle: function (event) {
             let handleObj = event.handleObj,
-                targetData = $.data(event.target),
+                targetData = jQuery.data(event.target),
                 now = new Date().getTime(),
                 delta = targetData.lastTouch ? now - targetData.lastTouch : 0,
                 delay = delay == null ? 300 : delay
@@ -25,4 +23,4 @@ import $ from 'jquery'
             }
         },
     }
-})($)
+})(jQuery)

@@ -2,26 +2,91 @@ import { ActionsService } from './filament-media-actions-service'
 import { Helpers } from './filament-media-helpers'
 
 export class ContextMenuService {
+    static _loading = false
+
     static initContext() {
         if (jQuery().contextMenu) {
-            $.contextMenu({
-                selector: '.js-context-menu[data-context="file"]',
-                build: () => {
-                    return {
-                        items: ContextMenuService._fileContextMenu(),
-                    }
-                },
+            ContextMenuService.registerMenus()
+            return
+        }
+
+        if (ContextMenuService._loading) {
+            return
+        }
+
+        ContextMenuService._loading = true
+        ContextMenuService.loadAssets().finally(() => {
+            ContextMenuService._loading = false
+            if (jQuery().contextMenu) {
+                ContextMenuService.registerMenus()
+            }
+        })
+    }
+
+    static registerMenus() {
+        $.contextMenu({
+            selector: '.js-context-menu[data-context="file"]',
+            build: () => {
+                return {
+                    items: ContextMenuService._fileContextMenu(),
+                }
+            },
+        })
+
+        $.contextMenu({
+            selector: '.js-context-menu[data-context="folder"]',
+            build: () => {
+                return {
+                    items: ContextMenuService._folderContextMenu(),
+                }
+            },
+        })
+    }
+
+    static loadAssets() {
+        const scripts = [
+            {
+                id: 'rv-media-contextmenu-position',
+                src: 'https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.ui.position.min.js',
+            },
+            {
+                id: 'rv-media-contextmenu',
+                src: 'https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.min.js',
+            },
+        ]
+
+        const css = {
+            id: 'rv-media-contextmenu-css',
+            href: 'https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.min.css',
+        }
+
+        const loadScript = ({ id, src }) =>
+            new Promise((resolve) => {
+                if (document.getElementById(id)) {
+                    resolve()
+                    return
+                }
+                const el = document.createElement('script')
+                el.id = id
+                el.src = src
+                el.onload = () => resolve()
+                document.body.appendChild(el)
             })
 
-            $.contextMenu({
-                selector: '.js-context-menu[data-context="folder"]',
-                build: () => {
-                    return {
-                        items: ContextMenuService._folderContextMenu(),
-                    }
-                },
-            })
+        const loadCss = ({ id, href }) => {
+            if (document.getElementById(id)) {
+                return
+            }
+            const el = document.createElement('link')
+            el.id = id
+            el.rel = 'stylesheet'
+            el.href = href
+            document.head.appendChild(el)
         }
+
+        loadCss(css)
+
+        return scripts.reduce((promise, script) => promise.then(() => loadScript(script)), Promise.resolve())
     }
 
     static _fileContextMenu() {
