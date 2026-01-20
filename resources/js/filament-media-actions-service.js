@@ -223,6 +223,9 @@ export class ActionsService {
                 $('#modal-properties').modal('show')
 
                 break
+            case 'create_folder':
+                $('.js-create-folder-action').trigger('click')
+                break
             default:
                 ActionsService.processAction(
                     {

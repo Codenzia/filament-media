@@ -34,10 +34,22 @@ class MediaManagement {
         this.handleModals()
         this.scrollGetMore()
 
-        if (typeof Livewire !== 'undefined') {
-            Livewire.on('media-folder-created', () => {
+        const registerListener = () => {
+            // Unregister if already registered to avoid duplicates
+            if (this._cleanupFolderCreated) {
+                this._cleanupFolderCreated()
+            }
+
+            this._cleanupFolderCreated = Livewire.on('media-folder-created', () => {
+                Helpers.resetPagination()
                 this.MediaService.getMedia(true)
             })
+        }
+
+        if (typeof Livewire !== 'undefined') {
+            registerListener()
+        } else {
+            document.addEventListener('livewire:initialized', registerListener)
         }
     }
 
@@ -733,7 +745,10 @@ class MediaManagement {
     }
 }
 
-$(() => {
+const initMediaManagement = () => {
     window.FilamentMedia = window.FilamentMedia || {}
     new MediaManagement().init()
-})
+}
+
+$(initMediaManagement)
+document.addEventListener('livewire:navigated', initMediaManagement)

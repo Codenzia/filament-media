@@ -1,6 +1,9 @@
 import $ from 'jquery'
+import Dropzone from 'dropzone'
 import { MediaService } from './filament-media-service'
 import { Helpers } from './filament-media-helpers'
+
+Dropzone.autoDiscover = false
 
 export class UploadService {
     constructor() {
@@ -24,9 +27,10 @@ export class UploadService {
     }
 
     init() {
-        if (Helpers.hasPermission('files.create') && $('.rv-media-items').length > 0) {
-            this.setupDropZone()
-        }
+        // if (Helpers.hasPermission('files.create') && $('.rv-media-items').length > 0) {
+        //     this.setupDropZone()
+        // }
+        this.setupDropZone()
         this.handleEvents()
     }
 
@@ -36,11 +40,17 @@ export class UploadService {
         let _dropZoneConfig = this.getDropZoneConfig()
         _self.filesUpload = 0
 
+        const dropzoneElement = document.querySelector('.rv-media-items')
+        
+        if (dropzoneElement.dropzone) {
+            dropzoneElement.dropzone.destroy()
+        }
+
         if (_self.dropZone) {
             _self.dropZone.destroy()
         }
 
-        _self.dropZone = new Dropzone(document.querySelector('.rv-media-items'), {
+        _self.dropZone = new Dropzone(dropzoneElement, {
             ..._dropZoneConfig,
             thumbnailWidth: false,
             thumbnailHeight: false,

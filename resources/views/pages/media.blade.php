@@ -150,7 +150,7 @@
                                             <x-filament::dropdown.list>
                                                 <x-filament::dropdown.list.item
                                                     icon="heroicon-m-globe-alt"
-                                                    class="js-rv-media-change-filter"
+                                                    class="js-dropzone-upload dropdown-item"
                                                     data-type="view_in"
                                                     data-value="all_media"
                                                 >
@@ -896,7 +896,7 @@
             </button>
         </div>
 
-        <div id="rv_media_items_list">
+        <div id="rv_media_items_list" class="hidden">
             <div class="rv-media-list">
                 <ul>
                     <li class="no-items">
@@ -936,7 +936,7 @@
             </div>
         </div>
 
-        <div id="rv_media_items_list_element">
+        <div id="rv_media_items_list_element" class="hidden">
             <li class="rv-media-list-title js-media-list-title js-context-menu" data-context="__type__" title="__name__" data-id="__id__">
                 <div class="custom-checkbox">
                     <label>

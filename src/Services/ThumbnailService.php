@@ -2,7 +2,7 @@
 
 namespace Codenzia\FilamentMedia\Services;
 
-use Codenzia\FilamentMedia\Facades\FilamentMedia as RvMedia;
+use Codenzia\FilamentMedia\Facades\FilamentMedia;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Illuminate\Support\Facades\File;
@@ -52,7 +52,7 @@ class ThumbnailService
     public function save($type = 'crop')
     {
         $manager = new ImageManager(new GdDriver());
-        
+
         $image = $manager->read($this->image);
 
         if ($type === 'crop') {
@@ -62,9 +62,9 @@ class ThumbnailService
         }
 
         $path = $this->destinationPath . '/' . $this->fileName;
-        
+
         File::ensureDirectoryExists($this->destinationPath);
-        
+
         $image->save($path);
 
         return $path;

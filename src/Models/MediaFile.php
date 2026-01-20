@@ -262,7 +262,7 @@ class MediaFile extends Model
         if (\setting('media_use_original_name_for_file_path')) {
             $slug = $name;
         } else {
-            $slug = Str::slug($name, '-', ! RvMedia::turnOffAutomaticUrlTranslationIntoLatin() ? 'en' : false);
+            $slug = Str::slug($name, '-', ! FilamentMedia::turnOffAutomaticUrlTranslationIntoLatin() ? 'en' : false);
         }
 
         $index = 1;

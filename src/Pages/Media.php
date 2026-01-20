@@ -36,6 +36,11 @@ class Media extends Page
             Action::make('create_folder')
                 ->label(trans('core/media::media.create_folder'))
                 ->icon('heroicon-o-folder-plus')
+                ->extraAttributes([
+                    'class' => 'hidden',
+                    'x-data' => '{}',
+                    'x-on:open-create-folder.window' => "\$dispatch('open-modal', { id: 'create_folder' })",
+                ])
                 ->form([
                     TextInput::make('name')
                         ->label(trans('core/media::media.folder_name'))

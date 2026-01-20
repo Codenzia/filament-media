@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\UploadedFile;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\HtmlString;
 use Codenzia\FilamentMedia\Helpers\BaseHelper;
@@ -26,7 +26,7 @@ use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 use Intervention\Image\Encoders\AutoEncoder;
 use Intervention\Image\Encoders\WebpEncoder;
-use Codenzia\FilamentMedia\Models\FileResource;
+use Codenzia\FilamentMedia\Http\Resources\FileResource;
 use Codenzia\FilamentMedia\Events\MediaFileUploaded;
 use Codenzia\FilamentMedia\Events\MediaFileRenaming;
 use Codenzia\FilamentMedia\Events\MediaFileRenamed;
@@ -35,7 +35,7 @@ use Codenzia\FilamentMedia\Events\MediaFolderRenamed;
 use League\Flysystem\UnableToWriteFile;
 use Codenzia\FilamentMedia\Services\ThumbnailService;
 use Codenzia\FilamentMedia\Services\UploadsManager;
-use Illuminate\Validation\ValidationFile;
+use Illuminate\Validation\Rules\File as ValidationFile;
 
 class FilamentMedia
 {
