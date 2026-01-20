@@ -882,7 +882,7 @@
 
 
 
-        <div id="rv_media_loading">
+        <div id="rv_media_loading" class="d-none">
             {{-- <x-filament::loading-indicator class="h-5 w-5 text-primary" /> --}}
         </div>
 
@@ -896,7 +896,7 @@
             </button>
         </div>
 
-        <div id="rv_media_items_list" class="hidden">
+        <div id="rv_media_items_list" class="d-none">
             <div class="rv-media-list">
                 <ul>
                     <li class="no-items">
@@ -914,7 +914,7 @@
             </div>
         </div>
 
-        <div id="rv_media_items_tiles" class="hidden">
+        <div id="rv_media_items_tiles" class="d-none">
             <div class="rv-media-grid">
                 <ul>
                     <li class="no-items">
@@ -936,7 +936,7 @@
             </div>
         </div>
 
-        <div id="rv_media_items_list_element" class="hidden">
+        <div id="rv_media_items_list_element" class="d-none">
             <li class="rv-media-list-title js-media-list-title js-context-menu" data-context="__type__" title="__name__" data-id="__id__">
                 <div class="custom-checkbox">
                     <label>
@@ -953,7 +953,7 @@
             </li>
         </div>
 
-        <div id="rv_media_items_tiles_element">
+        <div id="rv_media_items_tiles_element" class="d-none">
             <li class="rv-media-list-title js-media-list-title js-context-menu" data-context="__type__" data-id="__id__">
                 <input type="checkbox" class="hidden">
                 <div class="rv-media-item" title="__name__">
@@ -972,7 +972,7 @@
             </li>
         </div>
 
-        <div id="rv_media_upload_progress_item">
+        <div id="rv_media_upload_progress_item" class="d-none">
             <x-core::table.body.row>
                 <x-core::table.body.cell>
                     <span class="file-name">__fileName__</span>
@@ -988,7 +988,7 @@
             </x-core::table.body.row>
         </div>
 
-        <div id="rv_media_breadcrumb_item">
+        <div id="rv_media_breadcrumb_item" class="d-none">
             <li>
                 <a href="#" data-folder="__folderId__" class="text-decoration-none js-change-folder">
                     __icon__
@@ -997,7 +997,7 @@
             </li>
         </div>
 
-        <div id="rv_media_rename_item">
+        <div id="rv_media_rename_item" class="d-none">
             <div class="mb-3">
                 <div class="input-group">
                     <div class="input-group-text">__icon__</div>
@@ -1019,7 +1019,7 @@
             </div>
         </div>
 
-        <div id="rv_media_alt_text_item">
+        <div id="rv_media_alt_text_item" class="d-none">
             <div class="mb-3">
                 <div class="input-group">
                     <div class="input-group-text">

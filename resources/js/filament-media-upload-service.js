@@ -27,9 +27,6 @@ export class UploadService {
     }
 
     init() {
-        // if (Helpers.hasPermission('files.create') && $('.rv-media-items').length > 0) {
-        //     this.setupDropZone()
-        // }
         this.setupDropZone()
         this.handleEvents()
     }
@@ -41,7 +38,7 @@ export class UploadService {
         _self.filesUpload = 0
 
         const dropzoneElement = document.querySelector('.rv-media-items')
-        
+
         if (dropzoneElement.dropzone) {
             dropzoneElement.dropzone.destroy()
         }
@@ -106,7 +103,7 @@ export class UploadService {
             if (_self.totalError === 0) {
                 setTimeout(() => {
                     $('.rv-upload-progress .close-pane').trigger('click')
-                }, 5000)
+                }, 1000)
             }
         })
     }
