@@ -199,6 +199,8 @@ export class ActionsService {
             case 'download':
                 let files = []
                 Helpers.each(Helpers.getSelectedItems(), (value) => {
+                    console.log(value);
+
                     if (!Helpers.inArray(Helpers.getConfigs().denied_download, value.mime_type)) {
                         files.push({
                             id: value.id,
@@ -549,7 +551,29 @@ export class ActionsService {
             .withResponseType('blob')
             .post(FilamentMedia_URL.download, { selected: files })
             .then((response) => {
-                const fileName = (response.headers['content-disposition'] || '').split('filename=')[1].split(';')[0]
+                let fileName = 'download'
+                const disposition = response.headers['content-disposition']
+                
+                if (disposition && disposition.indexOf('filename=') !== -1) {
+                    const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition)
+                    if (matches != null && matches[1]) { 
+                        fileName = matches[1].replace(/['"]/g, '')
+                    }
+                }
+
+                if (response.data instanceof Blob && response.data.type === 'application/json') {
+                    // Convert blob to json to show error
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const result = JSON.parse(reader.result);
+                        if (result.error) {
+                             MessageService.showMessage('error', result.message, Helpers.trans('message.error_header'))
+                        }
+                    };
+                    reader.readAsText(response.data);
+                    return;
+                }
+
                 const objectUrl = URL.createObjectURL(response.data)
                 const a = document.createElement('a')
 
@@ -560,6 +584,9 @@ export class ActionsService {
                 a.remove()
 
                 URL.revokeObjectURL(objectUrl)
+            })
+            .catch(({ response }) => {
+                 // ...
             })
             .finally(() => {
                 html.hide()

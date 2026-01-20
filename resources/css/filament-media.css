@@ -372,6 +372,12 @@
     right: 24px
 }
 
+.context-menu-item{
+    display: flex;
+    gap: 7px;
+    padding: 5px 10px;
+}
+
 li.context-menu-item.context-menu-icon-updated.media-action-trash {
     color: rgba(var(--bb-danger-rgb), 1) !important
 }
@@ -460,7 +466,8 @@ li.context-menu-item.context-menu-icon-updated.media-action-trash {
 .rv-media-grid li .rv-media-item {
     cursor: pointer;
     position: relative;
-    transition: all .1s ease-in-out
+    transition: all .1s ease-in-out;
+    background: #16181c;
 }
 
 .rv-media-grid li .rv-media-item:after {

@@ -14,8 +14,18 @@ use Codenzia\FilamentMedia\Repositories\Interfaces\MediaFolderInterface;
 use Codenzia\FilamentMedia\Services\UploadsManager;
 use Codenzia\FilamentMedia\Http\Resources\FolderResource;
 use Codenzia\FilamentMedia\Http\Resources\FileResource;
+use Throwable;
 use Illuminate\Support\Facades\Auth;
 use Codenzia\FilamentMedia\Services\ThumbnailService;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Codenzia\FilamentMedia\Supports\Zipper;
+use Illuminate\Support\Facades\File;
+
 class MediaController extends Controller
 {
     public function __construct(
@@ -373,7 +383,7 @@ class MediaController extends Controller
                             } else {
                                 $this->fileRepository->deleteBy($condition);
                             }
-                        } catch (Exception $exception) {
+                        } catch (Throwable $exception) {
                             BaseHelper::logError($exception);
                             $error = true;
                         }
@@ -403,7 +413,7 @@ class MediaController extends Controller
                     if (! $item['is_folder']) {
                         try {
                             $this->fileRepository->restoreBy(['id' => $id]);
-                        } catch (Exception $exception) {
+                        } catch (Throwable $exception) {
                             BaseHelper::logError($exception);
                             $error = true;
                         }
@@ -433,7 +443,7 @@ class MediaController extends Controller
                             if ($file) {
                                 $this->moveFile($file, $newFolderId);
                             }
-                        } catch (Exception $exception) {
+                        } catch (Throwable $exception) {
                             BaseHelper::logError($exception);
                             $error = true;
                         }
@@ -444,7 +454,7 @@ class MediaController extends Controller
                                 $folder->parent_id = $newFolderId;
                                 $folder->save();
                             }
-                        } catch (Exception $exception) {
+                        } catch (Throwable $exception) {
                             BaseHelper::logError($exception);
                             $error = true;
                         }
@@ -559,7 +569,7 @@ class MediaController extends Controller
                     if (! $item['is_folder']) {
                         try {
                             $this->fileRepository->forceDelete(['id' => $id]);
-                        } catch (Exception $exception) {
+                        } catch (Throwable $exception) {
                             BaseHelper::logError($exception);
                         }
                     } else {
@@ -891,14 +901,13 @@ class MediaController extends Controller
     public function download(Request $request)
     {
         $items = $request->input('selected', []);
-
-        if (count($items) == 1 && ! $items[0]['is_folder']) {
+        if (count($items) == 1 && $items[0]['is_folder'] == "false") {
             $file = MediaFile::query()->withTrashed()->find($items[0]['id']);
             if (! empty($file) && $file->type != 'video') {
                 return FilamentMedia::responseDownloadFile($file->url);
             }
         } else {
-            $fileName = Storage::disk('local')->path('download-' . Carbon::now()->format('Y-m-d-h-i-s') . '.zip');
+            $fileName = Storage::disk('local')->path('download-' . Carbon::now()->format('Y-m-d-H-i-s') . '.zip');
             $zip = new Zipper();
             $zip->make($fileName);
             foreach ($items as $item) {
@@ -938,8 +947,6 @@ class MediaController extends Controller
                     }
                 }
             }
-
-            $zip = null;
 
             if (File::exists($fileName)) {
                 return response()

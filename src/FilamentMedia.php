@@ -856,9 +856,11 @@ class FilamentMedia
         }
 
         try {
+            $disk = $this->getMediaDriver();
+
             $path = $this->isUsingCloud()
-                ? Storage::url($url)
-                : Storage::path($url);
+                ? Storage::disk($disk)->url($url)
+                : Storage::disk($disk)->path($url);
 
             return Arr::first(explode('?v=', $path));
         } catch (Throwable $exception) {
@@ -1204,7 +1206,7 @@ class FilamentMedia
 
     public function getMediaDriver(): string
     {
-        return 'public';
+        return $this->getConfig('disk', 'public');
     }
 
     public function setS3Disk(array $config): void
@@ -1550,9 +1552,8 @@ class FilamentMedia
 
         if (! $this->isUsingCloud()) {
             if (! File::exists($filePath)) {
-                return RvMedia::responseError(trans('core/media::media.file_not_exists'));
+                return $this->responseError(trans('core/media::media.file_not_exists'));
             }
-
             return response()->download($filePath, $fileName);
         }
 
