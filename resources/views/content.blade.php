@@ -394,7 +394,7 @@
                                         </x-filament::button>
                                     </x-slot:trigger>
 
-                                    <x-filament::dropdown.list />
+                                    <x-filament::dropdown.list class="rv-dropdown-actions-list" />
                                 </x-filament::dropdown>
                             </div>
                             <div
@@ -904,14 +904,15 @@ id="modal_share_items"
     <x-core::loading />
 </div> --}}
 
-{{-- <div id="rv_action_item">
-    <x-core::dropdown.item
-        class="js-files-action"
+<div id="rv_action_item" class="d-none">
+    <button
+        class="dropdown-item js-files-action"
         data-action="__action__"
-        icon="__icon__"
-        label="__name__"
-    />
-</div> --}}
+    >
+        <span class="dropdown-item-icon">__icon__</span>
+        <span class="dropdown-item-label">__name__</span>
+    </button>
+</div>
 
 <div id="rv_media_items_list">
     <div class="rv-media-list">

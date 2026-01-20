@@ -6,15 +6,24 @@ import { MessageService } from './filament-media-message-service'
 import { $httpClient } from './filament-media-http-client'
 
 export class ActionsService {
-    static handleDropdown() {
-        let selected = Helpers.size(Helpers.getSelectedItems())
+    static handleDropdown(open = false) {
+        let selectedItems = Helpers.getSelectedItems()
+        let selected = Helpers.size(selectedItems)
 
         ActionsService.renderActions()
 
+        const $actions = $('.rv-dropdown-actions')
+        const $button = $actions.find('button.rv-dropdown-actions, .dropdown-toggle')
+
         if (selected > 0) {
-            $('.rv-dropdown-actions > .dropdown-toggle').removeClass('disabled').prop('disabled', false)
+            $button.removeClass('disabled').prop('disabled', false)
+
+            // Auto open dropdown only when one item is selected and it was just selected
+            if (open && selected === 1) {
+                $button.trigger('click')
+            }
         } else {
-            $('.rv-dropdown-actions > .dropdown-toggle').addClass('disabled').prop('disabled', true)
+            $button.addClass('disabled').prop('disabled', true)
         }
     }
 
@@ -348,7 +357,16 @@ export class ActionsService {
 
         let ACTION_TEMPLATE = $('#rv_action_item').html() ?? ''
         let initializedItem = 0
-        let $dropdownActions = $('.rv-dropdown-actions .dropdown-menu')
+        let $dropdownActions = $('.rv-dropdown-actions-list')
+
+        if ($dropdownActions.length === 0) {
+            $dropdownActions = $('.rv-dropdown-actions').find('.dropdown-menu, .fi-dropdown-list, .fi-dropdown-panel')
+        }
+
+        if ($dropdownActions.length === 0) {
+            return
+        }
+
         $dropdownActions.empty()
 
         let actionsList = $.extend({}, true, Helpers.getConfigs().actions_list)

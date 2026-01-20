@@ -142,8 +142,9 @@ class MediaManagement {
                 }
 
                 let $lineCheckBox = $current.find('input[type=checkbox]')
+                let wasChecked = $lineCheckBox.prop('checked')
                 $lineCheckBox.prop('checked', true)
-                ActionsService.handleDropdown()
+                ActionsService.handleDropdown(!wasChecked)
 
                 _self.MediaService.getFileDetails($current.data())
 
