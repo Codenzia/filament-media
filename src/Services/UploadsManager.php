@@ -89,7 +89,7 @@ class UploadsManager
         ?UploadedFile $file = null,
         string $visibility = 'public'
     ): bool {
-        $storage = Storage::disk(FilamentMedia::getConfig('disk'));
+        $storage = Storage::disk(FilamentMedia::getConfig('disk', 'public'));
 
         if ($visibility === 'private' && ! FilamentMedia::isUsingCloud()) {
             $storage = Storage::disk('local');
