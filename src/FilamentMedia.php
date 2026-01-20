@@ -85,7 +85,7 @@ class FilamentMedia
         return view('core/media::content', compact('sorts'))->render();
     }
 
-    public function getSorts(): array
+    public static function getSorts(): array
     {
         return [
             'name-asc' => [
