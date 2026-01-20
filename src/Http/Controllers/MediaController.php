@@ -113,7 +113,7 @@ class MediaController extends Controller
                     [
                         'id' => 0,
                         'name' => trans('core/media::media.trash'),
-                        'icon' => BaseHelper::renderIcon('ti ti-trash'),
+                        'icon' => BaseHelper::renderIcon('heroicon-m-trash'),
                     ],
                 ];
 
@@ -135,7 +135,7 @@ class MediaController extends Controller
                     [
                         'id' => 0,
                         'name' => trans('core/media::media.recent'),
-                        'icon' => BaseHelper::renderIcon('ti ti-clock'),
+                        'icon' => BaseHelper::renderIcon('heroicon-m-clock'),
                     ],
                 ];
 
@@ -214,7 +214,7 @@ class MediaController extends Controller
                     [
                         'id' => 0,
                         'name' => trans('core/media::media.favorites'),
-                        'icon' => BaseHelper::renderIcon('ti ti-star'),
+                        'icon' => BaseHelper::renderIcon('heroicon-m-star'),
                     ],
                 ];
 

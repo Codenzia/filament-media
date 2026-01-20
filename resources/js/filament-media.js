@@ -24,6 +24,7 @@ class MediaManagement {
         this.handleMediaList()
         this.changeViewType()
         this.changeFilter()
+        this.MediaService.getMedia(true, false)
         this.search()
         this.handleActions()
 
@@ -392,7 +393,7 @@ class MediaManagement {
                             $noticeItem
                                 .attr('class', `py-2 text-${success ? 'success' : 'danger'}`)
                                 .find('i')
-                                .attr('class', success ? 'icon ti ti-check-circle' : 'icon ti ti-x-circle')
+                                .attr('class', success ? 'icon heroicon-m-check-circle' : 'icon heroicon-m-x-circle')
                         }
                     },
                     () => {

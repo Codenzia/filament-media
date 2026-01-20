@@ -80,34 +80,39 @@ class FilamentMedia
 
     public function renderContent(): string
     {
-        $sorts = [
+        $sorts = $this->getSorts();
+
+        return view('core/media::content', compact('sorts'))->render();
+    }
+
+    public function getSorts(): array
+    {
+        return [
             'name-asc' => [
                 'label' => trans('core/media::media.file_name_asc'),
-                'icon' => 'ti ti-sort-ascending-letters',
+                'icon' => 'heroicon-m-chevron-up-down',
             ],
             'name-desc' => [
                 'label' => trans('core/media::media.file_name_desc'),
-                'icon' => 'ti ti-sort-descending-letters',
+                'icon' => 'heroicon-m-chevron-up-down',
             ],
             'created_at-asc' => [
                 'label' => trans('core/media::media.uploaded_date_asc'),
-                'icon' => 'ti ti-sort-ascending-numbers',
+                'icon' => 'heroicon-m-chevron-up-down',
             ],
             'created_at-desc' => [
                 'label' => trans('core/media::media.uploaded_date_desc'),
-                'icon' => 'ti ti-sort-descending-numbers',
+                'icon' => 'heroicon-m-chevron-up-down',
             ],
             'size-asc' => [
                 'label' => trans('core/media::media.size_asc'),
-                'icon' => 'ti ti-sort-ascending-2',
+                'icon' => 'heroicon-m-chevron-up-down',
             ],
             'size-desc' => [
                 'label' => trans('core/media::media.size_desc'),
-                'icon' => 'ti ti-sort-descending-2',
+                'icon' => 'heroicon-m-chevron-up-down',
             ],
         ];
-
-        return view('core/media::content', compact('sorts'))->render();
     }
 
     public function responseSuccess(array $data, ?string $message = null): JsonResponse
@@ -1600,7 +1605,7 @@ class FilamentMedia
             [
                 'id' => 0,
                 'name' => trans('core/media::media.all_media'),
-                'icon' => 'ti ti-folder',
+                'icon' => 'heroicon-m-folder',
             ]
         ];
 

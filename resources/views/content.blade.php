@@ -367,13 +367,26 @@
                                         </x-filament::button>
                                     </x-slot:trigger>
 
-                                    <x-filament::dropdown.list />
+                                    <x-filament::dropdown.list>
+                                        @foreach ($sorts as $key => $item)
+                                        <x-filament::dropdown.list.item
+                                            :label="$item['label']"
+                                            :icon="$item['icon']"
+                                            class="js-rv-media-change-filter"
+                                            data-type="sort_by"
+                                            :data-value="$key"
+                                        >
+                                        {{ $item['label'] }}
+                                        </x-filament::dropdown.list.item>
+                                        @endforeach
+                                    </x-filament::dropdown.list>
                                 </x-filament::dropdown>
 
                                 <x-filament::dropdown class="rv-dropdown-actions">
                                     <x-slot:trigger>
                                         <x-filament::button
                                             icon="heroicon-m-hand-raised"
+                                            class="rv-dropdown-actions"
                                             :disabled="true"
                                             outlined
                                         >
@@ -910,10 +923,7 @@ id="modal_share_items"
             </li>
             <li class="rv-media-list-title up-one-level js-up-one-level" title="{{ trans('core/media::media.up_level') }}">
                 <div class="custom-checkbox"></div>
-                <div class="rv-media-file-name">
-                    <x-filament::icon icon="heroicon-m-arrow-up-left" />
-                    <span>...</span>
-                </div>
+
                 <div class="rv-media-file-size"></div>
                 <div class="rv-media-created-at"></div>
             </li>
@@ -932,7 +942,7 @@ id="modal_share_items"
             <li class="rv-media-list-title up-one-level js-up-one-level">
                 <div class="rv-media-item" data-context="__type__" title="{{ trans('core/media::media.up_level') }}">
                     <div class="rv-media-thumbnail">
-                        <x-filament::icon icon="heroicon-m-arrow-up-left"  />
+                        <x-filament::icon icon="heroicon-m-arrow-turn-up-left"  />
                     </div>
                     <div class="rv-media-description">
                         <div class="title">...</div>
@@ -1004,7 +1014,7 @@ id="modal_share_items"
     </li>
 </div>
 
-{{-- <div id="rv_media_rename_item">
+<div id="rv_media_rename_item">
     <div class="mb-3">
         <div class="input-group">
             <div class="input-group-text">__icon__</div>
@@ -1021,12 +1031,12 @@ id="modal_share_items"
         data-bb-target=".rename-physical-file-warning"
     />
 
-    <x-core::alert type="warning" class="rename-physical-file-warning" style="display: none">
+    <div class="p-4 mb-4 text-sm text-fg-warning-strong rounded-base bg-warning-soft" role="alert" class="rename-physical-file-warning" style="display: none">
         {{ trans('core/media::media.rename_physical_file_warning') }}
-    </x-core::alert>
-</div> --}}
+    </div>
+</div>
 
-{{-- <div id="rv_media_alt_text_item">
+<div id="rv_media_alt_text_item">
     <div class="mb-3">
         <div class="input-group">
             <div class="input-group-text">
@@ -1035,12 +1045,14 @@ id="modal_share_items"
             <input class="form-control" placeholder="__placeholder__" value="__value__">
         </div>
     </div>
-</div> --}}
+</div>
 
 
 
 <div class="media-download-popup" style="display: none">
-    <x-core::alert type="success">{{ trans('core/media::media.prepare_file_to_download') }}</x-core::alert>
+    <div class="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" role="alert">
+        {{ trans('core/media::media.prepare_file_to_download') }}
+    </div>
 </div>
 
 </div>
