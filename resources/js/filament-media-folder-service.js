@@ -8,10 +8,6 @@ import { $httpClient } from './filament-media-http-client'
 export class FolderService {
     constructor() {
         this.MediaService = new MediaService()
-
-        $(document).on('shown.bs.modal', '#modal_add_folder', (event) => {
-            $(event.currentTarget).find('form input[type=text]').focus()
-        })
     }
 
     create(folderName) {
@@ -36,6 +32,10 @@ export class FolderService {
         MediaConfig.request_params.folder_id = folderId
         Helpers.storeConfig()
         this.MediaService.getMedia(true)
+
+        if (typeof Livewire !== 'undefined') {
+            Livewire.dispatch('update-folder-id', { id: folderId });
+        }
     }
 
     changeFolderAndAddToRecent(folderId) {

@@ -1,6 +1,6 @@
 <x-filament-panels::page>
     <div>
-        <div id="media-content">
+        <div id="media-content" wire:ignore>
 
             <div class="rv-media-container">
                 <x-core::card class="rv-media-wrapper">
@@ -173,8 +173,8 @@
                                             type="button"
                                             color="primary"
                                             :tooltip="trans('core/media::media.create_folder')"
-                                            class="js-create-folder-action bg-white dark:bg-gray-900"
-                                            x-on:click="$dispatch('open-modal', { id: 'modal_add_folder' })"
+                                            class="bg-white dark:bg-gray-900"
+                                            wire:click="mountAction('create_folder')"
                                             icon="heroicon-m-folder-plus"
                                             :label="trans('core/media::media.create_folder')"
                                             size="lg"
@@ -477,45 +477,7 @@
             </div>
 
 
-            <x-filament::modal
-                id="modal_add_folder"
-                icon="heroicon-m-folder-plus"
-                :heading="trans('core/media::media.create_folder')"
-                width="md"
-            >
-                <form class="rv-form form-add-folder space-y-4">
-                    <x-filament::input.wrapper>
-                        <x-filament::input
-                            name="name"
-                            type="text"
-                            :placeholder="trans('core/media::media.folder_name')"
-                            required
-                        />
 
-                    </x-filament::input.wrapper>
-
-                    <div class="modal-notice"></div>
-
-                    <x-slot name="footer">
-                        <x-filament::button
-                            type="button"
-                            color="gray"
-                            x-on:click="$dispatch('close-modal', { id: 'modal_add_folder' })"
-                        >
-                            {{ trans('core/media::media.close') }}
-                        </x-filament::button>
-
-                        <x-filament::button
-                            type="submit"
-                            color="primary"
-                            icon="heroicon-m-check"
-                            class="form-submit-create-folder"
-                        >
-                            {{ trans('core/media::media.create') }}
-                        </x-filament::button>
-                    </x-slot>
-                </form>
-            </x-filament::modal>
 
             <x-core::modal
                 id="modal_rename_items"
@@ -920,9 +882,9 @@
 
 
 
-        {{-- <div id="rv_media_loading">
-            <x-core::loading />
-        </div> --}}
+        <div id="rv_media_loading">
+            {{-- <x-filament::loading-indicator class="h-5 w-5 text-primary" /> --}}
+        </div>
 
         <div id="rv_action_item" class="d-none">
             <button

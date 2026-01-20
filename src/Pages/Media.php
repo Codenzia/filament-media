@@ -3,7 +3,11 @@
 namespace Codenzia\FilamentMedia\Pages;
 
 use Filament\Pages\Page;
-use Codenzia\FilamentMedia\FilamentMedia;
+use Codenzia\FilamentMedia\Facades\FilamentMedia;
+use Filament\Actions\Action;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Livewire\Attributes\On;
 
 class Media extends Page
 {
@@ -13,9 +17,41 @@ class Media extends Page
     protected string $view = 'filament-media::pages.media';
     protected array $sorts = [];
 
+    public $folderId = 0;
+
     public function mount(): void
     {
         $this->sorts = FilamentMedia::getSorts();
+    }
+
+    #[On('update-folder-id')]
+    public function updateFolderId($id)
+    {
+        $this->folderId = $id;
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('create_folder')
+                ->label(trans('core/media::media.create_folder'))
+                ->icon('heroicon-o-folder-plus')
+                ->form([
+                    TextInput::make('name')
+                        ->label(trans('core/media::media.folder_name'))
+                        ->required(),
+                ])
+                ->action(function (array $data) {
+                    FilamentMedia::createFolder($data['name'], $this->folderId);
+
+                    $this->dispatch('media-folder-created');
+
+                    Notification::make()
+                        ->title(trans('core/media::media.folder_created'))
+                        ->success()
+                        ->send();
+                }),
+        ];
     }
 
 }
