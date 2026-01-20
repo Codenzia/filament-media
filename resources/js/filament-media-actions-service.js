@@ -204,7 +204,7 @@ export class ActionsService {
                     if (!Helpers.inArray(Helpers.getConfigs().denied_download, value.mime_type)) {
                         files.push({
                             id: value.id,
-                            is_folder: value.is_folder,
+                            is_folder: value.context === 'folder' ? true : false,
                         })
                     }
                 })
@@ -553,10 +553,10 @@ export class ActionsService {
             .then((response) => {
                 let fileName = 'download'
                 const disposition = response.headers['content-disposition']
-                
+
                 if (disposition && disposition.indexOf('filename=') !== -1) {
                     const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition)
-                    if (matches != null && matches[1]) { 
+                    if (matches != null && matches[1]) {
                         fileName = matches[1].replace(/['"]/g, '')
                     }
                 }

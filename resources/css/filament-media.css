@@ -290,6 +290,7 @@
 .rv-media-container .rv-media-items .rv-media-item {
     overflow: hidden;
     border-radius: 5px;
+    background: #16181c;
 }
 
 .rv-media-container .rv-media-details {

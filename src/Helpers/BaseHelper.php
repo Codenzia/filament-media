@@ -43,4 +43,22 @@ class BaseHelper
     {
         return $date->format($format);
     }
+
+    public function stringify($content): ?string
+    {
+        if (empty($content)) {
+            return null;
+        }
+
+        if (is_string($content) || is_numeric($content) || is_bool($content)) {
+            return $content;
+        }
+
+        if (is_array($content)) {
+            return json_encode($content);
+        }
+
+        return null;
+    }
+
 }

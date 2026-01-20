@@ -154,8 +154,7 @@ export class Helpers {
             let $box = $(el).closest('.js-media-list-title')
             let data = $box.data() || {}
             data.index_key = $box.index()
-            // Ensure is_folder is always a boolean to avoid undefined downstream
-            data.is_folder = typeof data.is_folder === 'undefined' ? false : Boolean(data.is_folder)
+            //data.is_folder = typeof data.is_folder === 'undefined' ? false : Boolean(data.is_folder)
             selected.push(data)
         })
         return selected
