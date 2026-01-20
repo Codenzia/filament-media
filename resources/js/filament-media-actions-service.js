@@ -188,13 +188,13 @@ export class ActionsService {
                 $('#modal_crop_image').modal('show').find('form.rv-form').data('action', type)
                 break
             case 'trash':
-                $('#modal_trash_items').modal('show').find('form.form-delete-items').data('action', type)
+                Livewire.dispatch('open-trash-modal', { items: selected })
                 break
             case 'delete':
-                $('#modal_delete_items').modal('show').find('form.form-delete-items').data('action', type)
+                Livewire.dispatch('open-delete-modal', { items: selected })
                 break
             case 'empty_trash':
-                $('#modal_empty_trash').modal('show').find('form.form-empty-trash').data('action', type)
+                Livewire.dispatch('open-empty-trash-modal')
                 break
             case 'download':
                 let files = []
@@ -224,7 +224,7 @@ export class ActionsService {
 
                 break
             case 'create_folder':
-                $('.js-create-folder-action').trigger('click')
+                Livewire.dispatch('open-create-folder-modal')
                 break
             default:
                 ActionsService.processAction(
@@ -377,11 +377,11 @@ export class ActionsService {
         let actionsList = $.extend({}, true, Helpers.getConfigs().actions_list)
 
         if (hasFolderSelected) {
-            const ignoreActions = ['preview', 'crop', 'alt_text', 'copy_link', 'copy_direct_link', 'share']
+            const ignoreActions = ['preview', 'crop', 'alt_text', 'copy_link', 'copy_indirect_link', 'share']
 
-            actionsList.basic = Helpers.arrayReject(
-                actionsList.basic, (item) => ignoreActions.includes(item.action)
-            )
+            Helpers.each(actionsList, (group, key) => {
+                actionsList[key] = Helpers.arrayReject(group, (item) => ignoreActions.includes(item.action))
+            })
 
             if (!Helpers.hasPermission('folders.create')) {
                 actionsList.file = Helpers.arrayReject(actionsList.file, (item) => {
@@ -489,6 +489,9 @@ export class ActionsService {
         }
 
         Helpers.each(actionsList, (action, key) => {
+            // Sort actions by order
+            action.sort((a, b) => (a.order || 0) - (b.order || 0))
+
             Helpers.each(action, (item, index) => {
                 let is_break = false
                 switch (Helpers.getRequestParams().view_in) {
@@ -517,17 +520,8 @@ export class ActionsService {
                     const baseTemplate = typeof ACTION_TEMPLATE === 'string' ? ACTION_TEMPLATE : ''
                     let template = baseTemplate
                         .replace(/__action__/gi, item.action || '')
-                        .replace(
-                            '<i class="__icon__ dropdown-item-icon dropdown-item-icon"></i>',
-                            '<span class="icon-tabler-wrapper dropdown-item-icon">__icon__</span>'
-                        )
-                        .replace('__icon__', '<span class="icon-tabler-wrapper dropdown-item-icon">__icon__</span>')
                         .replace('__icon__', item.icon || '')
                         .replace(/__name__/gi, Helpers.trans(`actions_list.${key}.${item.action}`) || item.name)
-
-                    if (item.icon) {
-                        template = template.replace('media-icon', 'media-icon dropdown-item-icon')
-                    }
 
                     if (!index && initializedItem) {
                         template = `<li role="separator" class="divider"></li>${template}`

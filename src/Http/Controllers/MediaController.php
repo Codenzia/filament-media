@@ -474,7 +474,7 @@ class MediaController extends Controller
             case 'make_copy':
                 foreach ($request->input('selected', []) as $item) {
                     $id = $item['id'];
-                    if (! $item['is_folder']) {
+                    //if (! $item['is_folder']) {
                         /**
                          * @var MediaFile $file
                          */
@@ -485,78 +485,78 @@ class MediaController extends Controller
                         }
 
                         $this->copyFile($file);
-                    } else {
-                        $oldFolder = MediaFolder::query()->find($id);
-
-                        if (! $oldFolder) {
-                            break;
-                        }
-
-                        $folderData = $oldFolder->replicate()->toArray();
-
-                        $folderData['slug'] = $this->folderRepository->createSlug(
-                            $oldFolder->name,
-                            $oldFolder->parent_id
-                        );
-                        $folderData['name'] = $oldFolder->name . '-(copy)';
-                        $folderData['user_id'] = Auth::guard()->id();
-                        $folder = $this->folderRepository->create($folderData);
-
-                        $files = $this->fileRepository->getFilesByFolderId($id, [], false);
-                        foreach ($files as $file) {
-                            $this->copyFile($file, $folder->id);
-                        }
-
-                        $children = $this->folderRepository->getAllChildFolders($id);
-                        foreach ($children as $parentId => $child) {
-                            if ($parentId != $oldFolder->getKey()) {
-                                $folder = MediaFolder::query()->find($parentId);
-
-                                if (! $folder) {
-                                    break;
-                                }
-
-                                $folderData = $folder->replicate()->toArray();
-
-                                $folderData['slug'] = $this->folderRepository->createSlug(
-                                    $oldFolder->name,
-                                    $oldFolder->parent_id
-                                );
-                                $folderData['name'] = $oldFolder->name . '-(copy)';
-                                $folderData['user_id'] = Auth::guard()->id();
-                                $folderData['parent_id'] = $folder->id;
-                                $folder = MediaFolder::query()->create($folderData);
-
-                                $parentFiles = $this->fileRepository->getFilesByFolderId($parentId, [], false);
-                                foreach ($parentFiles as $parentFile) {
-                                    $this->copyFile($parentFile, $folder->id);
-                                }
-                            }
-
-                            foreach ($child as $sub) {
-                                /**
-                                 * @var MediaFolder $sub
-                                 */
-                                $subFiles = $this->fileRepository->getFilesByFolderId($sub->getKey(), [], false);
-
-                                $subFolderData = $sub->replicate()->toArray();
-
-                                $subFolderData['user_id'] = Auth::guard()->id();
-                                $subFolderData['parent_id'] = $folder->id;
-
-                                $sub = MediaFolder::query()->create($subFolderData);
-
-                                foreach ($subFiles as $subFile) {
-                                    $this->copyFile($subFile, $sub->getKey());
-                                }
-                            }
-                        }
-
-                        $allFiles = Storage::allFiles($this->folderRepository->getFullPath($oldFolder->getKey()));
-                        foreach ($allFiles as $file) {
-                            Storage::copy($file, str_replace($oldFolder->slug, $folder->slug, $file));
-                        }
-                    }
+//                     } else {
+//                         $oldFolder = MediaFolder::query()->find($id);
+//
+//                         if (! $oldFolder) {
+//                             break;
+//                         }
+//
+//                         $folderData = $oldFolder->replicate()->toArray();
+//
+//                         $folderData['slug'] = $this->folderRepository->createSlug(
+//                             $oldFolder->name,
+//                             $oldFolder->parent_id
+//                         );
+//                         $folderData['name'] = $oldFolder->name . '-(copy)';
+//                         $folderData['user_id'] = Auth::guard()->id();
+//                         $folder = $this->folderRepository->create($folderData);
+//
+//                         $files = $this->fileRepository->getFilesByFolderId($id, [], false);
+//                         foreach ($files as $file) {
+//                             $this->copyFile($file, $folder->id);
+//                         }
+//
+//                         $children = $this->folderRepository->getAllChildFolders($id);
+//                         foreach ($children as $parentId => $child) {
+//                             if ($parentId != $oldFolder->getKey()) {
+//                                 $folder = MediaFolder::query()->find($parentId);
+//
+//                                 if (! $folder) {
+//                                     break;
+//                                 }
+//
+//                                 $folderData = $folder->replicate()->toArray();
+//
+//                                 $folderData['slug'] = $this->folderRepository->createSlug(
+//                                     $oldFolder->name,
+//                                     $oldFolder->parent_id
+//                                 );
+//                                 $folderData['name'] = $oldFolder->name . '-(copy)';
+//                                 $folderData['user_id'] = Auth::guard()->id();
+//                                 $folderData['parent_id'] = $folder->id;
+//                                 $folder = MediaFolder::query()->create($folderData);
+//
+//                                 $parentFiles = $this->fileRepository->getFilesByFolderId($parentId, [], false);
+//                                 foreach ($parentFiles as $parentFile) {
+//                                     $this->copyFile($parentFile, $folder->id);
+//                                 }
+//                             }
+//
+//                             foreach ($child as $sub) {
+//                                 /**
+//                                  * @var MediaFolder $sub
+//                                  */
+//                                 $subFiles = $this->fileRepository->getFilesByFolderId($sub->getKey(), [], false);
+//
+//                                 $subFolderData = $sub->replicate()->toArray();
+//
+//                                 $subFolderData['user_id'] = Auth::guard()->id();
+//                                 $subFolderData['parent_id'] = $folder->id;
+//
+//                                 $sub = MediaFolder::query()->create($subFolderData);
+//
+//                                 foreach ($subFiles as $subFile) {
+//                                     $this->copyFile($subFile, $sub->getKey());
+//                                 }
+//                             }
+//                         }
+//
+//                         $allFiles = Storage::allFiles($this->folderRepository->getFullPath($oldFolder->getKey()));
+//                         foreach ($allFiles as $file) {
+//                             Storage::copy($file, str_replace($oldFolder->slug, $folder->slug, $file));
+//                         }
+//                     }
                 }
 
                 $response = FilamentMedia::responseSuccess([], trans('core/media::media.copy_success'));

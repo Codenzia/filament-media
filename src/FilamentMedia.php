@@ -327,7 +327,7 @@ class FilamentMedia
 
     public function getPermissions(): array
     {
-        return $this->permissions;
+        return $this->permissions ?: $this->getConfig('permissions', []);
     }
 
     public function setPermissions(array $permissions): void
