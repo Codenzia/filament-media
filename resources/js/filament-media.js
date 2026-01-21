@@ -9,6 +9,10 @@ import { DownloadService } from './filament-media-download-service.js'
 import { EditorService } from './filament-media-integrate.js'
 
 class MediaManagement {
+
+    static noticesTimeout = {}
+    static noticesTimeoutCount = 0
+
     constructor() {
         this.MediaService = new MediaService()
         this.UploadService = new UploadService()
@@ -432,24 +436,20 @@ class MediaManagement {
     handleModals() {
         let _self = this
 
-        _self.$body.on('show.bs.modal', '#modal_rename_items', () => {
-            ActionsService.renderRenameItems()
-        })
+        // _self.$body.on('show.bs.modal', '#modal_rename_items', () => {
+        //     ActionsService.renderRenameItems()
+        // })
 
         _self.$body.on('show.bs.modal', '#modal_alt_text_items', () => {
             ActionsService.renderAltTextItems()
         })
-
-        _self.$body.on('show.bs.modal', '#modal_share_items', () => {
-            ActionsService.renderShareItems()
-        })
+//
+//         _self.$body.on('show.bs.modal', '#modal_share_items', () => {
+//             ActionsService.renderShareItems()
+//         })
 
         _self.$body.on('change', '#modal_share_items select[data-bb-value="share-type"]', () => {
             ActionsService.renderShareItems()
-        })
-
-        _self.$body.on('show.bs.modal', '#modal_crop_image', () => {
-            ActionsService.renderCropImage()
         })
 
         _self.$body.on('show.bs.modal', '#modal-properties', (event) => {
@@ -805,10 +805,70 @@ class MediaManagement {
         $(element).find('.loading-spinner').remove()
     }
 
+    static async copyToClipboard(textToCopy, parentTarget) {
+        console.log('copyToClipboard', textToCopy, parentTarget);
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(textToCopy)
+        } else {
+            this.unsecuredCopyToClipboard(textToCopy, parentTarget)
+        }
+    }
+
+    static unsecuredCopyToClipboard(textToCopy, parentTarget) {
+        parentTarget = parentTarget || document.body
+        const textArea = document.createElement('textarea')
+        textArea.value = textToCopy
+        textArea.style.position = 'absolute'
+        textArea.style.left = '-999999px'
+        parentTarget.append(textArea)
+        textArea.select()
+
+        try {
+            document.execCommand('copy')
+        } catch (error) {
+            console.error('Unable to copy to clipboard', error)
+        }
+
+        parentTarget.removeChild(textArea)
+    }
+
+    static showNotice(messageType, message, messageHeader = '') {
+        // Ensure per-class storage even if called via window.FilamentMedia.showNotice
+        MediaManagement.noticesTimeout = MediaManagement.noticesTimeout || {}
+
+        const key = `notices_msg.${messageType}.${message}`
+
+        if (MediaManagement.noticesTimeout[key]) {
+            clearTimeout(MediaManagement.noticesTimeout[key])
+        }
+
+        MediaManagement.noticesTimeout[key] = setTimeout(() => {
+            // Filament listens for `notify` events on window
+            window.dispatchEvent(
+                new CustomEvent('notify', {
+                    detail: {
+                        status: messageType === 'error' ? 'danger' : 'success',
+                        message: messageHeader ? `${messageHeader}: ${message}` : message,
+                        duration: 5000,
+                    },
+                })
+            )
+        }, 200)
+    }
+
 }
 
 const initMediaManagement = () => {
     window.FilamentMedia = window.FilamentMedia || {}
+
+    // Expose helpers for other modules
+    window.FilamentMedia.copyToClipboard = MediaManagement.copyToClipboard
+    window.FilamentMedia.showButtonLoading = MediaManagement.showButtonLoading
+    window.FilamentMedia.hideButtonLoading = MediaManagement.hideButtonLoading
+    window.FilamentMedia.showLoading = MediaManagement.showLoading
+    window.FilamentMedia.hideLoading = MediaManagement.hideLoading
+    window.FilamentMedia.showNotice = MediaManagement.showNotice
+
     new MediaManagement().init()
 }
 

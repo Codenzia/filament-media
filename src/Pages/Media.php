@@ -156,21 +156,17 @@ class Media extends Page
                 ->extraAttributes(['class' => 'hidden'])
                 ->mountUsing(function ($form, array $arguments) {
                     $items = $arguments['items'] ?? [];
-                    if (count($items) === 1) {
-                        $form->fill([
-                            'name' => $items[0]['name'] ?? '',
-                        ]);
-                    }
+                    $name = $items[0]['is_folder'] ? MediaFolder::find($items[0]['id'])->name ?? '' : MediaFile::find($items[0]['id'])->name ?? '';
+                    $form->fill(['name' => $name]);
                 })
                 ->form([
                     TextInput::make('name')
-                        ->label(trans('core/media::media.folder_name'))
+                        ->label('New Name')
                         ->required(),
                 ])
                 ->action(function (array $data, array $arguments) {
                     $items = $arguments['items'] ?? [];
                     $newName = $data['name'];
-
                     foreach ($items as $item) {
                         $id = $item['id'];
                         $isFolder = $item['is_folder'] ?? false;
@@ -256,12 +252,11 @@ class Media extends Page
                 ->extraAttributes(['class' => 'hidden'])
                 ->action(function (array $arguments) {
                     $items = $arguments['items'] ?? [];
-                    
+
                     $meta = MediaSetting::query()->firstOrCreate([
                         'key' => 'favorites',
                         'user_id' => Auth::guard()->id(),
                     ]);
-
                     if (! empty($meta->value)) {
                         $meta->value = array_merge($meta->value, $items);
                     } else {
@@ -283,7 +278,7 @@ class Media extends Page
                 ->extraAttributes(['class' => 'hidden'])
                 ->action(function (array $arguments) {
                     $items = $arguments['items'] ?? [];
-                    
+
                     $meta = MediaSetting::query()->firstOrCreate([
                         'key' => 'favorites',
                         'user_id' => Auth::guard()->id(),
@@ -294,7 +289,7 @@ class Media extends Page
                         if (! empty($value)) {
                             foreach ($value as $key => $item) {
                                 foreach ($items as $selectedItem) {
-                                    if ($item['is_folder'] == $selectedItem['is_folder'] && $item['id'] == $selectedItem['id']) {
+                                    if ( $item['id'] == $selectedItem['id']) {
                                         unset($value[$key]);
                                     }
                                 }

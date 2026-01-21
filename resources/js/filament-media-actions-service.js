@@ -122,7 +122,7 @@ export class ActionsService {
             links += value.full_url
         })
 
-        await FilamentMedia.copyToClipboard(links)
+        await window.FilamentMedia.copyToClipboard(links)
 
         MessageService.showMessage(
             'success',
@@ -132,17 +132,22 @@ export class ActionsService {
     }
 
     static async handleCopyIndirectLink() {
-        let links = ''
+        const selected = Helpers.getSelectedFiles()
+        if (!Helpers.size(selected)) {
+            return
+        }
 
-        Helpers.each(Helpers.getSelectedFiles(), (value) => {
-            if (!Helpers.isEmpty(links)) {
-                links += '\n'
-            }
+        const links = selected
+            .map((value) => value.indirect_url)
+            .filter((url) => !!url)
+            .join('\n')
 
-            links += value.indirect_url
-        })
+        if (!links) {
+            MessageService.showMessage('error', Helpers.trans('clipboard.error'), Helpers.trans('message.error_header'))
+            return
+        }
 
-        await FilamentMedia.copyToClipboard(links)
+        await window.FilamentMedia.copyToClipboard(links)
 
         MessageService.showMessage(
             'success',
@@ -175,12 +180,12 @@ export class ActionsService {
             case 'copy_indirect_link':
                 ActionsService.handleCopyIndirectLink().then(() => {})
                 break
-            case 'share':
-                $('#modal_share_items').modal('show')
-                break
-            case 'preview':
-                ActionsService.handlePreview()
-                break
+            // case 'share':
+            //     $('#modal_share_items').modal('show')
+            //     break
+            // case 'preview':
+            //     ActionsService.handlePreview()
+            //     break
             case 'alt_text':
                 $('#modal_alt_text_items').modal('show').find('form.form-alt-text').data('action', type)
                 break
@@ -258,45 +263,45 @@ export class ActionsService {
             .finally(() => Helpers.hideAjaxLoading())
     }
 
-    static renderRenameItems() {
-        let VIEW = $('#rv_media_rename_item').html()
-        let $itemsWrapper = $('#modal_rename_items .rename-items').empty()
-
-        Helpers.each(Helpers.getSelectedItems(), (value) => {
-            let item = VIEW.replace(
-                /__icon__/gi,
-                value.icon ||
-                    `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
-                </svg>`
-            )
-                .replace(/__placeholder__/gi, 'Input file name')
-                .replace(/__value__/gi, value.name)
-
-            let $item = $(item)
-            $item.data('id', value.id.toString())
-            $item.data('is_folder', value.is_folder)
-            $item.data('name', value.name)
-
-            const $renamePhysicalFile = $item.find('input[name="rename_physical_file"]')
-
-            $renamePhysicalFile
-                .closest('.form-check')
-                .find('span')
-                .text(
-                    value.is_folder ? $renamePhysicalFile.data('folder-label') : $renamePhysicalFile.data('file-label')
-                )
-
-            $item.find('input[name="rename_physical_file"]').on('change', function () {
-                $item.data('rename_physical_file', $(this).is(':checked'))
-            })
-
-            $itemsWrapper.append($item)
-
-            FilamentMedia.initFieldCollapse()
-        })
-    }
+//     static renderRenameItems() {
+//         let VIEW = $('#rv_media_rename_item').html()
+//         let $itemsWrapper = $('#modal_rename_items .rename-items').empty()
+//
+//         Helpers.each(Helpers.getSelectedItems(), (value) => {
+//             let item = VIEW.replace(
+//                 /__icon__/gi,
+//                 value.icon ||
+//                     `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+//                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+//                     <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
+//                 </svg>`
+//             )
+//                 .replace(/__placeholder__/gi, 'Input file name')
+//                 .replace(/__value__/gi, value.name)
+//
+//             let $item = $(item)
+//             $item.data('id', value.id.toString())
+//             $item.data('is_folder', value.is_folder)
+//             $item.data('name', value.name)
+//
+//             const $renamePhysicalFile = $item.find('input[name="rename_physical_file"]')
+//
+//             $renamePhysicalFile
+//                 .closest('.form-check')
+//                 .find('span')
+//                 .text(
+//                     value.is_folder ? $renamePhysicalFile.data('folder-label') : $renamePhysicalFile.data('file-label')
+//                 )
+//
+//             $item.find('input[name="rename_physical_file"]').on('change', function () {
+//                 $item.data('rename_physical_file', $(this).is(':checked'))
+//             })
+//
+//             $itemsWrapper.append($item)
+//
+//             FilamentMedia.initFieldCollapse()
+//         })
+//     }
 
     static renderAltTextItems() {
         let VIEW = $('#rv_media_alt_text_item').html()
