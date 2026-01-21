@@ -193,6 +193,12 @@ export class ActionsService {
             case 'empty_trash':
                 Livewire.dispatch('open-empty-trash-modal')
                 break
+            case 'favorite':
+                Livewire.dispatch('open-favorite-modal', { items: selected })
+                break
+            case 'remove_favorite':
+                Livewire.dispatch('open-remove-favorite-modal', { items: selected })
+                break
             case 'download':
                 let files = []
                 Helpers.each(Helpers.getSelectedItems(), (value) => {

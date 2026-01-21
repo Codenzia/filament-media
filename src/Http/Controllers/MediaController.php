@@ -234,16 +234,24 @@ class MediaController extends Controller
                         'key' => 'favorites',
                         'user_id' => Auth::guard()->id(),
                     ])->first();
-
                 if (! empty($favoriteItems)) {
-                    $fileIds = collect($favoriteItems->value)
-                        ->where('is_folder', 'false')
+                    $favoriteCollection = collect($favoriteItems->value);
+
+                    // Backward compatible: if is_folder is missing, treat as file
+                    $fileIds = $favoriteCollection
+                        ->filter(function ($item) {
+                            return ($item['is_folder'] ?? false) === 'false' || ($item['is_folder'] ?? false) === false;
+                        })
                         ->pluck('id')
+                        ->filter()
                         ->all();
 
-                    $folderIds = collect($favoriteItems->value)
-                        ->where('is_folder', 'true')
+                    $folderIds = $favoriteCollection
+                        ->filter(function ($item) {
+                            return ($item['is_folder'] ?? false) === 'true' || ($item['is_folder'] ?? false) === true;
+                        })
                         ->pluck('id')
+                        ->filter()
                         ->all();
 
                     $paramsFile = array_merge_recursive($paramsFile, [

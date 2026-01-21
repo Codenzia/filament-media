@@ -371,7 +371,7 @@ class MediaManagement {
                 const url = $input.val()
                 const remainUrls = []
 
-                FilamentMedia.showButtonLoading($button)
+            window.FilamentMedia.showButtonLoading?.($button)
 
                 $wrapper.slideUp()
 
@@ -473,7 +473,7 @@ class MediaManagement {
 
                 const $modal = $(event.currentTarget).closest('.modal')
 
-                FilamentMedia.showButtonLoading($modal.find('button[type="submit"]'))
+                window.FilamentMedia.showButtonLoading?.($modal.find('button[type="submit"]'))
 
                 ActionsService.processAction(
                     {
@@ -497,7 +497,7 @@ class MediaManagement {
 
                 const $form = $(event.currentTarget)
 
-                FilamentMedia.showButtonLoading($form.find('button[type="submit"]'))
+                window.FilamentMedia.showButtonLoading?.($form.find('button[type="submit"]'))
 
                 const imageId = $form.find('input[name="image_id"]').val()
                 const cropData = $form.find('input[name="crop_data"]').val()
@@ -532,7 +532,7 @@ class MediaManagement {
                     items.push(data)
                 })
 
-                FilamentMedia.showButtonLoading($form.find('button[type="submit"]'))
+                window.FilamentMedia.showButtonLoading?.($form.find('button[type="submit"]'))
 
                 ActionsService.processAction(
                     {
@@ -574,7 +574,7 @@ class MediaManagement {
                     items.push(data)
                 })
 
-                FilamentMedia.showButtonLoading($form.find('button[type="submit"]'))
+                window.FilamentMedia.showButtonLoading?.($form.find('button[type="submit"]'))
 
                 ActionsService.processAction(
                     {
@@ -607,7 +607,7 @@ class MediaManagement {
             let items = []
             let $form = $(event.currentTarget)
 
-            FilamentMedia.showButtonLoading($form.find('button[type="submit"]'))
+            window.FilamentMedia.showButtonLoading?.($form.find('button[type="submit"]'))
 
             Helpers.each(Helpers.getSelectedItems(), (value) => {
                 items.push({
@@ -642,7 +642,7 @@ class MediaManagement {
                 event.preventDefault()
                 let $form = $(event.currentTarget)
 
-                FilamentMedia.showButtonLoading($form.find('button[type="submit"]'))
+                window.FilamentMedia.showButtonLoading?.($form.find('button[type="submit"]'))
 
                 ActionsService.processAction(
                     {
@@ -743,6 +743,68 @@ class MediaManagement {
             }
         })
     }
+
+    static showButtonLoading(element, overlay = true, position = 'start') {
+        if (overlay && element) {
+            $(element).addClass('btn-loading').attr('disabled', true)
+
+            return
+        }
+
+        const loading = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>'
+        const icon = $(element).find('svg')
+
+        if (icon.length) {
+            icon.addClass('d-none')
+        }
+
+        if (position === 'start') {
+            $(element).prepend(loading)
+        } else if (position === 'end') {
+            $(element).append(loading)
+        }
+    }
+
+    static hideButtonLoading(element) {
+        if (!element) {
+            return
+        }
+
+        if ($(element).hasClass('btn-loading')) {
+            $(element).removeClass('btn-loading').removeAttr('disabled')
+
+            return
+        }
+
+        $(element).find('.spinner-border').remove()
+        $(element).find('svg').removeClass('d-none')
+    }
+
+    /**
+     * @param {HTMLElement} element
+     */
+    static showLoading(element = null) {
+        if (!element) {
+            element = document.querySelector('.page-wrapper')
+        }
+
+        if ($(element).find('.loading-spinner').length) {
+            return
+        }
+
+        $(element).addClass('position-relative')
+        $(element).append('<div class="loading-spinner"></div>')
+    }
+
+    static hideLoading(element = null) {
+        if (!element) {
+            element = document.querySelector('.page-wrapper')
+        }
+
+        $(element).removeClass('position-relative')
+        $(element).find('.loading-spinner').remove()
+    }
+
 }
 
 const initMediaManagement = () => {

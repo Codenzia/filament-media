@@ -14,6 +14,8 @@ use Codenzia\FilamentMedia\Repositories\Interfaces\MediaFileInterface;
 use Codenzia\FilamentMedia\Repositories\Interfaces\MediaFolderInterface;
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
+use Codenzia\FilamentMedia\Models\MediaSetting;
+use Illuminate\Support\Facades\Auth;
 
 class Media extends Page
 {
@@ -64,6 +66,18 @@ class Media extends Page
     public function openCreateFolderModal()
     {
         $this->mountAction('create_folder');
+    }
+
+    #[On('open-favorite-modal')]
+    public function openFavoriteModal(array $items)
+    {
+        $this->mountAction('favorite', ['items' => $items]);
+    }
+
+    #[On('open-remove-favorite-modal')]
+    public function openRemoveFavoriteModal(array $items)
+    {
+        $this->mountAction('remove_favorite', ['items' => $items]);
     }
 
     protected function getHeaderActions(): array
@@ -233,6 +247,68 @@ class Media extends Page
 
                     Notification::make()
                         ->title(trans('core/media::media.empty_trash_success'))
+                        ->success()
+                        ->send();
+                }),
+
+            Action::make('favorite')
+                ->label(trans('core/media::media.javascript.actions_list.user.favorite'))
+                ->extraAttributes(['class' => 'hidden'])
+                ->action(function (array $arguments) {
+                    $items = $arguments['items'] ?? [];
+                    
+                    $meta = MediaSetting::query()->firstOrCreate([
+                        'key' => 'favorites',
+                        'user_id' => Auth::guard()->id(),
+                    ]);
+
+                    if (! empty($meta->value)) {
+                        $meta->value = array_merge($meta->value, $items);
+                    } else {
+                        $meta->value = $items;
+                    }
+
+                    $meta->save();
+
+                    $this->dispatch('media-folder-created');
+
+                    Notification::make()
+                        ->title(trans('core/media::media.favorite_success'))
+                        ->success()
+                        ->send();
+                }),
+
+            Action::make('remove_favorite')
+                ->label(trans('core/media::media.javascript.actions_list.user.remove_favorite'))
+                ->extraAttributes(['class' => 'hidden'])
+                ->action(function (array $arguments) {
+                    $items = $arguments['items'] ?? [];
+                    
+                    $meta = MediaSetting::query()->firstOrCreate([
+                        'key' => 'favorites',
+                        'user_id' => Auth::guard()->id(),
+                    ]);
+
+                    if (! empty($meta)) {
+                        $value = $meta->value;
+                        if (! empty($value)) {
+                            foreach ($value as $key => $item) {
+                                foreach ($items as $selectedItem) {
+                                    if ($item['is_folder'] == $selectedItem['is_folder'] && $item['id'] == $selectedItem['id']) {
+                                        unset($value[$key]);
+                                    }
+                                }
+                            }
+
+                            $meta->value = $value;
+                            $meta->save();
+                        }
+                    }
+
+                    $this->dispatch('media-folder-created');
+
+                    Notification::make()
+                        ->title(trans('core/media::media.remove_favorite_success'))
                         ->success()
                         ->send();
                 }),
