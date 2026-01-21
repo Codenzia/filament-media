@@ -187,7 +187,7 @@ export class ActionsService {
             //     ActionsService.handlePreview()
             //     break
             case 'alt_text':
-                $('#modal_alt_text_items').modal('show').find('form.form-alt-text').data('action', type)
+                Livewire.dispatch('open-alt-text-modal', { items: selected })
                 break
             case 'trash':
                 Livewire.dispatch('open-trash-modal', { items: selected })
@@ -228,8 +228,7 @@ export class ActionsService {
                 }
                 break
             case 'properties':
-                $('#modal-properties').modal('show')
-
+                Livewire.dispatch('open-properties-modal', { items: selected })
                 break
             case 'create_folder':
                 Livewire.dispatch('open-create-folder-modal')

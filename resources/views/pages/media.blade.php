@@ -389,8 +389,7 @@
                                             <x-slot:trigger>
                                                 <x-filament::button
                                                     icon="heroicon-m-hand-raised"
-                                                    class="rv-dropdown-actions"
-                                                    :disabled="true"
+                                                    ::disabled="!hasSelection"
                                                     outlined
                                                 >
                                                     {{ trans('core/media::media.actions') }}

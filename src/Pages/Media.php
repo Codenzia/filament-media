@@ -80,6 +80,18 @@ class Media extends Page
         $this->mountAction('remove_favorite', ['items' => $items]);
     }
 
+    #[On('open-properties-modal')]
+    public function openPropertiesModal(array $items)
+    {
+        $this->mountAction('properties', ['items' => $items]);
+    }
+
+    #[On('open-alt-text-modal')]
+    public function openAltTextModal(array $items)
+    {
+        $this->mountAction('alt_text', ['items' => $items]);
+    }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -134,7 +146,8 @@ class Media extends Page
                             } catch (\Throwable $exception) {
                                 report($exception);
                             }
-                        } else {
+                        }
+                        else {
                             if ($skipTrash) {
                                 $folderRepository->forceDelete(['id' => $id]);
                             } else {
@@ -156,17 +169,21 @@ class Media extends Page
                 ->extraAttributes(['class' => 'hidden'])
                 ->mountUsing(function ($form, array $arguments) {
                     $items = $arguments['items'] ?? [];
-                    $name = $items[0]['is_folder'] ? MediaFolder::find($items[0]['id'])->name ?? '' : MediaFile::find($items[0]['id'])->name ?? '';
-                    $form->fill(['name' => $name]);
+                    if (count($items) === 1) {
+                        $form->fill([
+                            'name' => $items[0]['name'] ?? '',
+                        ]);
+                    }
                 })
                 ->form([
                     TextInput::make('name')
-                        ->label('New Name')
+                        ->label(trans('core/media::media.folder_name'))
                         ->required(),
                 ])
                 ->action(function (array $data, array $arguments) {
                     $items = $arguments['items'] ?? [];
                     $newName = $data['name'];
+
                     foreach ($items as $item) {
                         $id = $item['id'];
                         $isFolder = $item['is_folder'] ?? false;
@@ -209,7 +226,9 @@ class Media extends Page
                         $isFolder = $item['is_folder'] ?? false;
                         if (! $isFolder) {
                             try {
-                                $fileRepository->forceDelete(['id' => $id]);
+                                if ($fileRepository instanceof \Codenzia\FilamentMedia\Repositories\Interfaces\MediaFileInterface) {
+                                    $fileRepository->forceDelete(['id' => $id]);
+                                }
                             } catch (\Throwable $exception) {
                                 report($exception);
                             }
@@ -257,6 +276,7 @@ class Media extends Page
                         'key' => 'favorites',
                         'user_id' => Auth::guard()->id(),
                     ]);
+
                     if (! empty($meta->value)) {
                         $meta->value = array_merge($meta->value, $items);
                     } else {
@@ -289,7 +309,7 @@ class Media extends Page
                         if (! empty($value)) {
                             foreach ($value as $key => $item) {
                                 foreach ($items as $selectedItem) {
-                                    if ( $item['id'] == $selectedItem['id']) {
+                                    if ($item['is_folder'] == $selectedItem['is_folder'] && $item['id'] == $selectedItem['id']) {
                                         unset($value[$key]);
                                     }
                                 }
@@ -306,6 +326,66 @@ class Media extends Page
                         ->title(trans('core/media::media.remove_favorite_success'))
                         ->success()
                         ->send();
+                }),
+
+            Action::make('properties')
+                ->label(trans('core/media::media.properties.name'))
+                ->extraAttributes(['class' => 'hidden'])
+                ->mountUsing(function ($form, array $arguments) {
+                    $items = $arguments['items'] ?? [];
+                    if (count($items) === 1) {
+                        $folder = MediaFolder::find($items[0]['id']);
+                        if ($folder) {
+                            $form->fill([
+                                'color' => $folder->color,
+                            ]);
+                        }
+                    }
+                })
+                ->form([
+                    \Filament\Forms\Components\ColorPicker::make('color')
+                        ->label(trans('core/media::media.properties.color_label'))
+                        ->required(),
+                ])
+                ->action(function (array $data, array $arguments) {
+                    $items = $arguments['items'] ?? [];
+                    foreach ($items as $item) {
+                        if ($item['is_folder']) {
+                            MediaFolder::where('id', $item['id'])->update(['color' => $data['color']]);
+                        }
+                    }
+                    $this->dispatch('media-folder-created');
+                    Notification::make()->title(trans('core/media::media.update_properties_success'))->success()->send();
+                }),
+
+            Action::make('alt_text')
+                ->label(trans('core/media::media.alt_text'))
+                ->extraAttributes(['class' => 'hidden'])
+                ->mountUsing(function ($form, array $arguments) {
+                    $items = $arguments['items'] ?? [];
+                    if (count($items) === 1) {
+                        $file = MediaFile::find($items[0]['id']);
+                        if ($file) {
+                            $form->fill([
+                                'alt' => $file->alt,
+                            ]);
+                        }
+                    }
+                })
+                ->form([
+                    TextInput::make('alt')
+                        ->label(trans('core/media::media.alt_text'))
+                        ->maxLength(255),
+                ])
+                ->action(function (array $data, array $arguments) {
+                    $items = $arguments['items'] ?? [];
+                    foreach ($items as $item) {
+                        if (!$item['is_folder']) {
+                            MediaFile::where('id', $item['id'])->update(['alt' => $data['alt']]);
+                        }
+                    }
+                    $this->dispatch('media-folder-created');
+                    Notification::make()->title(trans('core/media::media.update_alt_text_success'))->success()->send();
                 }),
         ];
     }
