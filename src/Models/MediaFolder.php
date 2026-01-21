@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Codenzia\FilamentMedia\Models\SafeContent;
+use Codenzia\FilamentMedia\Services\SafeContentService;
 
 class MediaFolder extends BaseModel
 {
@@ -29,7 +29,7 @@ class MediaFolder extends BaseModel
     ];
 
     protected $casts = [
-        'name' => SafeContent::class,
+        'name' => SafeContentService::class,
     ];
 
     protected static function booted(): void

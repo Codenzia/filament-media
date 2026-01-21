@@ -167,7 +167,7 @@ export class ActionsService {
 
         switch (type) {
             case 'rename':
-                $('#modal_rename_items').modal('show').find('form.form-rename').data('action', type)
+                Livewire.dispatch('open-rename-modal', { items: selected })
                 break
             case 'copy_link':
                 ActionsService.handleCopyLink().then(() => {})
@@ -183,9 +183,6 @@ export class ActionsService {
                 break
             case 'alt_text':
                 $('#modal_alt_text_items').modal('show').find('form.form-alt-text').data('action', type)
-                break
-            case 'crop':
-                $('#modal_crop_image').modal('show').find('form.rv-form').data('action', type)
                 break
             case 'trash':
                 Livewire.dispatch('open-trash-modal', { items: selected })

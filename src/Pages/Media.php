@@ -7,10 +7,13 @@ use Codenzia\FilamentMedia\Facades\FilamentMedia;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Livewire\Attributes\On;
 use Codenzia\FilamentMedia\Repositories\Interfaces\MediaFileInterface;
 use Codenzia\FilamentMedia\Repositories\Interfaces\MediaFolderInterface;
+use Codenzia\FilamentMedia\Models\MediaFile;
+use Codenzia\FilamentMedia\Models\MediaFolder;
 
 class Media extends Page
 {
@@ -25,6 +28,12 @@ class Media extends Page
     public function mount(): void
     {
         $this->sorts = FilamentMedia::getSorts();
+    }
+
+    #[On('open-rename-modal')]
+    public function openRenameModal(array $items)
+    {
+        $this->mountAction('rename', ['items' => $items]);
     }
 
     #[On('update-folder-id')]
@@ -124,6 +133,51 @@ class Media extends Page
 
                     Notification::make()
                         ->title(trans('core/media::media.trash_success'))
+                        ->success()
+                        ->send();
+                }),
+
+            Action::make('rename')
+                ->label(trans('core/media::media.rename'))
+                ->extraAttributes(['class' => 'hidden'])
+                ->mountUsing(function ($form, array $arguments) {
+                    $items = $arguments['items'] ?? [];
+                    if (count($items) === 1) {
+                        $form->fill([
+                            'name' => $items[0]['name'] ?? '',
+                        ]);
+                    }
+                })
+                ->form([
+                    TextInput::make('name')
+                        ->label(trans('core/media::media.folder_name'))
+                        ->required(),
+                ])
+                ->action(function (array $data, array $arguments) {
+                    $items = $arguments['items'] ?? [];
+                    $newName = $data['name'];
+
+                    foreach ($items as $item) {
+                        $id = $item['id'];
+                        $isFolder = $item['is_folder'] ?? false;
+
+                        if (! $isFolder) {
+                            $file = MediaFile::find($id);
+                            if ($file) {
+                                FilamentMedia::renameFile($file, $newName , false);
+                            }
+                        } else {
+                            $folder = MediaFolder::find($id);
+                            if ($folder) {
+                                FilamentMedia::renameFolder($folder, $newName);
+                            }
+                        }
+                    }
+
+                    $this->dispatch('media-folder-created');
+
+                    Notification::make()
+                        ->title(trans('core/media::media.rename_success'))
                         ->success()
                         ->send();
                 }),

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Str;
 use Codenzia\FilamentMedia\Helpers\BaseHelper;
+use Codenzia\FilamentMedia\Services\SafeContentService;
 
 class MediaFile extends Model
 {
@@ -35,7 +36,7 @@ class MediaFile extends Model
 
     protected $casts = [
         'options' => 'json',
-        'name' => SafeContent::class,
+        //'name' => SafeContent::class,
     ];
 
     protected $appends = [
