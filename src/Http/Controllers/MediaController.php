@@ -909,18 +909,33 @@ class MediaController extends Controller
     public function download(Request $request)
     {
         $items = $request->input('selected', []);
-        if (count($items) == 1 && $items[0]['is_folder'] == "false") {
+        $singleNotFolder = count($items) === 1 && filter_var($items[0]['is_folder'] ?? false, FILTER_VALIDATE_BOOLEAN) === false;
+
+        if ($singleNotFolder) {
             $file = MediaFile::query()->withTrashed()->find($items[0]['id']);
             if (! empty($file) && $file->type != 'video') {
                 return FilamentMedia::responseDownloadFile($file->url);
             }
         } else {
-            $fileName = Storage::disk('local')->path('download-' . Carbon::now()->format('Y-m-d-H-i-s') . '.zip');
-            $zip = new Zipper();
-            $zip->make($fileName);
+            $disk = Storage::disk('local');
+            $zipName = 'download-' . Carbon::now()->format('Y-m-d-H-i-s') . '.zip';
+            $downloadPath = $disk->path('');
+            File::ensureDirectoryExists($downloadPath);
+            $fileName = $disk->path($zipName);
+
+            try {
+                $zip = new Zipper();
+                $zip->make($fileName);
+            } catch (\Throwable $exception) {
+                BaseHelper::logError($exception);
+                return FilamentMedia::responseError(trans('core/media::media.download_file_error'));
+            }
+
             foreach ($items as $item) {
                 $id = $item['id'];
-                if (! $item['is_folder']) {
+                $isFolder = filter_var($item['is_folder'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+                if (! $isFolder) {
                     $file = MediaFile::query()->withTrashed()->find($id);
                     if (! empty($file) && $file->type != 'video') {
                         $filePath = FilamentMedia::getRealPath($file->url);
@@ -955,6 +970,8 @@ class MediaController extends Controller
                     }
                 }
             }
+
+            $zip->close();
 
             if (File::exists($fileName)) {
                 return response()
