@@ -108,11 +108,6 @@ class MediaManagement {
             MediaConfig.hide_details_pane = $(event.currentTarget).is(':checked')
             Helpers.storeConfig()
         })
-
-        $(document).on('click', '.js-download-action', (event) => {
-            event.preventDefault()
-            $('#modal_download_url').modal('show')
-        })
     }
 
     handleMediaList() {

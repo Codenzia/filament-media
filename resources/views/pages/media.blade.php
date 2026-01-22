@@ -159,9 +159,7 @@
 
                                                 <x-filament::dropdown.list.item
                                                     icon="heroicon-m-trash"
-                                                    class="js-rv-media-change-filter"
-                                                    data-type="view_in"
-                                                    data-value="trash"
+                                                    wire:click="mountAction('download_url')"
                                                 >
                                                     {{ trans('core/media::media.upload_from_url') }}
                                                 </x-filament::dropdown.list.item>
@@ -389,7 +387,8 @@
                                             <x-slot:trigger>
                                                 <x-filament::button
                                                     icon="heroicon-m-hand-raised"
-                                                    ::disabled="!hasSelection"
+                                                    class="rv-dropdown-actions"
+                                                    disabled
                                                     outlined
                                                 >
                                                     {{ trans('core/media::media.actions') }}
@@ -606,68 +605,7 @@
             </x-core::modal>
 
 
-            <div
-            class="modal modal-blur fade"
-            tabindex="-1"
-            role="dialog"
-            id="modal_download_url"
-        >
-            <div
-                class="modal-dialog modal-dialog-centered"
-                role="document"
-            >
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4
-                            class="modal-title"
-                            data-downloading="{{ trans('core/media::media.downloading') }}"
-                            data-text="{{ trans('core/media::media.download_link') }}"
-                        >
-                            <x-filament::icon icon="heroicon-m-arrow-down-tray" />
-                            {{ trans('core/media::media.download_link') }}
-                        </h4>
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="{{ trans('core/media::media.close') }}"
-                        >
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form class="rv-form form-download-url">
-                            <div id="download-form-wrapper">
-                                <div class="mb-3">
-                                <textarea
-                                    rows="4"
-                                    name="urls"
-                                    class="form-control"
-                                    placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg&#10;https://example.com/image3.jpg&#10;..."
-                                ></textarea>
 
-                                    <x-core::form.helper-text>
-                                        {{ trans('core/media::media.download_explain') }}
-                                    </x-core::form.helper-text>
-                                </div>
-                            </div>
-
-                            <x-filament::icon-button
-                                type="submit"
-                                color="primary"
-                                class="w-100"
-                                icon="heroicon-m-arrow-down-tray"
-                                :label="trans('core/media::media.download_link')"
-                            />
-                        </form>
-                        <div
-                            class="mt-2 modal-notice"
-                            id="modal-notice"
-                            style="max-height: 350px;overflow: auto"
-                        ></div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
 
         <x-core::modal

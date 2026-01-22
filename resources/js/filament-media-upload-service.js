@@ -27,13 +27,13 @@ export class UploadService {
     }
 
     init() {
+        console.log('init upload service');
         this.setupDropZone()
         this.handleEvents()
     }
 
     setupDropZone() {
         let _self = this
-
         let _dropZoneConfig = this.getDropZoneConfig()
         _self.filesUpload = 0
 
@@ -150,7 +150,9 @@ export class UploadService {
         const $label = $progressLine.find('.file-status')
 
         const response = Helpers.jsonDecode(file.xhr.responseText || '', {})
-
+        console.log('response', response);
+        console.log('file status', file.status);
+        console.log('file xhr status', file.xhr.status);
         const isError = response.error === true || file.status === 'error'
 
         _self.totalError = _self.totalError + (isError ? 1 : 0)
@@ -158,18 +160,20 @@ export class UploadService {
         $label.removeClass('text-success text-danger text-warning')
         $label.addClass(isError ? 'text-danger' : 'text-success')
         $label.html(isError ? 'Error' : 'Uploaded')
-
+        console.log('progress line', $progressLine);
         if (isError) {
             $progressLine.find('.progress-percent').html('');
         }
 
         if (file.status === 'error') {
+            console.log('file xhr status', file.xhr.status);
             if (file.xhr.status === 422) {
                 let errorHtml = ''
                 $.each(response.errors, (key, item) => {
                     errorHtml += `<span class="text-danger">${item}</span><br>`
                 })
                 $progressLine.find('.file-error').html(errorHtml)
+                console.log('error html', errorHtml);
             } else if (file.xhr.status === 500) {
                 $progressLine.find('.file-error').html(`<span class="text-danger">${file.xhr.statusText}</span>`)
             }
@@ -180,6 +184,7 @@ export class UploadService {
 
             $progressLine.find('.progress-percent').html('');
         } else {
+            console.log('response', response);
             Helpers.addToRecent(response.data.id)
             Helpers.setSelectedFile(response.data.id)
         }

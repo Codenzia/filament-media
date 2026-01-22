@@ -6,6 +6,7 @@ use Filament\Pages\Page;
 use Codenzia\FilamentMedia\Facades\FilamentMedia;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -19,7 +20,6 @@ use Illuminate\Support\Facades\Auth;
 
 class Media extends Page
 {
-
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-photo';
 
     protected string $view = 'filament-media::pages.media';
@@ -30,6 +30,12 @@ class Media extends Page
     public function mount(): void
     {
         $this->sorts = FilamentMedia::getSorts();
+    }
+
+    #[On('open-download-url-modal')]
+    public function openDownloadUrlModal()
+    {
+        $this->mountAction('download_url');
     }
 
     #[On('open-rename-modal')]
@@ -386,6 +392,34 @@ class Media extends Page
                     }
                     $this->dispatch('media-folder-created');
                     Notification::make()->title(trans('core/media::media.update_alt_text_success'))->success()->send();
+                }),
+
+            Action::make('download_url')
+                ->label(trans('core/media::media.download_link'))
+                ->icon('heroicon-o-arrow-down-tray')
+                ->extraAttributes(['class' => 'hidden'])
+                ->form([
+                    Textarea::make('urls')
+                        ->label(trans('core/media::media.url'))
+                        ->helperText(trans('core/media::media.download_explain'))
+                        ->required()
+                        ->rows(5),
+                ])
+                ->action(function (array $data) {
+                    $urls = explode("\n", $data['urls']);
+                    foreach ($urls as $url) {
+                        $url = trim($url);
+                        if ($url) {
+                            FilamentMedia::uploadFromUrl($url, $this->folderId);
+                        }
+                    }
+
+                    $this->dispatch('media-folder-created');
+
+                    Notification::make()
+                        ->title(trans('core/media::media.add_success'))
+                        ->success()
+                        ->send();
                 }),
         ];
     }

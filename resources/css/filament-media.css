@@ -524,7 +524,8 @@ li.context-menu-item.context-menu-icon-updated.media-action-trash {
     font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap
+    white-space: nowrap;
+    height: 18px;
 }
 
 .rv-media-grid li .rv-media-description .size {
