@@ -3,31 +3,31 @@
         <div id="media-content" wire:ignore>
 
             <div class="rv-media-container">
-                <x-core::card class="rv-media-wrapper">
+                <div class="rv-media-wrapper">
                     <input
                         type="checkbox"
                         id="media_details_collapse"
                         class="d-none fake-click-event"
                     >
 
-                    <x-core::offcanvas
+                    <div
                         id="rv-media-aside"
                         @class(['d-md-none' => FilamentMedia::getConfig('sidebar_display') !== 'vertical'])
                         style="--bb-offcanvas-width: 85%"
                     >
-                        <x-core::offcanvas.header>
-                            <x-core::offcanvas.title>
+                        <div class="header">
+                            <h5 class="offcanvas-title">
                                 {{ trans('core/media::media.menu_name') }}
-                            </x-core::offcanvas.title>
-                            <x-core::offcanvas.close-button />
-                        </x-core::offcanvas.header>
+                            </h5>
+                            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
 
-                        <x-core::offcanvas.body class="p-0">
-                            <x-core::list-group :flush="true">
-                                <x-core::list-group.header>
+                        <div class="body p-0">
+                            <div class="list-group-flush">
+                                <div class="list-group-header">
                                     {{ trans('core/media::media.filter') }}
-                                </x-core::list-group.header>
-                                <x-core::list-group.item
+                                </div>
+                                <div class="list-group-item">
                                     :action="true"
                                     class="js-rv-media-change-filter"
                                     data-type="filter"
@@ -35,10 +35,10 @@
                                 >
                                     <x-filament::icon icon="heroicon-m-funnel" />
                                     {{ trans('core/media::media.everything') }}
-                                </x-core::list-group.item>
+                                </div>
 
                                 @if (array_key_exists('image', FilamentMedia::getConfig('mime_types', [])))
-                                    <x-core::list-group.item
+                                    <div class="list-group-item">
                                         :action="true"
                                         class="js-rv-media-change-filter"
                                         data-type="filter"
@@ -46,11 +46,11 @@
                                     >
                                         <x-filament::icon icon="heroicon-m-photo" />
                                         {{ trans('core/media::media.image') }}
-                                    </x-core::list-group.item>
+                                    </div>
                                 @endif
 
                                 @if (array_key_exists('video', FilamentMedia::getConfig('mime_types', [])))
-                                    <x-core::list-group.item
+                                    <div class="list-group-item">
                                         :action="true"
                                         class="js-rv-media-change-filter"
                                         data-type="filter"
@@ -58,10 +58,10 @@
                                     >
                                         <x-filament::icon icon="heroicon-m-film" />
                                         {{ trans('core/media::media.video') }}
-                                    </x-core::list-group.item>
+                                    </div>
                                 @endif
 
-                                <x-core::list-group.item
+                                <div class="list-group-item">
                                     :action="true"
                                     class="js-rv-media-change-filter"
                                     data-type="filter"
@@ -69,14 +69,14 @@
                                 >
                                     <x-filament::icon icon="heroicon-m-document" />
                                     {{ trans('core/media::media.document') }}
-                                </x-core::list-group.item>
-                            </x-core::list-group>
+                                </div>
+                            </div>
 
-                            <x-core::list-group :flush="true">
-                                <x-core::list-group.header>
+                            <div class="list-group-flush">
+                                <div class="list-group-header">
                                     {{ trans('core/media::media.view_in') }}
-                                </x-core::list-group.header>
-                                <x-core::list-group.item
+                                </div>
+                                <div class="list-group-item">
                                     :action="true"
                                     class="js-rv-media-change-filter"
                                     data-type="view_in"
@@ -84,9 +84,9 @@
                                 >
                                     <x-filament::icon icon="heroicon-m-globe-alt" />
                                     {{ trans('core/media::media.all_media') }}
-                                </x-core::list-group.item>
+                                </div>
 
-                                    <x-core::list-group.item
+                                    <div class="list-group-item">
                                         :action="true"
                                         class="js-rv-media-change-filter"
                                         data-type="view_in"
@@ -94,9 +94,9 @@
                                     >
                                         <x-filament::icon icon="heroicon-m-trash" />
                                         {{ trans('core/media::media.trash') }}
-                                    </x-core::list-group.item>
+                                    </div>
 
-                                <x-core::list-group.item
+                                <div class="list-group-item">
                                     :action="true"
                                     class="js-rv-media-change-filter"
                                     data-type="view_in"
@@ -104,9 +104,9 @@
                                 >
                                     <x-filament::icon icon="heroicon-m-clock" />
                                     {{ trans('core/media::media.recent') }}
-                                </x-core::list-group.item>
+                                </div>
 
-                                <x-core::list-group.item
+                                <div class="list-group-item">
                                     :action="true"
                                     class="js-rv-media-change-filter"
                                     data-type="view_in"
@@ -114,13 +114,13 @@
                                 >
                                     <x-filament::icon icon="heroicon-m-star" />
                                     {{ trans('core/media::media.favorites') }}
-                                </x-core::list-group.item>
-                            </x-core::list-group>
-                        </x-core::offcanvas.body>
-                    </x-core::offcanvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="rv-media-main-wrapper">
-                        <x-core::card.header class="flex-column rv-media-header p-0">
+                        <div class="flex-column rv-media-header p-0">
                             <div class="w-100 rv-media-top-header flex-wrap gap-3 d-flex justify-content-between align-items-start border-bottom bg-body">
                                 <div class="d-flex flex-wrap gap-3 p-2 justify-content-between w-100 w-md-auto rv-media-actions  rounded-xl shadow-sm align-items-center">
                                     <x-filament::icon-button
@@ -430,7 +430,7 @@
                                     />
                                 </div>
                             </div>
-                        </x-core::card.header>
+                        </div>
 
                         <main class="rv-media-main">
                             <div class="rv-media-items"></div>
@@ -481,7 +481,7 @@
                             </div>
                         </x-filament::section>
                     </div>
-                </x-core::card>
+                </div>
             </div>
 
 
