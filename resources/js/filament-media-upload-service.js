@@ -62,7 +62,10 @@ export class UploadService {
                 formData.append('path', file.fullPath)
             },
             chunksUploaded: (file, done) => {
-                _self.uploadProgressContainer.find('.progress-percent').html(`- <span class="text-info">100%</span>`)
+                const $progressLine = _self.getProgressLine(file)
+                if ($progressLine.length) {
+                    $progressLine.find('.progress-percent').html(`- <span class="text-info">100%</span>`)
+                }
                 done()
             },
             accept: (file, done) => {
@@ -71,13 +74,18 @@ export class UploadService {
                 done()
             },
             uploadprogress: (file, progress, bytesSent) => {
+                const $progressLine = _self.getProgressLine(file)
+                if (!$progressLine.length) {
+                    return
+                }
+
                 let percent = (bytesSent / file.size) * 100
                 if (file.upload.chunked && percent > 99) {
                     percent = percent - 1
                 }
-                let percentShow = (percent > 100 ? '100' : parseInt(percent)) + '%'
-                let el = _self.uploadProgressContainer.find('tr').eq(file.index - 1)
-                el.find('.progress-percent').html(`- <span class="text-info">` + percentShow + `</span>`)
+
+                const percentShow = (percent > 100 ? '100' : parseInt(percent)) + '%'
+                $progressLine.find('.progress-percent').html(`- <span class="text-info">${percentShow}</span>`)
             },
         })
 
@@ -87,7 +95,8 @@ export class UploadService {
         })
 
         _self.dropZone.on('sending', (file) => {
-            _self.initProgress(file.name, file.size)
+            console.log('sending', file);
+            _self.initProgress(file.name, file.size, file.index)
         })
 
         _self.dropZone.on('complete', (file) => {
@@ -120,47 +129,53 @@ export class UploadService {
                 $('.rv-upload-progress').addClass('hide-the-pane')
                 _self.totalError = 0
                 setTimeout(() => {
-                    $('.rv-upload-progress tr').remove()
+                    _self.uploadProgressContainer.children().remove()
                     _self.totalQueued = 1
                 }, 300)
             })
     }
 
-    initProgress($fileName, $fileSize) {
+    initProgress($fileName, $fileSize, fileIndex) {
         let template = this.uploadProgressTemplate
             .replace(/__fileName__/gi, $fileName)
             .replace(/__fileSize__/gi, UploadService.formatFileSize($fileSize))
             .replace(/__status__/gi, 'warning')
             .replace(/__message__/gi, 'Uploading...')
 
-        if (this.checkUploadTotalProgress() && this.uploadProgressContainer.find('tr').length >= 1) {
+        if (this.checkUploadTotalProgress() && this.uploadProgressContainer.children().length >= 1) {
             return
         }
 
-        this.uploadProgressContainer.append(template)
+        const $row = $(template)
+        $row.attr('data-file-index', fileIndex)
+
+        this.uploadProgressContainer.append($row)
         this.uploadProgressBox.removeClass('hide-the-pane')
-        this.uploadProgressBox.find('.table').animate({ scrollTop: this.uploadProgressContainer.height() }, 150)
+        this.uploadProgressContainer.animate({ scrollTop: this.uploadProgressContainer.height() }, 150)
     }
 
     changeProgressStatus(file) {
         const _self = this
 
-        const $progressLine = _self.uploadProgressContainer.find(`tr:nth-child(${file.index})`)
+        const $progressLine = _self.getProgressLine(file)
+
+        if (!$progressLine.length) {
+            return
+        }
 
         const $label = $progressLine.find('.file-status')
 
         const response = Helpers.jsonDecode(file.xhr.responseText || '', {})
         console.log('response', response);
-        console.log('file status', file.status);
-        console.log('file xhr status', file.xhr.status);
         const isError = response.error === true || file.status === 'error'
+        console.log('isError', isError);
 
         _self.totalError = _self.totalError + (isError ? 1 : 0)
 
         $label.removeClass('text-success text-danger text-warning')
         $label.addClass(isError ? 'text-danger' : 'text-success')
         $label.html(isError ? 'Error' : 'Uploaded')
-        console.log('progress line', $progressLine);
+
         if (isError) {
             $progressLine.find('.progress-percent').html('');
         }
@@ -180,14 +195,22 @@ export class UploadService {
 
             $progressLine.find('.progress-percent').html('');
         } else if (response.error) {
+            console.log('response error message', response.message);
             $progressLine.find('.file-error').html(`<span class="text-danger">${response.message}</span>`)
-
             $progressLine.find('.progress-percent').html('');
         } else {
-            console.log('response', response);
+            console.log('response success', response);
             Helpers.addToRecent(response.data.id)
             Helpers.setSelectedFile(response.data.id)
         }
+    }
+
+    getProgressLine(file) {
+        if (!file?.index) {
+            return $()
+        }
+
+        return this.uploadProgressContainer.find(`[data-file-index="${file.index}"]`)
     }
 
     static formatFileSize(bytes, si = false) {
@@ -206,6 +229,7 @@ export class UploadService {
     }
 
     getDropZoneConfig() {
+        console.log('getDropZoneConfig'), FilamentMediaConfig.chunk.chunk_size;
         return {
             url: this.uploadUrl,
             uploadMultiple: !FilamentMediaConfig.chunk.enabled,

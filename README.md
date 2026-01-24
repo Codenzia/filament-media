@@ -46,8 +46,8 @@ return [
 ## Usage
 
 ```php
-$filamentMedia = new Codenzia\FilamentMedia();
-echo $filamentMedia->echoPhrase('Hello, Codenzia!');
+
+
 ```
 
 ## Testing

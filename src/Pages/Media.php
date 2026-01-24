@@ -178,6 +178,7 @@ class Media extends Page
                     if (count($items) === 1) {
                         $form->fill([
                             'name' => $items[0]['name'] ?? '',
+                            'rename_physical_file' => false,
                         ]);
                     }
                 })
@@ -185,10 +186,14 @@ class Media extends Page
                     TextInput::make('name')
                         ->label(trans('core/media::media.folder_name'))
                         ->required(),
+                    Checkbox::make('rename_physical_file')
+                        ->label(trans('core/media::media.rename_physical_file'))
+                        ->helperText(trans('core/media::media.rename_physical_file_warning')),
                 ])
                 ->action(function (array $data, array $arguments) {
                     $items = $arguments['items'] ?? [];
                     $newName = $data['name'];
+                    $renameOnDisk = $data['rename_physical_file'] ?? false;
 
                     foreach ($items as $item) {
                         $id = $item['id'];
@@ -197,12 +202,12 @@ class Media extends Page
                         if (! $isFolder) {
                             $file = MediaFile::find($id);
                             if ($file) {
-                                FilamentMedia::renameFile($file, $newName , false);
+                                FilamentMedia::renameFile($file, $newName, $renameOnDisk);
                             }
                         } else {
                             $folder = MediaFolder::find($id);
                             if ($folder) {
-                                FilamentMedia::renameFolder($folder, $newName);
+                                FilamentMedia::renameFolder($folder, $newName, $renameOnDisk);
                             }
                         }
                     }

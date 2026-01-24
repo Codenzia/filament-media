@@ -384,7 +384,7 @@ export class ActionsService {
         let actionsList = $.extend({}, true, Helpers.getConfigs().actions_list)
 
         if (hasFolderSelected) {
-            const ignoreActions = ['preview', 'crop', 'alt_text', 'copy_link', 'copy_indirect_link', 'share']
+            const ignoreActions = ['preview', 'crop', 'alt_text', 'copy_link', 'copy_indirect_link']
 
             Helpers.each(actionsList, (group, key) => {
                 actionsList[key] = Helpers.arrayReject(group, (item) => ignoreActions.includes(item.action))

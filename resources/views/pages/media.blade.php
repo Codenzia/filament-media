@@ -353,16 +353,17 @@
                                         </li>
                                     </ul>
                                 </div>
-                                <div class="col-md-auto d-flex justify-content-between justify-content-md-end align-items-center rv-media-tools">
+                                <div class="col-md-auto d-flex justify-content-between justify-content-md-end align-items-center rv-media-tools gap-2 flex-wrap">
                                     <div
-                                        class="btn-list"
+                                        class="btn-list d-flex align-items-center gap-2"
                                         role="group"
                                     >
                                         <x-filament::dropdown>
                                             <x-slot:trigger>
                                                 <x-filament::button
                                                     icon="heroicon-m-document-arrow-up"
-                                                    outlined
+                                                    size="lg"
+                                                    class="px-4 py-2 shadow-sm bg-transparent"
                                                 >
                                                     {{ trans('core/media::media.sort') }}
                                                 </x-filament::button>
@@ -399,7 +400,7 @@
                                         </x-filament::dropdown>
                                     </div>
                                     <div
-                                        class="btn-group js-rv-media-change-view-type ms-2"
+                                        class="btn-group js-rv-media-change-view-type ms-2 d-flex align-items-center gap-2"
                                         role="group"
                                     >
                                         <x-filament::icon-button
@@ -407,20 +408,25 @@
                                             data-type="tiles"
                                             icon="heroicon-m-squares-2x2"
                                             :label="trans('core/media::media.view_type') ?? 'Tiles'"
+                                            size="lg"
+                                            class="shadow-sm"
                                         />
                                         <x-filament::icon-button
                                             type="button"
                                             data-type="list"
                                             icon="heroicon-m-list-bullet"
                                             :label="trans('core/media::media.view_type') ?? 'List'"
+                                            size="lg"
+                                            class="shadow-sm"
                                         />
                                     </div>
                                     <x-filament::icon-button
                                         tag="label"
                                         for="media_details_collapse"
-                                        class="collapse-panel ms-2 d-none d-lg-flex"
+                                        class="collapse-panel ms-2 d-none d-lg-flex shadow-sm"
                                         icon="heroicon-m-chevron-double-right"
                                         :label="trans('core/media::media.details') ?? 'Toggle details'"
+                                        size="lg"
                                     />
                                 </div>
                             </div>
@@ -450,370 +456,34 @@
                             />
                         </footer>
                     </div>
-                    <div class="rv-upload-progress hide-the-pane position-fixed bottom-0 end-0 ">
-                        <x-core::card>
-                            <x-core::card.header class="position-relative">
-                                <h3 class="panel-title mb-0">{{ trans('core/media::media.upload_progress') }}</h3>
-                                <x-filament::icon-button
-                                    class="close-pane position-absolute top-50 bg-primary text-white text-center p-0"
-                                    color="primary"
-                                    icon="heroicon-m-x-mark"
-                                    :label="trans('core/media::media.close')"
-                                />
-                            </x-core::card.header>
+                    <div class="rv-upload-progress hide-the-pane position-fixed bottom-0 end-0 z-50 m-6 w-96 max-w-full">
+                        <x-filament::section compact>
+                            <x-slot name="heading">
+                                <div class="flex items-center justify-between gap-4">
+                                    <span>{{ trans('core/media::media.upload_progress') }}</span>
+                                    <x-filament::icon-button
+                                        icon="heroicon-m-x-mark"
+                                        color="gray"
+                                        size="sm"
+                                        class="close-pane"
+                                        :label="trans('core/media::media.close')"
+                                    />
+                                </div>
+                            </x-slot>
+
                             <div
                                 class="table-responsive overflow-auto"
                                 style="max-height: 180px"
                             >
-                                <x-core::table>
-                                    <x-core::table.body class="rv-upload-progress-table"></x-core::table.body>
-                                </x-core::table>
+                                <table class="w-full text-start divide-y divide-gray-200 dark:divide-white/5 rv-upload-progress-table">
+                                    {{-- Content will be injected via JS --}}
+                                </table>
                             </div>
-                        </x-core::card>
+                        </x-filament::section>
                     </div>
                 </x-core::card>
             </div>
 
-
-
-
-            <x-core::modal
-                id="modal_rename_items"
-                :title="trans('core/media::media.rename')"
-                :has-form="true"
-                :form-attrs="['class' => 'form-rename']"
-            >
-                <div class="rename-items"></div>
-                <div class="modal-notice"></div>
-
-                <x-slot:footer>
-                    <x-filament::icon-button
-                        data-bs-dismiss="modal"
-                        icon="heroicon-m-x-mark"
-                        :label="trans('core/media::media.close')"
-                        :tooltip="trans('core/media::media.close')"
-                    />
-                    <x-filament::icon-button
-                        type="submit"
-                        color="primary"
-                        icon="heroicon-m-check"
-                        :label="trans('core/media::media.save_changes')"
-                        :tooltip="trans('core/media::media.save_changes')"
-                    />
-                </x-slot:footer>
-            </x-core::modal>
-
-            <x-core::modal
-                id="modal_alt_text_items"
-                :title="trans('core/media::media.alt_text')"
-                :has-form="true"
-                :form-attrs="['class' => 'form-alt-text']"
-            >
-                <div class="alt-text-items"></div>
-                <div class="modal-notice"></div>
-
-                <x-slot:footer>
-                    <x-filament::icon-button
-                        data-bs-dismiss="modal"
-                        icon="heroicon-m-x-mark"
-                        :label="trans('core/media::media.close')"
-                        :tooltip="trans('core/media::media.close')"
-                    />
-                    <x-filament::icon-button
-                        type="submit"
-                        color="primary"
-                        icon="heroicon-m-check"
-                        :label="trans('core/media::media.save_changes')"
-                        :tooltip="trans('core/media::media.save_changes')"
-                    />
-                </x-slot:footer>
-            </x-core::modal>
-
-            <x-core::modal
-                id="modal_trash_items"
-                :title="trans('core/media::media.move_to_trash')"
-                :has-form="true"
-                :form-attrs="['class' => 'form-delete-items']"
-            >
-                <p>{{ trans('core/media::media.confirm_trash') }}</p>
-
-                <x-core::form.checkbox
-                    :label="trans('core/media::media.skip_trash')"
-                    :helper_text="trans('core/media::media.skip_trash_description')"
-                    name="skip_trash"
-                    :checked="false"
-                    id="skip_trash"
-                />
-
-                <div class="modal-notice"></div>
-
-                <x-slot:footer>
-                    <button
-                        type="submit"
-                        class="btn btn-danger"
-                    >{{ trans('core/media::media.confirm') }}</button>
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        data-bs-dismiss="modal"
-                    >{{ trans('core/media::media.close') }}</button>
-                </x-slot:footer>
-            </x-core::modal>
-
-            <x-core::modal
-                id="modal_delete_items"
-                :title="trans('core/media::media.confirm_delete')"
-                :has-form="true"
-                :form-attrs="['class' => 'form-delete-items']"
-            >
-                <p>{{ trans('core/media::media.confirm_delete_description') }}</p>
-                <div class="modal-notice"></div>
-
-                <x-slot:footer>
-                    <button
-                        type="submit"
-                        class="btn btn-danger"
-                    >{{ trans('core/media::media.confirm') }}</button>
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        data-bs-dismiss="modal"
-                    >{{ trans('core/media::media.close') }}</button>
-                </x-slot:footer>
-            </x-core::modal>
-
-            <x-core::modal
-                id="modal_empty_trash"
-                :title="trans('core/media::media.empty_trash_title')"
-                :has-form="true"
-                :form-attrs="['class' => 'form-empty-trash']"
-            >
-                <p>{{ trans('core/media::media.empty_trash_description') }}</p>
-                <div class="modal-notice"></div>
-
-                <x-slot:footer>
-                    <button
-                        type="submit"
-                        class="btn btn-danger"
-                    >{{ trans('core/media::media.confirm') }}</button>
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        data-bs-dismiss="modal"
-                    >{{ trans('core/media::media.close') }}</button>
-                </x-slot:footer>
-            </x-core::modal>
-
-
-
-
-
-        <x-core::modal
-        title="{{ trans('core/media::media.crop') }}"
-        id="modal_crop_image"
-        size="lg"
-        :form-attrs="['class' => 'rv-form form-crop']"
-        :has-form="true"
-        >
-        <div>
-            <input
-                type="hidden"
-                name="image_id"
-            >
-            <input
-                type="hidden"
-                name="crop_data"
-            >
-            <div class="row">
-                <div class="col-lg-9">
-                    <div class="crop-image"></div>
-                </div>
-                <div class="col-lg-3">
-                    <div class="mt-3">
-                        <x-core::form.text-input
-                            label="{{ trans('core/media::media.cropper.height') }}"
-                            name="dataHeight"
-                            id="dataHeight"
-                        />
-
-                        <x-core::form.text-input
-                            label="{{ trans('core/media::media.cropper.width') }}"
-                            name="dataWidth"
-                            id="dataWidth"
-                        />
-
-                        <x-core::form.checkbox
-                            :label="trans('core/media::media.cropper.aspect_ratio')"
-                            name="aspectRatio"
-                            :checked="false"
-                            id="aspectRatio"
-                        />
-                    </div>
-                </div>
-            </div>
-        </div>
-        <x-slot:footer>
-            <x-filament::icon-button
-                data-bs-dismiss="modal"
-                icon="heroicon-m-x-mark"
-                :label="trans('core/media::media.close')"
-                :tooltip="trans('core/media::media.close')"
-            />
-
-            <x-filament::icon-button
-                type="submit"
-                color="primary"
-                icon="heroicon-m-scissors"
-                :label="trans('core/media::media.crop')"
-                :tooltip="trans('core/media::media.crop')"
-            />
-        </x-slot:footer>
-        </x-core::modal>
-
-
-        <x-core::modal
-        title="{{ trans('core/media::media.crop') }}"
-        id="modal_crop_image"
-        size="lg"
-        :form-attrs="['class' => 'rv-form form-crop']"
-        :has-form="true"
-        >
-        <div>
-            <input
-                type="hidden"
-                name="image_id"
-            >
-            <input
-                type="hidden"
-                name="crop_data"
-            >
-            <div class="row">
-                <div class="col-lg-9">
-                    <div class="crop-image"></div>
-                </div>
-                <div class="col-lg-3">
-                    <div class="mt-3">
-                        <x-core::form.text-input
-                            label="{{ trans('core/media::media.cropper.height') }}"
-                            name="dataHeight"
-                            id="dataHeight"
-                        />
-
-                        <x-core::form.text-input
-                            label="{{ trans('core/media::media.cropper.width') }}"
-                            name="dataWidth"
-                            id="dataWidth"
-                        />
-
-                        <x-core::form.checkbox
-                            :label="trans('core/media::media.cropper.aspect_ratio')"
-                            name="aspectRatio"
-                            :checked="false"
-                            id="aspectRatio"
-                        />
-                    </div>
-                </div>
-            </div>
-        </div>
-        <x-slot:footer>
-            <x-filament::icon-button
-                data-bs-dismiss="modal"
-                icon="heroicon-m-x-mark"
-                :label="trans('core/media::media.close')"
-                :tooltip="trans('core/media::media.close')"
-            />
-
-            <x-filament::icon-button
-                type="submit"
-                color="primary"
-                icon="heroicon-m-scissors"
-                :label="trans('core/media::media.crop')"
-                :tooltip="trans('core/media::media.crop')"
-            />
-        </x-slot:footer>
-        </x-core::modal>
-
-
-
-        <x-core::modal
-        id="modal-properties"
-        :title="trans('core/media::media.properties.name')"
-        >
-        <input type="hidden" name="selected">
-
-        <x-core::form.color-selector
-            :label="trans('core/media::media.properties.color_label')"
-            name="color"
-            :choices="FilamentMedia::getFolderColors()"
-        />
-
-        <x-slot:footer>
-            <x-filament::icon-button
-                data-bs-dismiss="modal"
-                icon="heroicon-m-x-mark"
-                :label="trans('core/media::media.close')"
-                :tooltip="trans('core/media::media.close')"
-            />
-
-            <x-filament::icon-button
-                type="submit"
-                color="primary"
-                icon="heroicon-m-check"
-                :label="trans('core/media::media.save_changes')"
-                :tooltip="trans('core/media::media.save_changes')"
-            />
-        </x-slot:footer>
-        </x-core::modal>
-
-
-
-        <x-core::modal
-        id="modal_share_items"
-        :title="trans('core/media::media.share')"
-        >
-        <div class="share-items">
-            <div class="mb-3">
-                <label class="form-label" for="media-share-type">
-                    {{ trans('core/media::media.share_type') }}
-                </label>
-                <select
-                    name="share_type"
-                    id="media-share-type"
-                    class="form-select"
-                    data-bb-value="share-type"
-                >
-                    <option value="url">{{ trans('core/media::media.share_as_url') }}</option>
-                    <option value="indirect_url">{{ trans('core/media::media.share_as_indirect_url') }}</option>
-                    <option value="html">{{ trans('core/media::media.share_as_html') }}</option>
-                    <option value="markdown">{{ trans('core/media::media.share_as_markdown') }}</option>
-                </select>
-            </div>
-
-            <div class="mb-3" data-bb-value="results">
-                <label class="form-label" for="media-share-results">
-                    {{ trans('core/media::media.share_results') }}
-                </label>
-                <textarea
-                    id="media-share-results"
-                    class="form-control"
-                    rows="3"
-                    readonly
-                    data-bb-value="share-result"
-                ></textarea>
-            </div>
-
-            <div class="mb-0 text-end">
-                <x-filament::icon-button
-                    class="btn-icon"
-                    data-bb-toggle="clipboard"
-                    data-clipboard-parent="#modal_share_items .share-items"
-                    data-clipboard-target="[data-bb-value='share-result']"
-                    icon="heroicon-m-clipboard"
-                    :label="trans('core/media::media.copy') ?? 'Copy'"
-                />
-            </div>
-        </div>
-        </x-core::modal>
 
         <button class="d-none js-rv-clipboard-temp"></button>
 
@@ -910,19 +580,23 @@
         </div>
 
         <div id="rv_media_upload_progress_item" class="d-none">
-            <x-core::table.body.row>
-                <x-core::table.body.cell>
-                    <span class="file-name">__fileName__</span>
-                    <div class="file-error"></div>
-                </x-core::table.body.cell>
-                <x-core::table.body.cell>
-                    <span class="file-size">__fileSize__</span>
-                </x-core::table.body.cell>
-                <x-core::table.body.cell>
-                    <span class="file-status text-__status__">__message__</span>
-                    <span class="progress-percent"></span>
-                </x-core::table.body.cell>
-            </x-core::table.body.row>
+            <div class="flex flex-row gap-2 hover:bg-gray-50 dark:hover:bg-white/5 transition duration-75 justify-between">
+                <div class="p-4 align-top">
+                    <div class="flex flex-col gap-1 justify-between">
+                        <span class="file-name font-medium text-gray-950 dark:text-white">__fileName__</span>
+                        <div class="file-error text-sm text-danger-600 dark:text-danger-400"></div>
+                    </div>
+                </div>
+                <div class="p-4 align-top">
+                    <span class="file-size text-sm text-gray-500 dark:text-gray-400">__fileSize__</span>
+                </div>
+                <div class="p-4 align-top text-end">
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="file-status text-sm font-medium text-__status__-600 dark:text-__status__-400">__message__</span>
+                        <span class="progress-percent text-xs text-gray-500 dark:text-gray-400"></span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="rv_media_breadcrumb_item" class="d-none">
@@ -934,27 +608,6 @@
             </li>
         </div>
 
-        <div id="rv_media_rename_item" class="d-none">
-            <div class="mb-3">
-                <div class="input-group">
-                    <div class="input-group-text">__icon__</div>
-                    <input class="form-control" placeholder="__placeholder__" value="__value__">
-                </div>
-            </div>
-
-            <x-core::form.checkbox
-                data-folder-label="{{ trans('core/media::media.rename_physical_folder') }}"
-                data-file-label="{{ trans('core/media::media.rename_physical_file') }}"
-                label="__label__"
-                name="rename_physical_file"
-                data-bb-toggle="collapse"
-                data-bb-target=".rename-physical-file-warning"
-            />
-
-            <div class="p-4 mb-4 text-sm text-fg-warning-strong rounded-base bg-warning-soft" role="alert" class="rename-physical-file-warning" style="display: none">
-                {{ trans('core/media::media.rename_physical_file_warning') }}
-            </div>
-        </div>
 
         <div id="rv_media_alt_text_item" class="d-none">
             <div class="mb-3">
