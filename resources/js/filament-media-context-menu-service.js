@@ -224,14 +224,6 @@ export class ContextMenuService {
             items.properties = undefined
         }
 
-        let canPreview = Helpers.arrayFilter(selectedFiles, function (value) {
-            return value.preview_url
-        }).length
-
-        if (!canPreview) {
-            items.preview = undefined
-        }
-
         let fileIsImage = Helpers.arrayFilter(selectedFiles, function (value) {
             return value.type === 'image'
         }).length

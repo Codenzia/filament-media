@@ -94,9 +94,11 @@ export class MediaList {
 
         Helpers.forEach(data.folders, (value) => {
             let item = _self.item[Helpers.getRequestParams().view_type] || ''
+            const dataJson = Helpers.jsonEncode(value).replace(/"/g, '&quot;')
             item = item
                 .replace(/__type__/gi, 'folder')
                 .replace(/__id__/gi, value.id)
+                .replace(/__data__/gi, dataJson)
                 .replace(/__name__/gi, value.name || '')
                 .replace(/__size__/gi, '')
                 .replace(/__date__/gi, value.created_at || '')
@@ -119,9 +121,11 @@ export class MediaList {
 
         Helpers.forEach(data.files, (value) => {
             let item = _self.item[Helpers.getRequestParams().view_type] || ''
+            const dataJson = Helpers.jsonEncode(value).replace(/"/g, '&quot;')
             item = item
                 .replace(/__type__/gi, 'file')
                 .replace(/__id__/gi, value.id)
+                .replace(/__data__/gi, dataJson)
                 .replace(/__name__/gi, value.name || '')
                 .replace(/__size__/gi, value.size || '')
                 .replace(/__date__/gi, value.created_at || '')

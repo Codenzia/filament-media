@@ -544,7 +544,7 @@
         </div>
 
         <div id="rv_media_items_list_element" class="d-none">
-            <li class="rv-media-list-title js-media-list-title js-context-menu" data-context="__type__" title="__name__" data-id="__id__">
+            <li class="rv-media-list-title js-media-list-title js-context-menu" data-context="__type__" title="__name__" data-id="__id__" data-data='__data__' >
                 <div class="custom-checkbox">
                     <label>
                         <input type="checkbox">
@@ -561,7 +561,7 @@
         </div>
 
         <div id="rv_media_items_tiles_element" class="d-none">
-            <li class="rv-media-list-title js-media-list-title js-context-menu" data-context="__type__" data-id="__id__">
+            <li class="rv-media-list-title js-media-list-title js-context-menu" data-context="__type__" data-id="__id__" data-data='__data__' >
                 <input type="checkbox" class="hidden">
                 <div class="rv-media-item" title="__name__">
                     <span class="media-item-selected">

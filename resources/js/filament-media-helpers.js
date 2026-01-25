@@ -64,18 +64,11 @@ export class Helpers {
     }
 
     static getRequestParams() {
-        if (window.rvMedia.options && window.rvMedia.options.open_in === 'modal') {
-            return { ...MediaConfig.request_params, ...window.rvMedia.options }
-        }
         return MediaConfig.request_params
     }
 
     static setSelectedFile(fileId) {
-        if (typeof window.rvMedia.options !== 'undefined') {
-            window.rvMedia.options.selected_file_id = fileId
-        } else {
-            MediaConfig.request_params.selected_file_id = fileId
-        }
+        MediaConfig.request_params.selected_file_id = fileId
     }
 
     static getConfigs() {

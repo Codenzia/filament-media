@@ -1,6 +1,5 @@
 import $ from 'jquery'
 import Cropper from 'cropperjs'
-import { RecentItems } from './filament-media-config'
 import { Helpers } from './filament-media-helpers'
 import { MessageService } from './filament-media-message-service'
 import { $httpClient } from './filament-media-http-client'
@@ -29,30 +28,26 @@ export class ActionsService {
 
     static handlePreview() {
         let selected = []
-
         Helpers.each(Helpers.getSelectedFiles(), (value) => {
-            if (value.preview_url) {
-                if (value.type === 'document') {
+            console.log(value);
+
+            if (value.data.preview_url) {
+                if (value.data.type === 'document') {
                     const iframe = document.createElement('iframe')
-                    iframe.src = value.preview_url
+                    iframe.src = value.data.preview_url
                     iframe.allowFullscreen = true
                     iframe.style.width = '100vh'
                     iframe.style.height = '100vh'
                     selected.push(iframe)
                 } else {
-                    selected.push(value.preview_url)
+                    selected.push(value.data.preview_url)
                 }
 
                 // Add to recent items on the server
-                Helpers.addToRecent(value.id)
+                Helpers.addToRecent(value.data.id)
             }
         })
-
-        if (Helpers.size(selected) > 0) {
-            FilamentMedia.lightbox(selected)
-        } else {
-            this.handleGlobalAction('download')
-        }
+        window.FilamentMedia.lightbox(selected)
     }
 
 
@@ -103,13 +98,9 @@ export class ActionsService {
     static handleGlobalAction(type, callback) {
         let selected = []
         Helpers.each(Helpers.getSelectedItems(), (value) => {
-            selected.push({
-                is_folder: value.is_folder,
-                id: value.id,
-                full_url: value.full_url,
-            })
+            selected.push(value)
         })
-
+        console.log(selected);
         switch (type) {
             case 'rename':
                 Livewire.dispatch('open-rename-modal', { items: selected })
@@ -121,7 +112,7 @@ export class ActionsService {
                 ActionsService.handleCopyIndirectLink().then(() => {})
                 break
             case 'preview':
-                ActionsService.handlePreview()
+                ActionsService.handlePreview(selected)
                 break
             case 'alt_text':
                 Livewire.dispatch('open-alt-text-modal', { items: selected })
@@ -216,14 +207,12 @@ export class ActionsService {
         $dropdownActions.empty()
 
         let actionsList = $.extend({}, true, Helpers.getConfigs().actions_list)
-        
+
         Helpers.each(actionsList, (group, key) => {
             if (!Helpers.isArray(group)) {
                 actionsList[key] = []
             }
         })
-
-        console.log(actionsList);
 
         if (selectedItems.length > 1) {
             Helpers.each(actionsList, (group, key) => {
@@ -273,16 +262,6 @@ export class ActionsService {
         }
 
         let selectedFiles = Helpers.getSelectedFiles()
-
-        let canPreview = Helpers.arrayFilter(selectedFiles, function (value) {
-            return value.preview_url
-        }).length
-
-        if (!canPreview) {
-            actionsList.basic = Helpers.arrayReject(actionsList.basic, (item) => {
-                return item.action === 'preview'
-            })
-        }
 
         let fileIsImage = Helpers.arrayFilter(selectedFiles, function (value) {
             return value.type === 'image'

@@ -107,7 +107,6 @@ class MediaManagement {
     }
 
     handleMediaList() {
-        console.log('handleMediaList');
         let _self = this
 
         /*Ctrl key in Windows*/
@@ -163,20 +162,12 @@ class MediaManagement {
             })
             .on('dblclick doubletap', '.js-media-list-title', (event) => {
                 event.preventDefault()
-
                 let data = $(event.currentTarget).data()
                 if (data.is_folder === true) {
                     Helpers.resetPagination()
                     _self.FolderService.changeFolderAndAddToRecent(data.id)
                 } else {
-                    if (!Helpers.isUseInModal()) {
-                        ActionsService.handlePreview()
-                    } else if (Helpers.getConfigs().request_params.view_in !== 'trash') {
-                        let selectedFiles = Helpers.getSelectedFiles()
-                        if (Helpers.size(selectedFiles) > 0) {
-                            EditorService.editorSelectFile(selectedFiles)
-                        }
-                    }
+                    ActionsService.handlePreview()
                 }
 
                 return false
@@ -502,6 +493,127 @@ class MediaManagement {
         })
     }
 
+    static lightbox(items) {
+        console.log(items);
+        if (!items || !items.length) {
+            return
+        }
+
+        let currentIndex = 0
+        const $body = $('body')
+        const $overlay = $('<div id="filament-media-lightbox"></div>').css({
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'column',
+        })
+        const $close = $('<button type="button">&times;</button>').css({
+            position: 'absolute',
+            top: '20px',
+            right: '30px',
+            background: 'transparent',
+            border: 'none',
+            color: '#fff',
+            fontSize: '30px',
+            cursor: 'pointer',
+            zIndex: 100000,
+        })
+        const $content = $('<div></div>').css({
+            maxWidth: '90%',
+            maxHeight: '90%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+        })
+        const $prev = $('<button type="button">&lt;</button>').css({
+            position: 'absolute',
+            left: '20px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            background: 'transparent',
+            border: 'none',
+            color: '#fff',
+            fontSize: '40px',
+            cursor: 'pointer',
+            display: 'none',
+        })
+        const $next = $('<button type="button">&gt;</button>').css({
+            position: 'absolute',
+            right: '20px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            background: 'transparent',
+            border: 'none',
+            color: '#fff',
+            fontSize: '40px',
+            cursor: 'pointer',
+            display: 'none',
+        })
+
+        const showItem = (index) => {
+            $content.empty()
+            const item = items[index]
+
+            if (item instanceof HTMLElement) {
+                $content.append(item)
+            } else if (typeof item === 'string') {
+                const $img = $('<img>').attr('src', item).css({
+                    maxWidth: '100%',
+                    maxHeight: '90vh',
+                    objectFit: 'contain',
+                })
+                $content.append($img)
+            }
+
+            if (items.length > 1) {
+                if (index > 0) $prev.show()
+                else $prev.hide()
+                if (index < items.length - 1) $next.show()
+                else $next.hide()
+            }
+        }
+
+        $overlay.append($close).append($content)
+        if (items.length > 1) {
+            $overlay.append($prev).append($next)
+        }
+
+        $body.append($overlay)
+        showItem(currentIndex)
+
+        const closeLightbox = () => {
+            $overlay.remove()
+            $(document).off('keydown.lightbox')
+        }
+
+        $close.on('click', closeLightbox)
+        $overlay.on('click', (e) => {
+            if (e.target === $overlay[0]) closeLightbox()
+        })
+
+        $prev.on('click', (e) => {
+            e.stopPropagation()
+            if (currentIndex > 0) showItem(--currentIndex)
+        })
+        $next.on('click', (e) => {
+            e.stopPropagation()
+            if (currentIndex < items.length - 1) showItem(++currentIndex)
+        })
+
+        $(document).on('keydown.lightbox', (e) => {
+            if (e.key === 'Escape') closeLightbox()
+            if (e.key === 'ArrowLeft' && currentIndex > 0) showItem(--currentIndex)
+            if (e.key === 'ArrowRight' && currentIndex < items.length - 1) showItem(++currentIndex)
+        })
+    }
+
     static showButtonLoading(element, overlay = true, position = 'start') {
         if (overlay && element) {
             $(element).addClass('btn-loading').attr('disabled', true)
@@ -626,6 +738,7 @@ const initMediaManagement = () => {
     window.FilamentMedia.showLoading = MediaManagement.showLoading
     window.FilamentMedia.hideLoading = MediaManagement.hideLoading
     window.FilamentMedia.showNotice = MediaManagement.showNotice
+    window.FilamentMedia.lightbox = MediaManagement.lightbox
 
     new MediaManagement().init()
 }
