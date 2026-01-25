@@ -55,62 +55,6 @@ export class ActionsService {
         }
     }
 
-    static renderCropImage() {
-        const html = $('#rv_media_crop_image').html()
-        const modal = $('#modal_crop_image .crop-image').empty()
-        const item = Helpers.getSelectedItems()[0]
-        const form = $('#modal_crop_image .form-crop')
-        let cropData
-
-        const el = html.replace(/__src__/gi, item.full_url)
-        modal.append(el)
-
-        const image = modal.find('img')[0]
-
-        const options = {
-            minContainerWidth: 500,
-            minContainerHeight: 550,
-            dragMode: 'move',
-            crop(event) {
-                cropData = event.detail
-                form.find('input[name="image_id"]').val(item.id)
-                form.find('input[name="crop_data"]').val(JSON.stringify(cropData))
-                setHeight(cropData.height)
-                setWidth(cropData.width)
-            },
-        }
-        let cropper = new Cropper(image, options)
-
-        form.find('#aspectRatio').on('click', function () {
-            cropper.destroy()
-            if ($(this).is(':checked')) {
-                options.aspectRatio = cropData.width / cropData.height
-            } else {
-                options.aspectRatio = null
-            }
-            cropper = new Cropper(image, options)
-        })
-
-        form.find('#dataHeight').on('change', function () {
-            cropData.height = parseFloat($(this).val())
-            cropper.setData(cropData)
-            setHeight(cropData.height)
-        })
-
-        form.find('#dataWidth').on('change', function () {
-            cropData.width = parseFloat($(this).val())
-            cropper.setData(cropData)
-            setWidth(cropData.width)
-        })
-
-        const setHeight = (height) => {
-            form.find('#dataHeight').val(parseInt(height))
-        }
-
-        const setWidth = (width) => {
-            form.find('#dataWidth').val(parseInt(width))
-        }
-    }
 
     static async handleCopyLink() {
         let links = ''
@@ -156,10 +100,6 @@ export class ActionsService {
         )
     }
 
-    static handleShare() {
-        $('#modal_share_items').modal('show').find('form.form-alt-text').data('action', type)
-    }
-
     static handleGlobalAction(type, callback) {
         let selected = []
         Helpers.each(Helpers.getSelectedItems(), (value) => {
@@ -180,12 +120,9 @@ export class ActionsService {
             case 'copy_indirect_link':
                 ActionsService.handleCopyIndirectLink().then(() => {})
                 break
-            // case 'share':
-            //     $('#modal_share_items').modal('show')
-            //     break
-            // case 'preview':
-            //     ActionsService.handlePreview()
-            //     break
+            case 'preview':
+                ActionsService.handlePreview()
+                break
             case 'alt_text':
                 Livewire.dispatch('open-alt-text-modal', { items: selected })
                 break
@@ -207,8 +144,6 @@ export class ActionsService {
             case 'download':
                 let files = []
                 Helpers.each(Helpers.getSelectedItems(), (value) => {
-                    console.log(value);
-
                     if (!Helpers.inArray(Helpers.getConfigs().denied_download, value.mime_type)) {
                         files.push({
                             id: value.id,
@@ -262,109 +197,8 @@ export class ActionsService {
             .finally(() => Helpers.hideAjaxLoading())
     }
 
-//     static renderRenameItems() {
-//         let VIEW = $('#rv_media_rename_item').html()
-//         let $itemsWrapper = $('#modal_rename_items .rename-items').empty()
-//
-//         Helpers.each(Helpers.getSelectedItems(), (value) => {
-//             let item = VIEW.replace(
-//                 /__icon__/gi,
-//                 value.icon ||
-//                     `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-//                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-//                     <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
-//                 </svg>`
-//             )
-//                 .replace(/__placeholder__/gi, 'Input file name')
-//                 .replace(/__value__/gi, value.name)
-//
-//             let $item = $(item)
-//             $item.data('id', value.id.toString())
-//             $item.data('is_folder', value.is_folder)
-//             $item.data('name', value.name)
-//
-//             const $renamePhysicalFile = $item.find('input[name="rename_physical_file"]')
-//
-//             $renamePhysicalFile
-//                 .closest('.form-check')
-//                 .find('span')
-//                 .text(
-//                     value.is_folder ? $renamePhysicalFile.data('folder-label') : $renamePhysicalFile.data('file-label')
-//                 )
-//
-//             $item.find('input[name="rename_physical_file"]').on('change', function () {
-//                 $item.data('rename_physical_file', $(this).is(':checked'))
-//             })
-//
-//             $itemsWrapper.append($item)
-//
-//             FilamentMedia.initFieldCollapse()
-//         })
-//     }
-
-    static renderAltTextItems() {
-        let VIEW = $('#rv_media_alt_text_item').html()
-        let $itemsWrapper = $('#modal_alt_text_items .alt-text-items').empty()
-
-        Helpers.each(Helpers.getSelectedItems(), (value) => {
-            let item = VIEW.replace(
-                /__icon__/gi,
-                value.icon ||
-                    `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
-                </svg>`
-            )
-                .replace(/__placeholder__/gi, 'Input file alt')
-                .replace(/__value__/gi, value.alt === null ? '' : value.alt)
-
-            let $item = $(item)
-            $item.data('id', value.id)
-            $item.data('alt', value.alt)
-            $itemsWrapper.append($item)
-        })
-    }
-
-    static renderShareItems() {
-        const target = $('#modal_share_items [data-bb-value="share-result"]')
-        const shareType =  $('#modal_share_items select[data-bb-value="share-type"]').val()
-        target.val('')
-
-        let results = []
-
-        Helpers.each(Helpers.getSelectedItems(), (value) => {
-            // Convert absolute URL to relative URL for HTML and markdown
-            let imageUrl = value.full_url
-            if ((shareType === 'html' || shareType === 'markdown') && imageUrl && imageUrl.startsWith(window.location.origin)) {
-                imageUrl = imageUrl.replace(window.location.origin, '')
-            }
-
-            switch (shareType) {
-                case 'html':
-                    results.push(
-                        value.type === 'image'
-                            ? `<img src="${imageUrl}" alt="${value.alt}" />`
-                            : `<a href="${imageUrl}" target="_blank">${value.alt}</a>`
-                    )
-                    break;
-                case 'markdown':
-                    results.push(
-                        (value.type === 'image' ? '!' : '') +
-                        `[${value.alt}](${imageUrl})`
-                    )
-                    break;
-                case 'indirect_url':
-                    results.push(value.indirect_url)
-                    break;
-                default:
-                    results.push(value.full_url)
-            }
-        })
-
-        target.val(results.join('\n'))
-    }
-
     static renderActions() {
+        let selectedItems = Helpers.getSelectedItems()
         let hasFolderSelected = Helpers.getSelectedFolder().length > 0
 
         let ACTION_TEMPLATE = $('#rv_action_item').html() ?? ''
@@ -382,14 +216,27 @@ export class ActionsService {
         $dropdownActions.empty()
 
         let actionsList = $.extend({}, true, Helpers.getConfigs().actions_list)
+        
+        Helpers.each(actionsList, (group, key) => {
+            if (!Helpers.isArray(group)) {
+                actionsList[key] = []
+            }
+        })
+
+        console.log(actionsList);
+
+        if (selectedItems.length > 1) {
+            Helpers.each(actionsList, (group, key) => {
+                actionsList[key] = Helpers.arrayReject(group, (item) => item.action === 'rename' || item.action === 'copy_indirect_link' || item.action === 'copy_link')
+            })
+        }
 
         if (hasFolderSelected) {
-            const ignoreActions = ['preview', 'crop', 'alt_text', 'copy_link', 'copy_indirect_link']
+            const ignoreActions = ['preview', 'crop', 'alt_text', 'copy_link']
 
             Helpers.each(actionsList, (group, key) => {
                 actionsList[key] = Helpers.arrayReject(group, (item) => ignoreActions.includes(item.action))
             })
-
             if (!Helpers.hasPermission('folders.create')) {
                 actionsList.file = Helpers.arrayReject(actionsList.file, (item) => {
                     return item.action === 'make_copy'

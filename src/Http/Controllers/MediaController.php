@@ -747,6 +747,10 @@ class MediaController extends Controller
                 break;
 
             case 'rename':
+                if (count($request->input('selected', [])) > 1) {
+                    return FilamentMedia::responseError(trans('filament-media::media.invalid_action'));
+                }
+
                 Validator::validate($request->input(), [
                     'selected' => ['required', 'array'],
                     'selected.*.id' => ['required', 'string'],

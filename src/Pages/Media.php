@@ -41,6 +41,10 @@ class Media extends Page
     #[On('open-rename-modal')]
     public function openRenameModal(array $items)
     {
+        if (count($items) !== 1) {
+            return;
+        }
+
         $this->mountAction('rename', ['items' => $items]);
     }
 

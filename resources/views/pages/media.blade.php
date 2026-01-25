@@ -327,7 +327,7 @@
                                             <x-filament::input
                                                 type="search"
                                                 name="search"
-                                                class="w-100 bg-white dark:bg-gray-900 border border-end-0 rounded-end-0"
+                                                class="w-140 bg-white dark:bg-gray-900 border border-end-0 rounded-end-0 border-start-0 border-transparent rounded-start-0 h-10"
                                                 placeholder="{{ trans('filament-media::media.search_file_and_folder') }}"
                                             />
                                             <x-filament::button

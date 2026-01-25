@@ -64,6 +64,32 @@ export class MediaDetails {
         _self.$detailsWrapper.find('.rv-media-thumbnail').css('color', data.color)
         _self.$detailsWrapper.find('.rv-media-description').html(description)
 
+        const $copyButton = _self.$detailsWrapper.find('.js-btn-copy-to-clipboard')
+        $copyButton.off('click.media-copy').on('click.media-copy', function (event) {
+            event.preventDefault()
+            const $btn = $(this)
+            const target = $btn.data('clipboard-target')
+            const $target = target ? $(target) : null
+            const value = $target?.val?.() || $target?.text?.() || ''
+
+            if (!value) {
+                return
+            }
+
+            window.FilamentMedia.copyToClipboard(value, _self.$detailsWrapper[0])
+
+            const $icon = $btn.find('[data-clipboard-icon]')
+            const $successIcon = $btn.find('[data-clipboard-success-icon]')
+
+            $icon.addClass('d-none')
+            $successIcon.removeClass('d-none')
+
+            setTimeout(() => {
+                $successIcon.addClass('d-none')
+                $icon.removeClass('d-none')
+            }, 1200)
+        })
+
         let dimensions = ''
 
         if (data.mime_type && data.mime_type.indexOf('image') !== -1) {

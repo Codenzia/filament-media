@@ -4662,32 +4662,6 @@ textarea.form-control.is-invalid {
     }
 }
 
-.btn:hover {
-    background-color: var(--bb-btn-hover-bg);
-    border-color: var(--bb-btn-hover-border-color);
-    color: var(--bb-btn-hover-color);
-    text-decoration: none
-}
-
-.btn-check+.btn:hover {
-    background-color: var(--bb-btn-bg);
-    border-color: var(--bb-btn-border-color);
-    color: var(--bb-btn-color)
-}
-
-.btn:focus-visible {
-    background-color: var(--bb-btn-hover-bg);
-    border-color: var(--bb-btn-hover-border-color);
-    box-shadow: var(--bb-btn-box-shadow), var(--bb-btn-focus-box-shadow);
-    color: var(--bb-btn-hover-color);
-    outline: 0
-}
-
-.btn-check:focus-visible+.btn {
-    border-color: var(--bb-btn-hover-border-color);
-    box-shadow: var(--bb-btn-box-shadow), var(--bb-btn-focus-box-shadow);
-    outline: 0
-}
 
 .btn-check:checked+.btn,
 .btn.active,

@@ -153,6 +153,12 @@ export class ContextMenuService {
             items[value] = undefined
         })
 
+        let selectedItems = Helpers.getSelectedItems()
+
+        if (selectedItems.length > 1) {
+            items.rename = undefined
+        }
+
         let hasFolderSelected = Helpers.getSelectedFolder().length > 0
 
         if (hasFolderSelected) {

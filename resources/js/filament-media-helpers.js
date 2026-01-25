@@ -153,7 +153,6 @@ export class Helpers {
         $('.js-media-list-title input[type=checkbox]:checked').each((index, el) => {
             let $box = $(el).closest('.js-media-list-title')
             let data = $box.data() || {}
-            console.log(data);
             data.index_key = $box.index()
             data.is_folder = data.context === 'folder' ? true : false
             selected.push(data)
