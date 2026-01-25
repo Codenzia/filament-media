@@ -51,22 +51,22 @@ class ThumbnailService
 
     public function save($type = 'crop')
     {
-        $manager = new ImageManager(new GdDriver());
-
-        $image = $manager->read($this->image);
-
-        if ($type === 'crop') {
-            $image->crop($this->width, $this->height, $this->x, $this->y);
-        } else {
-            $image->resize($this->width, $this->height);
-        }
-
-        $path = $this->destinationPath . '/' . $this->fileName;
-
-        File::ensureDirectoryExists($this->destinationPath);
-
-        $image->save($path);
-
-        return $path;
+//         $manager = new ImageManager(new GdDriver());
+//
+//         $image = $manager->read($this->image);
+//
+//         if ($type === 'crop') {
+//             $image->crop($this->width, $this->height, $this->x, $this->y);
+//         } else {
+//             $image->resize($this->width, $this->height);
+//         }
+//
+//         $path = $this->destinationPath . '/' . $this->fileName;
+//
+//         File::ensureDirectoryExists($this->destinationPath);
+//
+//         $image->save($path);
+//
+//         return $path;
     }
 }

@@ -384,7 +384,7 @@
                                             </x-filament::dropdown.list>
                                         </x-filament::dropdown>
 
-                                        <x-filament::dropdown class="rv-dropdown-actions">
+                                        <x-filament::dropdown class="rv-dropdown-actions hidden">
                                             <x-slot:trigger>
                                                 <x-filament::button
                                                     icon="heroicon-m-hand-raised"

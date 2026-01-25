@@ -175,11 +175,9 @@ class Media extends Page
                 ->extraAttributes(['class' => 'hidden'])
                 ->mountUsing(function ($form, array $arguments) {
                     $items = $arguments['items'] ?? [];
-                    if (count($items) === 1) {
-                        $form->fill([
-                            'name' => $items[0]['name'] ?? '',
-                            'rename_physical_file' => false,
-                        ]);
+                    foreach ($items as $item) {
+                        $name = $item['is_folder'] ? MediaFolder::find($item['id'])->name ?? '' : MediaFile::find($item['id'])->name ?? '';
+                        $form->fill(['name' => $name]);
                     }
                 })
                 ->form([
@@ -198,9 +196,8 @@ class Media extends Page
                     foreach ($items as $item) {
                         $id = $item['id'];
                         $isFolder = $item['is_folder'] ?? false;
-
                         if (! $isFolder) {
-                            $file = MediaFile::find($id);
+                        $file = MediaFile::find($id);
                             if ($file) {
                                 FilamentMedia::renameFile($file, $newName, $renameOnDisk);
                             }
