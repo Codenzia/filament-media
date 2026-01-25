@@ -4,7 +4,7 @@
     var FilamentMedia_URL = {{ Js::from(FilamentMedia::getUrls()) }};
     var FilamentMediaConfig = {{ Js::from([
         'permissions' => FilamentMedia::getPermissions(),
-        'translations' => trans('core/media::media.javascript'),
+        'translations' => trans('filament-media:media.javascript'),
         'pagination' => [
             'paged' => FilamentMedia::getConfig('pagination.paged'),
             'posts_per_page' => FilamentMedia::getConfig('pagination.per_page'),
@@ -16,5 +16,5 @@
         'default_image' => FilamentMedia::getDefaultImage(),
     ]) }};
 
-    FilamentMediaConfig.translations.actions_list.other.properties = '{{ trans('core/media::media.javascript.actions_list.other.properties') }}';
+    FilamentMediaConfig.translations.actions_list.other.properties = '{{ trans('filament-media::media.javascript.actions_list.other.properties') }}';
 </script>

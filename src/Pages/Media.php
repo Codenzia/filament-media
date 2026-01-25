@@ -102,12 +102,12 @@ class Media extends Page
     {
         return [
             Action::make('create_folder')
-                ->label(trans('core/media::media.create_folder'))
+                ->label(trans('filament-media::media.create_folder'))
                 ->icon('heroicon-o-folder-plus')
                 ->extraAttributes(['class' => 'hidden'])
                 ->form([
                     TextInput::make('name')
-                        ->label(trans('core/media::media.folder_name'))
+                        ->label(trans('filament-media::media.folder_name'))
                         ->required(),
                 ])
                 ->action(function (array $data) {
@@ -116,21 +116,21 @@ class Media extends Page
                     $this->dispatch('media-folder-created');
 
                     Notification::make()
-                        ->title(trans('core/media::media.folder_created'))
+                        ->title(trans('filament-media::media.folder_created'))
                         ->success()
                         ->send();
                 }),
 
             Action::make('trash')
-                ->label(trans('core/media::media.move_to_trash'))
+                ->label(trans('filament-media::media.move_to_trash'))
                 ->extraAttributes(['class' => 'hidden'])
                 ->requiresConfirmation()
-                ->modalHeading(trans('core/media::media.move_to_trash'))
-                ->modalDescription(trans('core/media::media.confirm_trash'))
+                ->modalHeading(trans('filament-media::media.move_to_trash'))
+                ->modalDescription(trans('filament-media::media.confirm_trash'))
                 ->form([
                     Checkbox::make('skip_trash')
-                        ->label(trans('core/media::media.skip_trash'))
-                        ->helperText(trans('core/media::media.skip_trash_description')),
+                        ->label(trans('filament-media::media.skip_trash'))
+                        ->helperText(trans('filament-media::media.skip_trash_description')),
                 ])
                 ->action(function (array $data, array $arguments) {
                     $items = $arguments['items'] ?? [];
@@ -165,13 +165,13 @@ class Media extends Page
                     $this->dispatch('media-folder-created');
 
                     Notification::make()
-                        ->title(trans('core/media::media.trash_success'))
+                        ->title(trans('filament-media::media.trash_success'))
                         ->success()
                         ->send();
                 }),
 
             Action::make('rename')
-                ->label(trans('core/media::media.rename'))
+                ->label(trans('filament-media::media.rename'))
                 ->extraAttributes(['class' => 'hidden'])
                 ->mountUsing(function ($form, array $arguments) {
                     $items = $arguments['items'] ?? [];
@@ -182,11 +182,11 @@ class Media extends Page
                 })
                 ->form([
                     TextInput::make('name')
-                        ->label(trans('core/media::media.folder_name'))
+                        ->label(trans('filament-media::media.folder_name'))
                         ->required(),
                     Checkbox::make('rename_physical_file')
-                        ->label(trans('core/media::media.rename_physical_file'))
-                        ->helperText(trans('core/media::media.rename_physical_file_warning')),
+                        ->label(trans('filament-media::media.rename_physical_file'))
+                        ->helperText(trans('filament-media::media.rename_physical_file_warning')),
                 ])
                 ->action(function (array $data, array $arguments) {
                     $items = $arguments['items'] ?? [];
@@ -212,17 +212,17 @@ class Media extends Page
                     $this->dispatch('media-folder-created');
 
                     Notification::make()
-                        ->title(trans('core/media::media.rename_success'))
+                        ->title(trans('filament-media::media.rename_success'))
                         ->success()
                         ->send();
                 }),
 
             Action::make('delete')
-                ->label(trans('core/media::media.confirm_delete'))
+                ->label(trans('filament-media::media.confirm_delete'))
                 ->extraAttributes(['class' => 'hidden'])
                 ->requiresConfirmation()
-                ->modalHeading(trans('core/media::media.confirm_delete'))
-                ->modalDescription(trans('core/media::media.confirm_delete_description'))
+                ->modalHeading(trans('filament-media::media.confirm_delete'))
+                ->modalDescription(trans('filament-media::media.confirm_delete_description'))
                 ->action(function (array $arguments) {
                     $items = $arguments['items'] ?? [];
 
@@ -248,17 +248,17 @@ class Media extends Page
                     $this->dispatch('media-folder-created');
 
                     Notification::make()
-                        ->title(trans('core/media::media.delete_success'))
+                        ->title(trans('filament-media::media.delete_success'))
                         ->success()
                         ->send();
                 }),
 
             Action::make('empty_trash')
-                ->label(trans('core/media::media.empty_trash_title'))
+                ->label(trans('filament-media::media.empty_trash_title'))
                 ->extraAttributes(['class' => 'hidden'])
                 ->requiresConfirmation()
-                ->modalHeading(trans('core/media::media.empty_trash_title'))
-                ->modalDescription(trans('core/media::media.empty_trash_description'))
+                ->modalHeading(trans('filament-media::media.empty_trash_title'))
+                ->modalDescription(trans('filament-media::media.empty_trash_description'))
                 ->action(function () {
                     $fileRepository = app(MediaFileInterface::class);
                     $folderRepository = app(MediaFolderInterface::class);
@@ -269,13 +269,13 @@ class Media extends Page
                     $this->dispatch('media-folder-created');
 
                     Notification::make()
-                        ->title(trans('core/media::media.empty_trash_success'))
+                        ->title(trans('filament-media::media.empty_trash_success'))
                         ->success()
                         ->send();
                 }),
 
             Action::make('favorite')
-                ->label(trans('core/media::media.javascript.actions_list.user.favorite'))
+                ->label(trans('filament-media::media.javascript.actions_list.user.favorite'))
                 ->extraAttributes(['class' => 'hidden'])
                 ->action(function (array $arguments) {
                     $items = $arguments['items'] ?? [];
@@ -296,13 +296,13 @@ class Media extends Page
                     $this->dispatch('media-folder-created');
 
                     Notification::make()
-                        ->title(trans('core/media::media.favorite_success'))
+                        ->title(trans('filament-media::media.favorite_success'))
                         ->success()
                         ->send();
                 }),
 
             Action::make('remove_favorite')
-                ->label(trans('core/media::media.javascript.actions_list.user.remove_favorite'))
+                ->label(trans('filament-media::media.javascript.actions_list.user.remove_favorite'))
                 ->extraAttributes(['class' => 'hidden'])
                 ->action(function (array $arguments) {
                     $items = $arguments['items'] ?? [];
@@ -331,13 +331,13 @@ class Media extends Page
                     $this->dispatch('media-folder-created');
 
                     Notification::make()
-                        ->title(trans('core/media::media.remove_favorite_success'))
+                        ->title(trans('filament-media::media.remove_favorite_success'))
                         ->success()
                         ->send();
                 }),
 
             Action::make('properties')
-                ->label(trans('core/media::media.properties.name'))
+                ->label(trans('filament-media::media.properties.name'))
                 ->extraAttributes(['class' => 'hidden'])
                 ->mountUsing(function ($form, array $arguments) {
                     $items = $arguments['items'] ?? [];
@@ -352,7 +352,7 @@ class Media extends Page
                 })
                 ->form([
                     \Filament\Forms\Components\ColorPicker::make('color')
-                        ->label(trans('core/media::media.properties.color_label'))
+                        ->label(trans('filament-media::media.properties.color_label'))
                         ->required(),
                 ])
                 ->action(function (array $data, array $arguments) {
@@ -363,11 +363,11 @@ class Media extends Page
                         }
                     }
                     $this->dispatch('media-folder-created');
-                    Notification::make()->title(trans('core/media::media.update_properties_success'))->success()->send();
+                    Notification::make()->title(trans('filament-media::media.update_properties_success'))->success()->send();
                 }),
 
             Action::make('alt_text')
-                ->label(trans('core/media::media.alt_text'))
+                ->label(trans('filament-media::media.alt_text'))
                 ->extraAttributes(['class' => 'hidden'])
                 ->mountUsing(function ($form, array $arguments) {
                     $items = $arguments['items'] ?? [];
@@ -382,7 +382,7 @@ class Media extends Page
                 })
                 ->form([
                     TextInput::make('alt')
-                        ->label(trans('core/media::media.alt_text'))
+                        ->label(trans('filament-media::media.alt_text'))
                         ->maxLength(255),
                 ])
                 ->action(function (array $data, array $arguments) {
@@ -393,17 +393,17 @@ class Media extends Page
                         }
                     }
                     $this->dispatch('media-folder-created');
-                    Notification::make()->title(trans('core/media::media.update_alt_text_success'))->success()->send();
+                    Notification::make()->title(trans('filament-media::media.update_alt_text_success'))->success()->send();
                 }),
 
             Action::make('download_url')
-                ->label(trans('core/media::media.download_link'))
+                ->label(trans('filament-media::media.download_link'))
                 ->icon('heroicon-o-arrow-down-tray')
                 ->extraAttributes(['class' => 'hidden'])
                 ->form([
                     Textarea::make('urls')
-                        ->label(trans('core/media::media.url'))
-                        ->helperText(trans('core/media::media.download_explain'))
+                        ->label(trans('filament-media::media.url'))
+                        ->helperText(trans('filament-media::media.download_explain'))
                         ->required()
                         ->rows(5),
                 ])
@@ -419,7 +419,7 @@ class Media extends Page
                     $this->dispatch('media-folder-created');
 
                     Notification::make()
-                        ->title(trans('core/media::media.add_success'))
+                        ->title(trans('filament-media::media.add_success'))
                         ->success()
                         ->send();
                 }),

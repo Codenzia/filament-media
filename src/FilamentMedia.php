@@ -53,7 +53,7 @@ class FilamentMedia
     {
         $urls = $this->getUrls();
 
-        return view('core/media::header', compact('urls'))->render();
+        return view('filament-media::header', compact('urls'))->render();
     }
 
     public function getUrls(): array
@@ -75,41 +75,41 @@ class FilamentMedia
 
     public function renderFooter(): string
     {
-        return view('core/media::footer')->render();
+        return view('filament-media::footer')->render();
     }
 
     public function renderContent(): string
     {
         $sorts = $this->getSorts();
 
-        return view('core/media::content', compact('sorts'))->render();
+        return view('filament-media::content', compact('sorts'))->render();
     }
 
     public static function getSorts(): array
     {
         return [
             'name-asc' => [
-                'label' => trans('core/media::media.file_name_asc'),
+                'label' => trans('filament-media::media.file_name_asc'),
                 'icon' => 'heroicon-m-chevron-up-down',
             ],
             'name-desc' => [
-                'label' => trans('core/media::media.file_name_desc'),
+                'label' => trans('filament-media::media.file_name_desc'),
                 'icon' => 'heroicon-m-chevron-up-down',
             ],
             'created_at-asc' => [
-                'label' => trans('core/media::media.uploaded_date_asc'),
+                'label' => trans('filament-media::media.uploaded_date_asc'),
                 'icon' => 'heroicon-m-chevron-up-down',
             ],
             'created_at-desc' => [
-                'label' => trans('core/media::media.uploaded_date_desc'),
+                'label' => trans('filament-media::media.uploaded_date_desc'),
                 'icon' => 'heroicon-m-chevron-up-down',
             ],
             'size-asc' => [
-                'label' => trans('core/media::media.size_asc'),
+                'label' => trans('filament-media::media.size_asc'),
                 'icon' => 'heroicon-m-chevron-up-down',
             ],
             'size-desc' => [
-                'label' => trans('core/media::media.size_desc'),
+                'label' => trans('filament-media::media.size_desc'),
                 'icon' => 'heroicon-m-chevron-up-down',
             ],
         ];
@@ -398,11 +398,11 @@ class FilamentMedia
         $validator = Validator::make($request->all(), [
             'upload' => $this->imageValidationRule(),
         ], [
-            'upload.required' => trans('core/media::media.validation.uploaded_file_required'),
-            'upload.image' => trans('core/media::media.validation.uploaded_file_invalid_type'),
-            'upload.mimes' => trans('core/media::media.validation.uploaded_file_invalid_type'),
+            'upload.required' => trans('filament-media::media.validation.uploaded_file_required'),
+            'upload.image' => trans('filament-media::media.validation.uploaded_file_invalid_type'),
+            'upload.mimes' => trans('filament-media::media.validation.uploaded_file_invalid_type'),
         ], [
-            'upload' => trans('core/media::media.validation.attributes.uploaded_file'),
+            'upload' => trans('filament-media::media.validation.attributes.uploaded_file'),
         ]);
 
         if ($validator->fails()) {
@@ -463,7 +463,7 @@ class FilamentMedia
         if (! $fileUpload) {
             return [
                 'error' => true,
-                'message' => trans('core/media::media.can_not_detect_file_type'),
+                'message' => trans('filament-media::media.can_not_detect_file_type'),
             ];
         }
 
@@ -485,11 +485,11 @@ class FilamentMedia
                 $validator = Validator::make(['uploaded_file' => $fileUpload], [
                     'uploaded_file' => $rules,
                 ], [
-                    'uploaded_file.required' => trans('core/media::media.validation.uploaded_file_required'),
-                    'uploaded_file.file' => trans('core/media::media.validation.uploaded_file_invalid_type'),
-                    'uploaded_file.types' => trans('core/media::media.validation.uploaded_file_invalid_type'),
+                    'uploaded_file.required' => trans('filament-media::media.validation.uploaded_file_required'),
+                    'uploaded_file.file' => trans('filament-media::media.validation.uploaded_file_invalid_type'),
+                    'uploaded_file.types' => trans('filament-media::media.validation.uploaded_file_invalid_type'),
                 ], [
-                    'uploaded_file' => trans('core/media::media.validation.attributes.uploaded_file'),
+                    'uploaded_file' => trans('filament-media::media.validation.attributes.uploaded_file'),
                 ]);
 
                 if ($validator->fails()) {
@@ -508,7 +508,7 @@ class FilamentMedia
             ) {
                 return [
                     'error' => true,
-                    'message' => trans('core/media::media.file_too_big_readable_size', [
+                    'message' => trans('filament-media::media.file_too_big_readable_size', [
                         'size' => BaseHelper::humanFilesize($maxUploadFilesizeAllowed * 1024 * 1024),
                     ]),
                 ];
@@ -519,7 +519,7 @@ class FilamentMedia
             if ($fileUpload->getSize() / 1024 > (int) $maxSize) {
                 return [
                     'error' => true,
-                    'message' => trans('core/media::media.file_too_big_readable_size', [
+                    'message' => trans('filament-media::media.file_too_big_readable_size', [
                         'size' => BaseHelper::humanFilesize($maxSize * 1024),
                     ]),
                 ];
@@ -547,7 +547,7 @@ class FilamentMedia
             ) {
                 return [
                     'error' => true,
-                    'message' => trans('core/media::media.validation.uploaded_file_invalid_type'),
+                    'message' => trans('filament-media::media.validation.uploaded_file_invalid_type'),
                 ];
             }
 
@@ -678,7 +678,7 @@ class FilamentMedia
             $message = $exception->getMessage();
 
             if (! $this->isUsingCloud()) {
-                $message = trans('core/media::media.unable_to_write', ['folder' => $this->getUploadPath()]);
+                $message = trans('filament-media::media.unable_to_write', ['folder' => $this->getUploadPath()]);
             }
 
             return [
@@ -688,7 +688,7 @@ class FilamentMedia
         } catch (Throwable $exception) {
             return [
                 'error' => true,
-                'message' => $exception->getMessage() ?: trans('core/media::media.validation.upload_network_error'),
+                'message' => $exception->getMessage() ?: trans('filament-media::media.validation.upload_network_error'),
             ];
         }
     }
@@ -892,7 +892,7 @@ class FilamentMedia
         if (empty($url)) {
             return [
                 'error' => true,
-                'message' => trans('core/media::media.url_invalid'),
+                'message' => trans('filament-media::media.url_invalid'),
             ];
         }
 
@@ -905,7 +905,7 @@ class FilamentMedia
                 return [
                     'error' => true,
                     'message' => $response->reason() ?: trans(
-                        'core/media::media.unable_download_image_from',
+                        'filament-media::media.unable_download_image_from',
                         ['url' => $url]
                     ),
                 ];
@@ -920,7 +920,7 @@ class FilamentMedia
 
             return [
                 'error' => true,
-                'message' => $exception->getMessage() ?: trans('core/media::media.validation.upload_network_error'),
+                'message' => $exception->getMessage() ?: trans('filament-media::media.validation.upload_network_error'),
             ];
         }
 
@@ -948,7 +948,7 @@ class FilamentMedia
         if (empty($path)) {
             return [
                 'error' => true,
-                'message' => trans('core/media::media.path_invalid'),
+                'message' => trans('filament-media::media.path_invalid'),
             ];
         }
 
@@ -1552,7 +1552,7 @@ class FilamentMedia
 
         if (! $this->isUsingCloud()) {
             if (! File::exists($filePath)) {
-                return $this->responseError(trans('core/media::media.file_not_exists'));
+                return $this->responseError(trans('filament-media::media.file_not_exists'));
             }
             return response()->download($filePath, $fileName);
         }
@@ -1605,7 +1605,7 @@ class FilamentMedia
         $breadcrumbs = [
             [
                 'id' => 0,
-                'name' => trans('core/media::media.all_media'),
+                'name' => trans('filament-media::media.all_media'),
                 'icon' => 'heroicon-m-folder',
             ]
         ];
@@ -1637,7 +1637,7 @@ class FilamentMedia
 
         $folderId = $this->createFolder($name, $parentId);
 
-        return $this->responseSuccess(['id' => $folderId], trans('core/media::media.folder_created'));
+        return $this->responseSuccess(['id' => $folderId], trans('filament-media::media.folder_created'));
     }
 
     public function postUploadFile($request)
@@ -1665,10 +1665,10 @@ class FilamentMedia
                         MediaFile::where('id', $item['id'])->delete();
                     }
                 }
-                return $this->responseSuccess([], trans('core/media::media.delete_success'));
+                return $this->responseSuccess([], trans('filament-media::media.delete_success'));
         }
 
-        return $this->responseError(trans('core/media::media.invalid_action'));
+        return $this->responseError(trans('filament-media::media.invalid_action'));
     }
 
     public function postDownloadUrl($request)
@@ -1684,7 +1684,7 @@ class FilamentMedia
             }
         }
 
-        return $this->responseSuccess([], trans('core/media::media.add_success'));
+        return $this->responseSuccess([], trans('filament-media::media.add_success'));
     }
 
     public function getBreadcrumbs($request)

@@ -52,7 +52,7 @@ class UploadsManager
         $folder = $this->cleanFolder($folder);
 
         if (Storage::exists($folder)) {
-            return trans('core/media::media.folder_exists', compact('folder'));
+            return trans('filament-media::media.folder_exists', compact('folder'));
         }
 
         return Storage::makeDirectory($folder);
@@ -70,7 +70,7 @@ class UploadsManager
         $filesFolders = array_merge(Storage::directories($folder), Storage::files($folder));
 
         if (! empty($filesFolders)) {
-            return trans('core/media::media.directory_must_empty');
+            return trans('filament-media::media.directory_must_empty');
         }
 
         return Storage::deleteDirectory($folder);

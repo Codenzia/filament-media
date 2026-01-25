@@ -17,7 +17,7 @@
                     >
                         <div class="header">
                             <h5 class="offcanvas-title">
-                                {{ trans('core/media::media.menu_name') }}
+                                {{ trans('filament-media::media.menu_name') }}
                             </h5>
                             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                         </div>
@@ -25,7 +25,7 @@
                         <div class="body p-0">
                             <div class="list-group-flush">
                                 <div class="list-group-header">
-                                    {{ trans('core/media::media.filter') }}
+                                    {{ trans('filament-media::media.filter') }}
                                 </div>
                                 <div class="list-group-item">
                                     :action="true"
@@ -34,7 +34,7 @@
                                     data-value="everything"
                                 >
                                     <x-filament::icon icon="heroicon-m-funnel" />
-                                    {{ trans('core/media::media.everything') }}
+                                    {{ trans('filament-media::media.everything') }}
                                 </div>
 
                                 @if (array_key_exists('image', FilamentMedia::getConfig('mime_types', [])))
@@ -45,7 +45,7 @@
                                         data-value="video"
                                     >
                                         <x-filament::icon icon="heroicon-m-photo" />
-                                        {{ trans('core/media::media.image') }}
+                                        {{ trans('filament-media::media.image') }}
                                     </div>
                                 @endif
 
@@ -57,7 +57,7 @@
                                         data-value="document"
                                     >
                                         <x-filament::icon icon="heroicon-m-film" />
-                                        {{ trans('core/media::media.video') }}
+                                        {{ trans('filament-media::media.video') }}
                                     </div>
                                 @endif
 
@@ -68,13 +68,13 @@
                                     data-value="image"
                                 >
                                     <x-filament::icon icon="heroicon-m-document" />
-                                    {{ trans('core/media::media.document') }}
+                                    {{ trans('filament-media::media.document') }}
                                 </div>
                             </div>
 
                             <div class="list-group-flush">
                                 <div class="list-group-header">
-                                    {{ trans('core/media::media.view_in') }}
+                                    {{ trans('filament-media::media.view_in') }}
                                 </div>
                                 <div class="list-group-item">
                                     :action="true"
@@ -83,7 +83,7 @@
                                     data-value="all_media"
                                 >
                                     <x-filament::icon icon="heroicon-m-globe-alt" />
-                                    {{ trans('core/media::media.all_media') }}
+                                    {{ trans('filament-media::media.all_media') }}
                                 </div>
 
                                     <div class="list-group-item">
@@ -93,7 +93,7 @@
                                         data-value="trash"
                                     >
                                         <x-filament::icon icon="heroicon-m-trash" />
-                                        {{ trans('core/media::media.trash') }}
+                                        {{ trans('filament-media::media.trash') }}
                                     </div>
 
                                 <div class="list-group-item">
@@ -103,7 +103,7 @@
                                     data-value="recent"
                                 >
                                     <x-filament::icon icon="heroicon-m-clock" />
-                                    {{ trans('core/media::media.recent') }}
+                                    {{ trans('filament-media::media.recent') }}
                                 </div>
 
                                 <div class="list-group-item">
@@ -113,7 +113,7 @@
                                     data-value="favorites"
                                 >
                                     <x-filament::icon icon="heroicon-m-star" />
-                                    {{ trans('core/media::media.favorites') }}
+                                    {{ trans('filament-media::media.favorites') }}
                                 </div>
                             </div>
                         </div>
@@ -128,7 +128,7 @@
                                         icon="heroicon-m-bars-3"
                                         data-bs-toggle="offcanvas"
                                         href="#rv-media-aside"
-                                        :label="trans('core/media::media.menu_name')"
+                                        :label="trans('filament-media::media.menu_name')"
                                         color="gray"
                                         size="sm"
                                     />
@@ -142,9 +142,9 @@
                                                     color="primary"
                                                     size="lg"
                                                     class="bg-white dark:bg-gray-900"
-                                                    :label="trans('core/media::media.upload')"
+                                                    :label="trans('filament-media::media.upload')"
                                                 >
-                                                    {{ trans('core/media::media.upload') }}
+                                                    {{ trans('filament-media::media.upload') }}
                                                 </x-filament::button>
                                             </x-slot:trigger>
                                             <x-filament::dropdown.list>
@@ -154,14 +154,14 @@
                                                     data-type="view_in"
                                                     data-value="all_media"
                                                 >
-                                                    {{ trans('core/media::media.upload_from_local') }}
+                                                    {{ trans('filament-media::media.upload_from_local') }}
                                                 </x-filament::dropdown.list.item>
 
                                                 <x-filament::dropdown.list.item
                                                     icon="heroicon-m-trash"
                                                     wire:click="mountAction('download_url')"
                                                 >
-                                                    {{ trans('core/media::media.upload_from_url') }}
+                                                    {{ trans('filament-media::media.upload_from_url') }}
                                                 </x-filament::dropdown.list.item>
                                             </x-filament::dropdown.list>
 
@@ -170,27 +170,27 @@
                                         <x-filament::button
                                             type="button"
                                             color="primary"
-                                            :tooltip="trans('core/media::media.create_folder')"
+                                            :tooltip="trans('filament-media::media.create_folder')"
                                             class="bg-white dark:bg-gray-900"
                                             wire:click="mountAction('create_folder')"
                                             icon="heroicon-m-folder-plus"
-                                            :label="trans('core/media::media.create_folder')"
+                                            :label="trans('filament-media::media.create_folder')"
                                             size="lg"
                                         >
-                                            {{ trans('core/media::media.create_folder') }}
+                                            {{ trans('filament-media::media.create_folder') }}
                                         </x-filament::button>
 
                                         <x-filament::button
                                             type="button"
                                             color="primary"
-                                            :tooltip="trans('core/media::media.refresh')"
+                                            :tooltip="trans('filament-media::media.refresh')"
                                             class="js-change-action bg-white dark:bg-gray-900"
                                             icon="heroicon-m-arrow-path"
                                             data-type="refresh"
-                                            :label="trans('core/media::media.refresh')"
+                                            :label="trans('filament-media::media.refresh')"
                                             size="lg"
                                         >
-                                            {{ trans('core/media::media.refresh') }}
+                                            {{ trans('filament-media::media.refresh') }}
                                         </x-filament::button>
 
                                         @if (FilamentMedia::getConfig('sidebar_display') !== 'vertical')
@@ -201,11 +201,11 @@
                                                         color="primary"
                                                         icon="heroicon-m-funnel"
                                                         class="js-rv-media-change-filter-group js-filter-by-type bg-white dark:bg-gray-900"
-                                                        :tooltip="trans('core/media::media.filter')"
-                                                        :label="trans('core/media::media.filter')"
+                                                        :tooltip="trans('filament-media::media.filter')"
+                                                        :label="trans('filament-media::media.filter')"
                                                         size="lg"
                                                     >
-                                                    {{ trans('core/media::media.filter') }}
+                                                    {{ trans('filament-media::media.filter') }}
                                                     </x-filament::button>
                                                 </x-slot:trigger>
 
@@ -216,7 +216,7 @@
                                                         data-type="filter"
                                                         data-value="everything"
                                                     >
-                                                        {{ trans('core/media::media.everything') }}
+                                                        {{ trans('filament-media::media.everything') }}
                                                     </x-filament::dropdown.list.item>
 
                                                     @if (array_key_exists('image', FilamentMedia::getConfig('mime_types', [])))
@@ -226,7 +226,7 @@
                                                             data-type="filter"
                                                             data-value="image"
                                                         >
-                                                            {{ trans('core/media::media.image') }}
+                                                            {{ trans('filament-media::media.image') }}
                                                         </x-filament::dropdown.list.item>
                                                     @endif
 
@@ -237,7 +237,7 @@
                                                             data-type="filter"
                                                             data-value="video"
                                                         >
-                                                            {{ trans('core/media::media.video') }}
+                                                            {{ trans('filament-media::media.video') }}
                                                         </x-filament::dropdown.list.item>
                                                     @endif
 
@@ -247,7 +247,7 @@
                                                         data-type="filter"
                                                         data-value="document"
                                                     >
-                                                        {{ trans('core/media::media.document') }}
+                                                        {{ trans('filament-media::media.document') }}
                                                     </x-filament::dropdown.list.item>
                                                 </x-filament::dropdown.list>
                                             </x-filament::dropdown>
@@ -259,11 +259,11 @@
                                                         color="primary"
                                                         icon="heroicon-m-eye"
                                                         class="js-rv-media-change-filter-group js-filter-by-view-in bg-white dark:bg-gray-900"
-                                                        :tooltip="trans('core/media::media.view_in')"
-                                                        :label="trans('core/media::media.view_in')"
+                                                        :tooltip="trans('filament-media::media.view_in')"
+                                                        :label="trans('filament-media::media.view_in')"
                                                         size="lg"
                                                     >
-                                                        {{ trans('core/media::media.view_in') }}
+                                                        {{ trans('filament-media::media.view_in') }}
                                                     </x-filament::button>
                                                 </x-slot:trigger>
 
@@ -274,7 +274,7 @@
                                                         data-type="view_in"
                                                         data-value="all_media"
                                                     >
-                                                        {{ trans('core/media::media.all_media') }}
+                                                        {{ trans('filament-media::media.all_media') }}
                                                     </x-filament::dropdown.list.item>
 
                                                     <x-filament::dropdown.list.item
@@ -283,7 +283,7 @@
                                                         data-type="view_in"
                                                         data-value="trash"
                                                     >
-                                                        {{ trans('core/media::media.trash') }}
+                                                        {{ trans('filament-media::media.trash') }}
                                                     </x-filament::dropdown.list.item>
 
                                                     <x-filament::dropdown.list.item
@@ -292,7 +292,7 @@
                                                         data-type="view_in"
                                                         data-value="recent"
                                                     >
-                                                        {{ trans('core/media::media.recent') }}
+                                                        {{ trans('filament-media::media.recent') }}
                                                     </x-filament::dropdown.list.item>
 
                                                     <x-filament::dropdown.list.item
@@ -301,7 +301,7 @@
                                                         data-type="view_in"
                                                         data-value="favorites"
                                                     >
-                                                        {{ trans('core/media::media.favorites') }}
+                                                        {{ trans('filament-media::media.favorites') }}
                                                     </x-filament::dropdown.list.item>
                                                 </x-filament::dropdown.list>
                                             </x-filament::dropdown>
@@ -313,8 +313,8 @@
                                                 class="d-none js-files-action bg-white dark:bg-gray-900"
                                                 data-action="empty_trash"
                                                 icon="heroicon-m-trash"
-                                                :label="trans('core/media::media.empty_trash')"
-                                                :tooltip="trans('core/media::media.empty_trash')"
+                                                :label="trans('filament-media::media.empty_trash')"
+                                                :tooltip="trans('filament-media::media.empty_trash')"
                                                     size="lg"
                                             />
                                     </div>
@@ -328,7 +328,7 @@
                                                 type="search"
                                                 name="search"
                                                 class="w-100 bg-white dark:bg-gray-900 border border-end-0 rounded-end-0"
-                                                placeholder="{{ trans('core/media::media.search_file_and_folder') }}"
+                                                placeholder="{{ trans('filament-media::media.search_file_and_folder') }}"
                                             />
                                             <x-filament::button
                                                 type="submit"
@@ -365,7 +365,7 @@
                                                     size="lg"
                                                     class="px-4 py-2 shadow-sm bg-transparent"
                                                 >
-                                                    {{ trans('core/media::media.sort') }}
+                                                    {{ trans('filament-media::media.sort') }}
                                                 </x-filament::button>
                                             </x-slot:trigger>
 
@@ -392,7 +392,7 @@
                                                     disabled
                                                     outlined
                                                 >
-                                                    {{ trans('core/media::media.actions') }}
+                                                    {{ trans('filament-media::media.actions') }}
                                                 </x-filament::button>
                                             </x-slot:trigger>
 
@@ -407,7 +407,7 @@
                                             type="button"
                                             data-type="tiles"
                                             icon="heroicon-m-squares-2x2"
-                                            :label="trans('core/media::media.view_type') ?? 'Tiles'"
+                                            :label="trans('filament-media::media.view_type') ?? 'Tiles'"
                                             size="lg"
                                             class="shadow-sm"
                                         />
@@ -415,7 +415,7 @@
                                             type="button"
                                             data-type="list"
                                             icon="heroicon-m-list-bullet"
-                                            :label="trans('core/media::media.view_type') ?? 'List'"
+                                            :label="trans('filament-media::media.view_type') ?? 'List'"
                                             size="lg"
                                             class="shadow-sm"
                                         />
@@ -425,7 +425,7 @@
                                         for="media_details_collapse"
                                         class="collapse-panel ms-2 d-none d-lg-flex shadow-sm"
                                         icon="heroicon-m-chevron-double-right"
-                                        :label="trans('core/media::media.details') ?? 'Toggle details'"
+                                        :label="trans('filament-media::media.details') ?? 'Toggle details'"
                                         size="lg"
                                     />
                                 </div>
@@ -440,7 +440,7 @@
                                 </div>
                                 <div class="rv-media-description">
                                     <div class="rv-media-name">
-                                        <p>{{ trans('core/media::media.nothing_is_selected') }}</p>
+                                        <p>{{ trans('filament-media::media.nothing_is_selected') }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -451,8 +451,8 @@
                                 color="primary"
                                 class="js-insert-to-editor"
                                 icon="heroicon-m-check"
-                                :label="trans('core/media::media.insert')"
-                                :tooltip="trans('core/media::media.insert')"
+                                :label="trans('filament-media::media.insert')"
+                                :tooltip="trans('filament-media::media.insert')"
                             />
                         </footer>
                     </div>
@@ -460,13 +460,13 @@
                         <x-filament::section compact>
                             <x-slot name="heading">
                                 <div class="flex items-center justify-between gap-4">
-                                    <span>{{ trans('core/media::media.upload_progress') }}</span>
+                                    <span>{{ trans('filament-media::media.upload_progress') }}</span>
                                     <x-filament::icon-button
                                         icon="heroicon-m-x-mark"
                                         color="gray"
                                         size="sm"
                                         class="close-pane"
-                                        :label="trans('core/media::media.close')"
+                                        :label="trans('filament-media::media.close')"
                                     />
                                 </div>
                             </x-slot>
@@ -511,7 +511,7 @@
                         <h3>Drop files and folders here</h3>
                         <p>Or use the upload button above.</p>
                     </li>
-                    <li class="rv-media-list-title up-one-level js-up-one-level" title="{{ trans('core/media::media.up_level') }}">
+                    <li class="rv-media-list-title up-one-level js-up-one-level" title="{{ trans('filament-media::media.up_level') }}">
                         <div class="custom-checkbox"></div>
 
                         <div class="rv-media-file-size"></div>
@@ -530,7 +530,7 @@
                         <p>__noItemMessage__</p>
                     </li>
                     <li class="rv-media-list-title up-one-level js-up-one-level">
-                        <div class="rv-media-item" data-context="__type__" title="{{ trans('core/media::media.up_level') }}">
+                        <div class="rv-media-item" data-context="__type__" title="{{ trans('filament-media::media.up_level') }}">
                             <div class="rv-media-thumbnail">
                                 <x-filament::icon icon="heroicon-m-arrow-turn-up-left"  />
                             </div>
@@ -624,7 +624,7 @@
 
         <div class="media-download-popup" style="display: none">
             <div class="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" role="alert">
-                {{ trans('core/media::media.prepare_file_to_download') }}
+                {{ trans('filament-media::media.prepare_file_to_download') }}
             </div>
         </div>
 

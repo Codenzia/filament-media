@@ -79,8 +79,7 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
     {
         $this->loadHelpers();
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'core/media');
-        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'core/media');
-        Blade::anonymousComponentPath(__DIR__ . '/../resources/views/components', 'core');
+        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'filament-media');
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         // Asset Registration
         FilamentAsset::register(

@@ -37,14 +37,14 @@ class MediaController extends Controller
 
     public function getMedia()
     {
-        $this->pageTitle(trans('core/media::media.menu_name'));
+        $this->pageTitle(trans('filament-media::media.menu_name'));
 
-        return view('core/media::index');
+        return view('filament-media::index');
     }
 
     public function getPopup()
     {
-        return view('core/media::popup')->render();
+        return view('filament-media::popup')->render();
     }
 
     public function getList(Request $request)
@@ -106,7 +106,7 @@ class MediaController extends Controller
                 $breadcrumbs = [
                     [
                         'id' => 0,
-                        'name' => trans('core/media::media.all_media'),
+                        'name' => trans('filament-media::media.all_media'),
                         'icon' => BaseHelper::renderIcon('heroicon-o-photo'),
                     ],
                 ];
@@ -123,7 +123,7 @@ class MediaController extends Controller
                 $breadcrumbs = [
                     [
                         'id' => 0,
-                        'name' => trans('core/media::media.trash'),
+                        'name' => trans('filament-media::media.trash'),
                         'icon' => BaseHelper::renderIcon('heroicon-m-trash'),
                     ],
                 ];
@@ -145,7 +145,7 @@ class MediaController extends Controller
                 $breadcrumbs = [
                     [
                         'id' => 0,
-                        'name' => trans('core/media::media.recent'),
+                        'name' => trans('filament-media::media.recent'),
                         'icon' => BaseHelper::renderIcon('heroicon-m-clock'),
                     ],
                 ];
@@ -224,7 +224,7 @@ class MediaController extends Controller
                 $breadcrumbs = [
                     [
                         'id' => 0,
-                        'name' => trans('core/media::media.favorites'),
+                        'name' => trans('filament-media::media.favorites'),
                         'icon' => BaseHelper::renderIcon('heroicon-m-star'),
                     ],
                 ];
@@ -369,7 +369,7 @@ class MediaController extends Controller
 
     public function postGlobalActions(Request $request, ThumbnailService $thumbnailService)
     {
-        $response = FilamentMedia::responseError(trans('core/media::media.invalid_action'));
+        $response = FilamentMedia::responseError(trans('filament-media::media.invalid_action'));
 
         $type = $request->input('action');
 
@@ -405,12 +405,12 @@ class MediaController extends Controller
                 }
 
                 if ($error) {
-                    $response = FilamentMedia::responseError(trans('core/media::media.trash_error'));
+                    $response = FilamentMedia::responseError(trans('filament-media::media.trash_error'));
 
                     break;
                 }
 
-                $response = FilamentMedia::responseSuccess([], trans('core/media::media.trash_success'));
+                $response = FilamentMedia::responseSuccess([], trans('filament-media::media.trash_success'));
 
                 break;
 
@@ -431,12 +431,12 @@ class MediaController extends Controller
                 }
 
                 if ($error) {
-                    $response = FilamentMedia::responseError(trans('core/media::media.restore_error'));
+                    $response = FilamentMedia::responseError(trans('filament-media::media.restore_error'));
 
                     break;
                 }
 
-                $response = FilamentMedia::responseSuccess([], trans('core/media::media.restore_success'));
+                $response = FilamentMedia::responseSuccess([], trans('filament-media::media.restore_success'));
 
                 break;
 
@@ -470,12 +470,12 @@ class MediaController extends Controller
                 }
 
                 if ($error) {
-                    $response = FilamentMedia::responseError(trans('core/media::media.move_error'));
+                    $response = FilamentMedia::responseError(trans('filament-media::media.move_error'));
 
                     break;
                 }
 
-                $response = FilamentMedia::responseSuccess([], trans('core/media::media.move_success'));
+                $response = FilamentMedia::responseSuccess([], trans('filament-media::media.move_success'));
 
                 break;
 
@@ -567,7 +567,7 @@ class MediaController extends Controller
 //                     }
                 }
 
-                $response = FilamentMedia::responseSuccess([], trans('core/media::media.copy_success'));
+                $response = FilamentMedia::responseSuccess([], trans('filament-media::media.copy_success'));
 
                 break;
 
@@ -585,7 +585,7 @@ class MediaController extends Controller
                     }
                 }
 
-                $response = FilamentMedia::responseSuccess([], trans('core/media::media.delete_success'));
+                $response = FilamentMedia::responseSuccess([], trans('filament-media::media.delete_success'));
 
                 break;
 
@@ -603,7 +603,7 @@ class MediaController extends Controller
 
                 $meta->save();
 
-                $response = FilamentMedia::responseSuccess([], trans('core/media::media.favorite_success'));
+                $response = FilamentMedia::responseSuccess([], trans('filament-media::media.favorite_success'));
 
                 break;
 
@@ -630,7 +630,7 @@ class MediaController extends Controller
                     }
                 }
 
-                $response = FilamentMedia::responseSuccess([], trans('core/media::media.remove_favorite_success'));
+                $response = FilamentMedia::responseSuccess([], trans('filament-media::media.remove_favorite_success'));
 
                 break;
 
@@ -680,7 +680,7 @@ class MediaController extends Controller
                 $meta->value = $value;
                 $meta->save();
 
-                $response = FilamentMedia::responseSuccess([], trans('core/media::media.add_recent_success'));
+                $response = FilamentMedia::responseSuccess([], trans('filament-media::media.add_recent_success'));
 
                 break;
 
@@ -705,7 +705,7 @@ class MediaController extends Controller
                 $file = MediaFile::query()->findOrFail($validated['imageId']);
 
                 if (! $file->canGenerateThumbnails()) {
-                    $response = FilamentMedia::responseError(trans('core/media::media.failed_to_crop_image'));
+                    $response = FilamentMedia::responseError(trans('filament-media::media.failed_to_crop_image'));
 
                     break;
                 }
@@ -729,7 +729,7 @@ class MediaController extends Controller
                     $message = $exception->getMessage();
 
                     if (! FilamentMedia::isUsingCloud()) {
-                        $message = trans('core/media::media.unable_to_write', ['folder' => FilamentMedia::getUploadPath()]);
+                        $message = trans('filament-media::media.unable_to_write', ['folder' => FilamentMedia::getUploadPath()]);
                     }
 
                     return FilamentMedia::responseError($message);
@@ -742,7 +742,7 @@ class MediaController extends Controller
 
                 FilamentMedia::generateThumbnails($file);
 
-                $response = FilamentMedia::responseSuccess([], trans('core/media::media.crop_success'));
+                $response = FilamentMedia::responseSuccess([], trans('filament-media::media.crop_success'));
 
                 break;
 
@@ -787,7 +787,7 @@ class MediaController extends Controller
                     }
                 }
 
-                $response = FilamentMedia::responseSuccess([], trans('core/media::media.rename_success'));
+                $response = FilamentMedia::responseSuccess([], trans('filament-media::media.rename_success'));
 
                 break;
 
@@ -806,14 +806,14 @@ class MediaController extends Controller
                     MediaFile::query()->where('id', $item['id'])->update(['alt' => $item['alt']]);
                 }
 
-                $response = FilamentMedia::responseSuccess([], trans('core/media::media.update_alt_text_success'));
+                $response = FilamentMedia::responseSuccess([], trans('filament-media::media.update_alt_text_success'));
 
                 break;
             case 'empty_trash':
                 $this->fileRepository->emptyTrash();
                 $this->folderRepository->emptyTrash();
 
-                $response = FilamentMedia::responseSuccess([], trans('core/media::media.empty_trash_success'));
+                $response = FilamentMedia::responseSuccess([], trans('filament-media::media.empty_trash_success'));
 
                 break;
 
@@ -828,7 +828,7 @@ class MediaController extends Controller
                     'color' => $request->input('color'),
                 ]);
 
-                $response = FilamentMedia::responseSuccess([], trans('core/media::media.update_properties_success'));
+                $response = FilamentMedia::responseSuccess([], trans('filament-media::media.update_properties_success'));
 
                 break;
         }
@@ -928,7 +928,7 @@ class MediaController extends Controller
                 $zip->make($fileName);
             } catch (\Throwable $exception) {
                 BaseHelper::logError($exception);
-                return FilamentMedia::responseError(trans('core/media::media.download_file_error'));
+                return FilamentMedia::responseError(trans('filament-media::media.download_file_error'));
             }
 
             foreach ($items as $item) {
@@ -979,9 +979,9 @@ class MediaController extends Controller
                     ->deleteFileAfterSend();
             }
 
-            return FilamentMedia::responseError(trans('core/media::media.download_file_error'));
+            return FilamentMedia::responseError(trans('filament-media::media.download_file_error'));
         }
 
-        return FilamentMedia::responseError(trans('core/media::media.can_not_download_file'));
+        return FilamentMedia::responseError(trans('filament-media::media.can_not_download_file'));
     }
 }

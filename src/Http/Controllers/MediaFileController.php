@@ -90,7 +90,7 @@ class MediaFileController extends Controller
                 'id' => $result['data']->id,
                 'src' => Storage::url($result['data']->url),
                 'url' => $result['data']->url,
-                'message' => trans('core/media::media.javascript.message.success_header'),
+                'message' => trans('filament-media::media.javascript.message.success_header'),
             ]);
         }
 
