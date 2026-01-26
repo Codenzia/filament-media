@@ -29,7 +29,7 @@ export class Helpers {
     }
 
     static showAjaxLoading($element = $('.rv-media-main')) {
-        $element.addClass('on-loading').append($('#rv_media_loading').html())
+        $element.addClass('on-loading').append($('#filament_media_loading').html())
     }
 
     static hideAjaxLoading($element = $('.rv-media-main')) {

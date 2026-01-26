@@ -22,6 +22,21 @@ class Media extends Page
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-photo';
 
+    public static function getNavigationIcon(): string|\BackedEnum|null
+    {
+        return FilamentMedia::getConfig('navigation.icon', static::$navigationIcon);
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return FilamentMedia::getConfig('navigation.label') ?: trans('filament-media::media.menu_name');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return FilamentMedia::getConfig('navigation.group', null);
+    }
+
     protected string $view = 'filament-media::pages.media';
     protected array $sorts = [];
 

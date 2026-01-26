@@ -193,7 +193,7 @@
     text-align: right
 }
 
-#rv_media_body {
+#filament_media_body {
     display: flex;
     flex-direction: column;
     max-height: calc(100vh - 8rem);
@@ -28548,7 +28548,7 @@ small.charcounter {
     left: unset !important
 }
 
-#rv_media_modal {
+#filament_media_modal {
     z-index: 99993 !important
 }
 

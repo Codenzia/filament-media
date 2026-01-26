@@ -4,12 +4,12 @@ import { ActionsService } from '../../filament-media-actions-service'
 export class MediaList {
     constructor() {
         this.group = {}
-        this.group.list = $('#rv_media_items_list').html() ?? ''
-        this.group.tiles = $('#rv_media_items_tiles').html() ?? ''
+        this.group.list = $('#filament_media_items_list').html() ?? ''
+        this.group.tiles = $('#filament_media_items_tiles').html() ?? ''
 
         this.item = {}
-        this.item.list = $('#rv_media_items_list_element').html() ?? ''
-        this.item.tiles = $('#rv_media_items_tiles_element').html() ?? ''
+        this.item.list = $('#filament_media_items_list_element').html() ?? ''
+        this.item.tiles = $('#filament_media_items_tiles_element').html() ?? ''
 
         this.$groupContainer = $('.rv-media-items')
     }

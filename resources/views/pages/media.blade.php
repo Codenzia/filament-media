@@ -489,11 +489,11 @@
 
 
 
-        <div id="rv_media_loading" class="d-none" >
+        <div id="filament_media_loading" class="d-none" >
             <x-filament::loading-indicator class="h-12 w-12 text-primary loading-spinner loading-spinner--transparent" />
         </div>
 
-        <div id="rv_action_item" class="d-none">
+        <div id="filament_action_item" class="d-none">
             <button
                 class="dropdown-item js-files-action"
                 data-action="__action__"
@@ -503,7 +503,7 @@
             </button>
         </div>
 
-        <div id="rv_media_items_list" class="d-none">
+        <div id="filament_media_items_list" class="d-none">
             <div class="rv-media-list">
                 <ul>
                     <li class="no-items">
@@ -521,7 +521,7 @@
             </div>
         </div>
 
-        <div id="rv_media_items_tiles" class="d-none">
+        <div id="filament_media_items_tiles" class="d-none">
             <div class="rv-media-grid">
                 <ul>
                     <li class="no-items">
@@ -543,7 +543,7 @@
             </div>
         </div>
 
-        <div id="rv_media_items_list_element" class="d-none">
+        <div id="filament_media_items_list_element" class="d-none">
             <li class="rv-media-list-title js-media-list-title js-context-menu" data-context="__type__" title="__name__" data-id="__id__" data-data='__data__' >
                 <div class="custom-checkbox">
                     <label>
@@ -560,7 +560,7 @@
             </li>
         </div>
 
-        <div id="rv_media_items_tiles_element" class="d-none">
+        <div id="filament_media_items_tiles_element" class="d-none">
             <li class="rv-media-list-title js-media-list-title js-context-menu" data-context="__type__" data-id="__id__" data-data='__data__' >
                 <input type="checkbox" class="hidden">
                 <div class="rv-media-item" title="__name__">
@@ -579,7 +579,7 @@
             </li>
         </div>
 
-        <div id="rv_media_upload_progress_item" class="d-none">
+        <div id="filament_media_upload_progress_item" class="d-none">
             <div class="flex flex-row gap-2 hover:bg-gray-50 dark:hover:bg-white/5 transition duration-75 justify-between">
                 <div class="p-4 align-top">
                     <div class="flex flex-col gap-1 justify-between">
@@ -599,7 +599,7 @@
             </div>
         </div>
 
-        <div id="rv_media_breadcrumb_item" class="d-none">
+        <div id="filament_media_breadcrumb_item" class="d-none">
             <li>
                 <a href="#" data-folder="__folderId__" class="text-decoration-none js-change-folder">
                     __icon__
@@ -609,7 +609,7 @@
         </div>
 
 
-        <div id="rv_media_alt_text_item" class="d-none">
+        <div id="filament_media_alt_text_item" class="d-none">
             <div class="mb-3">
                 <div class="input-group">
                     <div class="input-group-text">

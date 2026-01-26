@@ -469,18 +469,10 @@ class FilamentMedia
 
         $allowedMimeTypes = $this->getConfig('allowed_mime_types');
 
-        $allowedToUploadAnyFileTypes = AdminHelper::isInAdmin(true) && $this->getConfig(
-            'allowed_admin_to_upload_any_file_types',
-            false
-        );
 
         if (! $this->isChunkUploadEnabled()) {
             if (! $skipValidation) {
                 $rules = ['required'];
-
-                if (! $allowedToUploadAnyFileTypes) {
-                    $rules[] = ValidationFile::types(explode(',', $allowedMimeTypes));
-                }
 
                 $validator = Validator::make(['uploaded_file' => $fileUpload], [
                     'uploaded_file' => $rules,
@@ -543,7 +535,6 @@ class FilamentMedia
             if (
                 ! $skipValidation
                 && ! in_array(strtolower($fileExtension), explode(',', $allowedMimeTypes))
-                && ! $allowedToUploadAnyFileTypes
             ) {
                 return [
                     'error' => true,

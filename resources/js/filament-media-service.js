@@ -10,7 +10,7 @@ export class MediaService {
     constructor() {
         this.MediaList = new MediaList()
         this.MediaDetails = new MediaDetails()
-        this.breadcrumbTemplate = $('#rv_media_breadcrumb_item').html()
+        this.breadcrumbTemplate = $('#filament_media_breadcrumb_item').html()
     }
 
     getMedia(reload = false, is_popup = false, load_more_file = false) {

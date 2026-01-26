@@ -192,7 +192,7 @@ export class ActionsService {
         let selectedItems = Helpers.getSelectedItems()
         let hasFolderSelected = Helpers.getSelectedFolder().length > 0
 
-        let ACTION_TEMPLATE = $('#rv_action_item').html() ?? ''
+        let ACTION_TEMPLATE = $('#filament_action_item').html() ?? ''
         let initializedItem = 0
         let $dropdownActions = $('.rv-dropdown-actions-list')
 

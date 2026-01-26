@@ -441,7 +441,7 @@ class MediaManagement {
     }
 
     bindIntegrateModalEvents() {
-        let $mainModal = $('#rv_media_modal')
+        let $mainModal = $('#filament_media_modal')
         let _self = this
         $mainModal.off('click', '.js-insert-to-editor').on('click', '.js-insert-to-editor', (event) => {
             event.preventDefault()

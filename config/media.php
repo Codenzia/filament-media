@@ -16,26 +16,7 @@ return [
         'files.favorite',
         'folders.favorite',
     ],
-    'libraries' => [
-        'stylesheets' => [
-            'vendor/core/core/media/libraries/jquery-context-menu/jquery.contextMenu.min.css',
-            'vendor/core/core/media/css/media.css',
-        ],
-        'javascript' => [
-            'vendor/core/core/media/libraries/lodash/lodash.min.js',
-            'vendor/core/core/base/libraries/dropzone/dropzone.js',
-            'vendor/core/core/media/libraries/jquery-context-menu/jquery.ui.position.min.js',
-            'vendor/core/core/media/libraries/jquery-context-menu/jquery.contextMenu.min.js',
-            'vendor/core/core/media/js/media.js',
-        ],
-    ],
-    'allowed_mime_types' => env(
-        'RV_MEDIA_ALLOWED_MIME_TYPES',
-        'jpg,jpeg,png,gif,txt,docx,zip,mp3,bmp,csv,xls,xlsx,ppt,pptx,pdf,mp4,m4v,doc,mpga,wav,webp,webm,mov,jfif,avif,rar,x-rar'
-    ),
-    // Danger warning: When enabled, admin users can upload any file types, it leads to security issues if admin users try to hack your site.
-    // If it is disabled, admin users can only upload the file types in configure allowed types.
-    'allowed_admin_to_upload_any_file_types' => env('RV_MEDIA_ALLOWED_ADMIN_TO_UPLOAD_ANY_FILE_TYPES', false),
+    'allowed_mime_types' =>'jpg,jpeg,png,gif,txt,docx,zip,mp3,bmp,csv,xls,xlsx,ppt,pptx,pdf,mp4,m4v,doc,mpga,wav,webp,webm,mov,jfif,avif,rar,x-rar',
     'mime_types' => [
         'image' => [
             'image/png',
@@ -78,22 +59,22 @@ return [
             'audio/wav',
         ],
     ],
-    'default_image' => env('RV_MEDIA_DEFAULT_IMAGE', '/vendor/core/core/base/images/placeholder.png'),
-    'sidebar_display' => env('RV_MEDIA_SIDEBAR_DISPLAY', 'horizontal'), // Use "vertical" or "horizontal"
+    'default_image' =>  '/vendor/core/core/base/images/placeholder.png',
+    'sidebar_display' => 'horizontal', // Use "vertical" or "horizontal"
     'watermark' => [
-        'enabled' => env('RV_MEDIA_WATERMARK_ENABLED', 0),
-        'source' => env('RV_MEDIA_WATERMARK_SOURCE'),
-        'size' => env('RV_MEDIA_WATERMARK_SIZE', 10),
-        'opacity' => env('RV_MEDIA_WATERMARK_OPACITY', 70),
-        'position' => env('RV_MEDIA_WATERMARK_POSITION', 'bottom-right'),
-        'x' => env('RV_MEDIA_WATERMARK_X', 10),
-        'y' => env('RV_MEDIA_WATERMARK_Y', 10),
+        'enabled' => 0,
+        'source' => null,
+        'size' => 10,
+        'opacity' => 70,
+        'position' => 'bottom-right',
+        'x' => 10,
+        'y' => 10,
     ],
 
-    'custom_s3_path' => env('RV_MEDIA_CUSTOM_S3_PATH', ''),
+    'custom_s3_path' => '',
 
     'chunk' => [
-        'enabled' => env('RV_MEDIA_UPLOAD_CHUNK', false),
+        'enabled' => false,
         'chunk_size' => 1024 * 1024, // Bytes
         'max_file_size' => 1024 * 1024, // MB
 
@@ -130,13 +111,13 @@ return [
 
     'preview' => [
         'document' => [
-            'enabled' => env('RV_MEDIA_DOCUMENT_PREVIEW_ENABLED', true),
+            'enabled' => true,
             'providers' => [
                 'google' => 'https://docs.google.com/gview?embedded=true&url={url}',
                 'microsoft' => 'https://view.officeapps.live.com/op/view.aspx?src={url}',
             ],
-            'default' => env('RV_MEDIA_DOCUMENT_PREVIEW_PROVIDER', 'microsoft'),
-            'type' => env('RV_MEDIA_DOCUMENT_PREVIEW_TYPE', 'iframe'),          // use iframe or popup
+            'default' => 'microsoft',
+            'type' => 'iframe',          // use iframe or popup
             'mime_types' => [
                 'application/pdf',
                 'application/vnd.ms-excel',
@@ -151,10 +132,10 @@ return [
             ],
         ],
     ],
-    'default_upload_folder' => env('RV_MEDIA_DEFAULT_UPLOAD_FOLDER'),
-    'default_upload_url' => env('RV_MEDIA_DEFAULT_UPLOAD_URL'),
-    'generate_thumbnails_enabled' => env('RV_MEDIA_GENERATE_THUMBNAILS_ENABLED', true),
-    'generate_thumbnails_chunk_limit' => env('RV_MEDIA_GENERATE_THUMBNAILS_CHUNK_LIMIT', 50),
+    'default_upload_folder' => '',
+    'default_upload_url' => '',
+    'generate_thumbnails_enabled' => true,
+    'generate_thumbnails_chunk_limit' => 50,
     'folder_colors' => [
         '#3498db',
         '#2ecc71',
@@ -167,5 +148,10 @@ return [
         '#27ae60',
         '#c0392b',
     ],
-    'use_storage_symlink' => env('RV_MEDIA_USE_STORAGE_SYMLINK', false),
+    'navigation' => [
+        'icon' => 'heroicon-o-photo',
+        'label' => null,
+        'group' => null,
+    ],
+    'use_storage_symlink' => false,
 ];

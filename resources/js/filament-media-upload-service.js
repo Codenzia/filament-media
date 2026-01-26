@@ -17,7 +17,7 @@ export class UploadService {
 
         this.uploadProgressContainer = $('.rv-upload-progress .rv-upload-progress-table')
 
-        this.uploadProgressTemplate = $('#rv_media_upload_progress_item').html()
+        this.uploadProgressTemplate = $('#filament_media_upload_progress_item').html()
 
         this.totalQueued = 1
 
