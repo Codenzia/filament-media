@@ -489,8 +489,8 @@
 
 
 
-        <div id="rv_media_loading" class="d-none">
-            {{-- <x-filament::loading-indicator class="h-5 w-5 text-primary" /> --}}
+        <div id="rv_media_loading" class="d-none" >
+            <x-filament::loading-indicator class="h-12 w-12 text-primary loading-spinner loading-spinner--transparent" />
         </div>
 
         <div id="rv_action_item" class="d-none">

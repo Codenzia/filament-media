@@ -49,6 +49,7 @@
                 @include lib-css(flex-direction, row);
                 display: flex;
                 height: 200px;
+                position: relative;
             }
 
             .rv-dropdown-actions {

@@ -28821,7 +28821,8 @@ a.form-hint {
     right: 0;
     top: 0;
     width: 100%;
-    z-index: 1
+    z-index: 1;
+    padding: 25%;
 }
 
 .loading-spinner:after {
