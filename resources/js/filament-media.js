@@ -534,7 +534,7 @@ class MediaManagement {
         })
         const $prev = $('<button type="button">&lt;</button>').css({
             position: 'absolute',
-            left: '20px',
+            left: '15%',
             top: '50%',
             transform: 'translateY(-50%)',
             background: 'transparent',
@@ -546,7 +546,7 @@ class MediaManagement {
         })
         const $next = $('<button type="button">&gt;</button>').css({
             position: 'absolute',
-            right: '20px',
+            right: '15%',
             top: '50%',
             transform: 'translateY(-50%)',
             background: 'transparent',
