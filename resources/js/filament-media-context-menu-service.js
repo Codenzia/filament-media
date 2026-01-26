@@ -110,6 +110,9 @@ export class ContextMenuService {
 
         Helpers.each(Helpers.getConfigs().actions_list, (actionGroup, key) => {
             Helpers.each(actionGroup, (value) => {
+                if (value.action === 'share') {
+                    return
+                }
                 items[value.action] = {
                     name: value.name,
                     icon: (opt, $itemElement, itemKey, item) => {
@@ -157,6 +160,8 @@ export class ContextMenuService {
 
         if (selectedItems.length > 1) {
             items.rename = undefined
+            items.copy_link = undefined
+            items.copy_indirect_link = undefined
         }
 
         let hasFolderSelected = Helpers.getSelectedFolder().length > 0
@@ -166,7 +171,6 @@ export class ContextMenuService {
             items.crop = undefined
             items.copy_link = undefined
             items.copy_indirect_link = undefined
-            items.share = undefined
             items.alt_text = undefined
 
             if (!Helpers.hasPermission('folders.create')) {

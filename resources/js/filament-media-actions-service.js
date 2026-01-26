@@ -77,7 +77,7 @@ export class ActionsService {
         }
 
         const links = selected
-            .map((value) => value.indirect_url)
+            .map((value) => value.full_url || (value.data ? value.data.full_url : null))
             .filter((url) => !!url)
             .join('\n')
 
@@ -212,10 +212,13 @@ export class ActionsService {
             if (!Helpers.isArray(group)) {
                 actionsList[key] = []
             }
+            // Remove share action
+            actionsList[key] = Helpers.arrayReject(actionsList[key], (item) => item.action === 'share')
         })
-
+        console.log(selectedItems.length);
         if (selectedItems.length > 1) {
             Helpers.each(actionsList, (group, key) => {
+                console.log(key);
                 actionsList[key] = Helpers.arrayReject(group, (item) => item.action === 'rename' || item.action === 'copy_indirect_link' || item.action === 'copy_link')
             })
         }
