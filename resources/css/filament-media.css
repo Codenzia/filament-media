@@ -372,7 +372,7 @@
 }
 
 li.context-menu-item.context-menu-icon-updated.media-action-trash {
-    color: rgba(var(--bb-danger-rgb), 1) !important
+    color: red !important
 }
 
 .fm-media-list {
