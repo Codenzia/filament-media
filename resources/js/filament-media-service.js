@@ -147,10 +147,10 @@ export class MediaService {
 
         const $emptyTrashBtn = $('.js-files-action[data-action="empty_trash"]')
 
-        $emptyTrashBtn.hide()
+        $emptyTrashBtn.addClass('hidden').removeClass('flex')
 
         if (viewIn === 'trash' && Helpers.size(Helpers.getItems()) > 0) {
-            $emptyTrashBtn.removeClass('d-none disabled').show()
+            $emptyTrashBtn.removeClass('hidden disabled').addClass('flex')
         }
 
         ContextMenuService.destroyContext()

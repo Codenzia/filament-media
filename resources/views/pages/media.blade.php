@@ -201,7 +201,7 @@
                                         <x-filament::button
                                             type="button"
                                             color="danger"
-                                            class="hidden js-files-action fm-media-actions bg-red-500"
+                                            class="hidden flex js-files-action fm-media-actions bg-red-500"
                                             data-action="empty_trash"
                                             icon="heroicon-m-trash"
                                             :label="trans('filament-media::media.empty_trash')"
