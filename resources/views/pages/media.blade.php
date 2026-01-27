@@ -307,16 +307,18 @@
                                             </x-filament::dropdown>
                                         @endif
 
-                                            <x-filament::icon-button
-                                                type="button"
-                                                color="danger"
-                                                class="d-none js-files-action bg-white dark:bg-gray-900"
-                                                data-action="empty_trash"
-                                                icon="heroicon-m-trash"
-                                                :label="trans('filament-media::media.empty_trash')"
-                                                :tooltip="trans('filament-media::media.empty_trash')"
-                                                    size="lg"
-                                            />
+                                        <x-filament::button
+                                            type="button"
+                                            color="danger"
+                                            class="d-none js-files-action fm-media-actions bg-danger-500"
+                                            data-action="empty_trash"
+                                            icon="heroicon-m-trash"
+                                            :label="trans('filament-media::media.empty_trash')"
+                                            :tooltip="trans('filament-media::media.empty_trash')"
+                                            size="lg"
+                                        >
+                                            {{ trans('filament-media::media.empty_trash') }}
+                                        </x-filament::button>
                                     </div>
                                     <div class="fm-media-search">
                                         <form

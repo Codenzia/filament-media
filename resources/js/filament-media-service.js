@@ -133,7 +133,7 @@ export class MediaService {
     static refreshFilter() {
         const $rvMediaContainer = $('.fm-media-container')
         const viewIn = Helpers.getRequestParams().view_in
-        const $actionsTarget = $('.fm-media-actions .btn:not([data-type="refresh"]):not([data-bs-toggle="offcanvas"])')
+        const $actionsTarget = $('.fm-media-actions .js-files-action:not([data-type="refresh"]):not([data-bs-toggle="offcanvas"])')
 
         if (viewIn !== 'all_media' && !Helpers.getRequestParams().folder_id) {
             $actionsTarget.addClass('disabled')
@@ -143,9 +143,9 @@ export class MediaService {
             $rvMediaContainer.attr('data-allow-upload', 'true')
         }
 
-        $('.fm-media-actions .btn.js-fm-media-change-filter-group').removeClass('disabled')
+        $('.fm-media-actions .js-fm-media-change-filter-group').removeClass('disabled')
 
-        const $emptyTrashBtn = $('.fm-media-actions .btn[data-action="empty_trash"]')
+        const $emptyTrashBtn = $('.js-files-action[data-action="empty_trash"]')
 
         $emptyTrashBtn.hide()
 

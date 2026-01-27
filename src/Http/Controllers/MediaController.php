@@ -418,7 +418,7 @@ class MediaController extends Controller
                 $error = false;
                 foreach ($request->input('selected') as $item) {
                     $id = $item['id'];
-                    if (! $item['is_folder']) {
+                    if ($item['is_folder'] == "false") {
                         try {
                             $this->fileRepository->restoreBy(['id' => $id]);
                         } catch (Throwable $exception) {
