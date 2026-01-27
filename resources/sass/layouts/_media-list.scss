@@ -1,7 +1,7 @@
 /*Table*/
 @use 'sass:math';
 
-.rv-media-list {
+.fm-media-list {
     border-bottom: var(--bb-border-width) var(--bb-border-style) var(--bb-border-color);
 
     ul {
@@ -10,7 +10,7 @@
         list-style: none;
     }
 
-    .rv-media-list-title {
+    .fm-media-list-title {
         display: flex;
         @include lib-css(flex-direction, row);
         padding: 15px 10px;
@@ -22,7 +22,7 @@
             min-width: 35px;
         }
 
-        .rv-media-file-name {
+        .fm-media-file-name {
             @include lib-css(flex-grow, 1);
             overflow: hidden;
             text-overflow: ellipsis;
@@ -45,12 +45,12 @@
             }
         }
 
-        .rv-media-file-size {
+        .fm-media-file-size {
             width: 120px;
             min-width: 120px;
         }
 
-        .rv-media-created-at {
+        .fm-media-created-at {
             width: 150px;
             min-width: 150px;
         }
@@ -66,7 +66,7 @@
 }
 
 /*Grid*/
-.rv-media-grid {
+.fm-media-grid {
     padding: 10px 10px 0;
 
     ul {
@@ -82,7 +82,7 @@
         float: left;
         padding: 0 5px;
 
-        .rv-media-item {
+        .fm-media-item {
             position: relative;
             cursor: pointer;
             @include lib-css(transition, all 0.1s ease-in-out);
@@ -117,7 +117,7 @@
             }
         }
 
-        .rv-media-thumbnail {
+        .fm-media-thumbnail {
             border-bottom: 0 none;
 
             img {
@@ -130,7 +130,7 @@
             }
         }
 
-        .rv-media-description {
+        .fm-media-description {
             padding: 8px 10px;
             @include lib-css(transition, all 0.1s ease-in-out);
             background-color: var(--bb-bg-surface-secondary);
@@ -149,7 +149,7 @@
             }
         }
 
-        input[type='checkbox']:checked + .rv-media-item {
+        input[type='checkbox']:checked + .fm-media-item {
             .media-item-selected {
                 display: block;
             }
@@ -160,7 +160,7 @@
                 transition: border-color 0.3s, background 0.3s, color 0.3s;
             }
 
-            .rv-media-description {
+            .fm-media-description {
                 background-color: $color-secondary;
                 color: $color-white;
             }
@@ -168,16 +168,16 @@
     }
 }
 
-.rv-media-grid-small-thumbnail {
+.fm-media-grid-small-thumbnail {
     li {
         width: percentage(math.div(1px, 3px));
 
-        .rv-media-item {
+        .fm-media-item {
             display: flex;
             @include lib-css(flex-direction, row);
         }
 
-        .rv-media-thumbnail {
+        .fm-media-thumbnail {
             width: 100px;
             min-width: 100px;
             border: 0 none;
@@ -185,14 +185,14 @@
             top: 0;
         }
 
-        .rv-media-description {
+        .fm-media-description {
             @include lib-css(flex-grow, 1);
         }
     }
 }
 
-.rv-media-grid:not(.rv-media-grid-small-thumbnail) {
-    .rv-media-thumbnail {
+.fm-media-grid:not(.fm-media-grid-small-thumbnail) {
+    .fm-media-thumbnail {
         text-align: center;
 
         svg {
@@ -202,7 +202,7 @@
     }
 }
 
-.rv-media-items {
+.fm-media-items {
     li.no-items {
         width: auto;
         height: auto;
@@ -237,8 +237,8 @@
         display: none !important;
     }
 
-    .rv-media-container[data-breadcrumb-count='0'] &,
-    .rv-media-container[data-breadcrumb-count='1'] & {
+    .fm-media-container[data-breadcrumb-count='0'] &,
+    .fm-media-container[data-breadcrumb-count='1'] & {
         li.up-one-level {
             display: none !important;
         }
@@ -252,11 +252,11 @@
         }
     }
 
-    .rv-media-container:not([data-view-in='all_media']) & li.no-items {
+    .fm-media-container:not([data-view-in='all_media']) & li.no-items {
         @include lib-css(pointer-events, none);
     }
 
-    .rv-media-container[data-view-in='all_media'] & li.no-items {
+    .fm-media-container[data-view-in='all_media'] & li.no-items {
         width: 200px;
         height: 200px;
         border-radius: 50% !important;
@@ -272,7 +272,7 @@
 }
 
 @media (min-width: 768px) {
-    .rv-media-items {
+    .fm-media-items {
         li.no-items {
             .icon {
                 --bb-icon-size: 8rem;
@@ -286,13 +286,13 @@
 }
 
 @media (max-width: $screen-md-max) {
-    .rv-media-grid li {
+    .fm-media-grid li {
         width: percentage(math.div(1px, 6px));
     }
 }
 
 @media (max-width: $screen-sm-max) {
-    .rv-media-grid li {
+    .fm-media-grid li {
         width: percentage(math.div(1px, 3px));
     }
 }

@@ -27,7 +27,7 @@ let defaultConfig = {
                 name: 'Preview',
                 action: 'preview',
                 order: 0,
-                class: 'rv-action-preview',
+                class: 'fm-action-preview',
             },
             {
                 icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -38,7 +38,7 @@ let defaultConfig = {
                 name: 'Crop',
                 action: 'crop',
                 order: 1,
-                class: 'rv-action-crop',
+                class: 'fm-action-crop',
             },
         ],
         file: [
@@ -52,7 +52,7 @@ let defaultConfig = {
                 name: 'Rename',
                 action: 'rename',
                 order: 0,
-                class: 'rv-action-rename',
+                class: 'fm-action-rename',
             },
             {
                 icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -63,7 +63,7 @@ let defaultConfig = {
                 name: 'Make a copy',
                 action: 'make_copy',
                 order: 1,
-                class: 'rv-action-make-copy',
+                class: 'fm-action-make-copy',
             },
             {
                 icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -77,7 +77,7 @@ let defaultConfig = {
                 name: 'Alt text',
                 action: 'alt_text',
                 order: 2,
-                class: 'rv-action-alt-text',
+                class: 'fm-action-alt-text',
             },
             {
                 icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -89,7 +89,7 @@ let defaultConfig = {
                 name: 'Copy link',
                 action: 'copy_link',
                 order: 3,
-                class: 'rv-action-copy-link',
+                class: 'fm-action-copy-link',
             },
             {
                 icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -101,7 +101,7 @@ let defaultConfig = {
                 name: 'Copy indirect link',
                 action: 'copy_indirect_link',
                 order: 4,
-                class: 'rv-action-copy-indirect-link',
+                class: 'fm-action-copy-indirect-link',
             },
         ],
         user: [
@@ -113,7 +113,7 @@ let defaultConfig = {
                 name: 'Favorite',
                 action: 'favorite',
                 order: 2,
-                class: 'rv-action-favorite',
+                class: 'fm-action-favorite',
             },
             {
                 icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -123,7 +123,7 @@ let defaultConfig = {
                 name: 'Remove favorite',
                 action: 'remove_favorite',
                 order: 3,
-                class: 'rv-action-favorite',
+                class: 'fm-action-favorite',
             },
         ],
         other: [
@@ -137,7 +137,7 @@ let defaultConfig = {
                 name: 'Download',
                 action: 'download',
                 order: 0,
-                class: 'rv-action-download',
+                class: 'fm-action-download',
             },
             {
                 icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -151,7 +151,7 @@ let defaultConfig = {
                 name: 'Move to trash',
                 action: 'trash',
                 order: 1,
-                class: 'rv-action-trash',
+                class: 'fm-action-trash',
             },
             {
                 icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -162,7 +162,7 @@ let defaultConfig = {
                 name: 'Delete permanently',
                 action: 'delete',
                 order: 2,
-                class: 'rv-action-delete',
+                class: 'fm-action-delete',
             },
             {
                 icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -172,14 +172,14 @@ let defaultConfig = {
                 name: 'Restore',
                 action: 'restore',
                 order: 3,
-                class: 'rv-action-restore',
+                class: 'fm-action-restore',
             },
             {
                 icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-palette" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25" /><path d="M8.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12.5 7.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M16.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>`,
                 name: 'Properties',
                 action: 'properties',
                 order: 4,
-                class: 'rv-action-properties',
+                class: 'fm-action-properties',
             },
         ],
     },

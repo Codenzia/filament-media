@@ -2,8 +2,8 @@
     <div>
         <div id="media-content" wire:ignore>
 
-            <div class="rv-media-container">
-                <div class="rv-media-wrapper">
+            <div class="fm-media-container">
+                <div class="fm-media-wrapper">
                     <input
                         type="checkbox"
                         id="media_details_collapse"
@@ -11,7 +11,7 @@
                     >
 
                     <div
-                        id="rv-media-aside"
+                        id="fm-media-aside"
                         @class(['d-md-none' => FilamentMedia::getConfig('sidebar_display') !== 'vertical'])
                         style="--bb-offcanvas-width: 85%"
                     >
@@ -29,7 +29,7 @@
                                 </div>
                                 <div class="list-group-item">
                                     :action="true"
-                                    class="js-rv-media-change-filter"
+                                    class="js-fm-media-change-filter"
                                     data-type="filter"
                                     data-value="everything"
                                 >
@@ -40,7 +40,7 @@
                                 @if (array_key_exists('image', FilamentMedia::getConfig('mime_types', [])))
                                     <div class="list-group-item">
                                         :action="true"
-                                        class="js-rv-media-change-filter"
+                                        class="js-fm-media-change-filter"
                                         data-type="filter"
                                         data-value="video"
                                     >
@@ -52,7 +52,7 @@
                                 @if (array_key_exists('video', FilamentMedia::getConfig('mime_types', [])))
                                     <div class="list-group-item">
                                         :action="true"
-                                        class="js-rv-media-change-filter"
+                                        class="js-fm-media-change-filter"
                                         data-type="filter"
                                         data-value="document"
                                     >
@@ -63,7 +63,7 @@
 
                                 <div class="list-group-item">
                                     :action="true"
-                                    class="js-rv-media-change-filter"
+                                    class="js-fm-media-change-filter"
                                     data-type="filter"
                                     data-value="image"
                                 >
@@ -78,7 +78,7 @@
                                 </div>
                                 <div class="list-group-item">
                                     :action="true"
-                                    class="js-rv-media-change-filter"
+                                    class="js-fm-media-change-filter"
                                     data-type="view_in"
                                     data-value="all_media"
                                 >
@@ -88,7 +88,7 @@
 
                                     <div class="list-group-item">
                                         :action="true"
-                                        class="js-rv-media-change-filter"
+                                        class="js-fm-media-change-filter"
                                         data-type="view_in"
                                         data-value="trash"
                                     >
@@ -98,7 +98,7 @@
 
                                 <div class="list-group-item">
                                     :action="true"
-                                    class="js-rv-media-change-filter"
+                                    class="js-fm-media-change-filter"
                                     data-type="view_in"
                                     data-value="recent"
                                 >
@@ -108,7 +108,7 @@
 
                                 <div class="list-group-item">
                                     :action="true"
-                                    class="js-rv-media-change-filter"
+                                    class="js-fm-media-change-filter"
                                     data-type="view_in"
                                     data-value="favorites"
                                 >
@@ -119,21 +119,21 @@
                         </div>
                     </div>
 
-                    <div class="rv-media-main-wrapper">
-                        <div class="flex-column rv-media-header p-0">
-                            <div class="w-100 rv-media-top-header flex-wrap gap-3 d-flex justify-content-between align-items-start border-bottom bg-body">
-                                <div class="d-flex flex-wrap gap-3 p-2 justify-content-between w-100 w-md-auto rv-media-actions  rounded-xl shadow-sm align-items-center">
+                    <div class="fm-media-main-wrapper">
+                        <div class="flex-column fm-media-header p-0">
+                            <div class="w-100 fm-media-top-header flex-wrap gap-3 d-flex justify-content-between align-items-start border-bottom bg-body">
+                                <div class="d-flex flex-wrap gap-3 py-2 justify-content-between w-100 w-md-auto fm-media-actions  rounded-xl shadow-sm align-items-center">
                                     <x-filament::icon-button
                                         class="d-flex d-md-none bg-white dark:bg-gray-900"
                                         icon="heroicon-m-bars-3"
                                         data-bs-toggle="offcanvas"
-                                        href="#rv-media-aside"
+                                        href="#fm-media-aside"
                                         :label="trans('filament-media::media.menu_name')"
                                         color="gray"
                                         size="sm"
                                     />
 
-                                    <div class="rv-media-actions__controls d-flex flex-wrap align-items-center gap-3 shadow-sm rounded-lg p-3">
+                                    <div class="fm-media-actions__controls d-flex flex-wrap align-items-center gap-3 shadow-sm rounded-lg py-3">
                                         <x-filament::dropdown class="d-none d-md-block bg-white dark:bg-gray-900 rounded-lg">
                                             <x-slot:trigger>
                                                 <x-filament::button
@@ -200,7 +200,7 @@
                                                         type="button"
                                                         color="primary"
                                                         icon="heroicon-m-funnel"
-                                                        class="js-rv-media-change-filter-group js-filter-by-type bg-white dark:bg-gray-900"
+                                                        class="js-fm-media-change-filter-group js-filter-by-type bg-white dark:bg-gray-900"
                                                         :tooltip="trans('filament-media::media.filter')"
                                                         :label="trans('filament-media::media.filter')"
                                                         size="lg"
@@ -212,7 +212,7 @@
                                                 <x-filament::dropdown.list>
                                                     <x-filament::dropdown.list.item
                                                         icon="heroicon-m-arrow-path"
-                                                        class="js-rv-media-change-filter"
+                                                        class="js-fm-media-change-filter"
                                                         data-type="filter"
                                                         data-value="everything"
                                                     >
@@ -222,7 +222,7 @@
                                                     @if (array_key_exists('image', FilamentMedia::getConfig('mime_types', [])))
                                                         <x-filament::dropdown.list.item
                                                             icon="heroicon-m-photo"
-                                                            class="js-rv-media-change-filter"
+                                                            class="js-fm-media-change-filter"
                                                             data-type="filter"
                                                             data-value="image"
                                                         >
@@ -233,7 +233,7 @@
                                                     @if (array_key_exists('video', FilamentMedia::getConfig('mime_types', [])))
                                                         <x-filament::dropdown.list.item
                                                             icon="heroicon-m-film"
-                                                            class="js-rv-media-change-filter"
+                                                            class="js-fm-media-change-filter"
                                                             data-type="filter"
                                                             data-value="video"
                                                         >
@@ -243,7 +243,7 @@
 
                                                     <x-filament::dropdown.list.item
                                                         icon="heroicon-m-document-text"
-                                                        class="js-rv-media-change-filter"
+                                                        class="js-fm-media-change-filter"
                                                         data-type="filter"
                                                         data-value="document"
                                                     >
@@ -258,7 +258,7 @@
                                                         type="button"
                                                         color="primary"
                                                         icon="heroicon-m-eye"
-                                                        class="js-rv-media-change-filter-group js-filter-by-view-in bg-white dark:bg-gray-900"
+                                                        class="js-fm-media-change-filter-group js-filter-by-view-in bg-white dark:bg-gray-900"
                                                         :tooltip="trans('filament-media::media.view_in')"
                                                         :label="trans('filament-media::media.view_in')"
                                                         size="lg"
@@ -270,7 +270,7 @@
                                                 <x-filament::dropdown.list>
                                                     <x-filament::dropdown.list.item
                                                         icon="heroicon-m-globe-alt"
-                                                        class="js-rv-media-change-filter"
+                                                        class="js-fm-media-change-filter"
                                                         data-type="view_in"
                                                         data-value="all_media"
                                                     >
@@ -279,7 +279,7 @@
 
                                                     <x-filament::dropdown.list.item
                                                         icon="heroicon-m-trash"
-                                                        class="js-rv-media-change-filter"
+                                                        class="js-fm-media-change-filter"
                                                         data-type="view_in"
                                                         data-value="trash"
                                                     >
@@ -288,7 +288,7 @@
 
                                                     <x-filament::dropdown.list.item
                                                         icon="heroicon-m-clock"
-                                                        class="js-rv-media-change-filter"
+                                                        class="js-fm-media-change-filter"
                                                         data-type="view_in"
                                                         data-value="recent"
                                                     >
@@ -297,7 +297,7 @@
 
                                                     <x-filament::dropdown.list.item
                                                         icon="heroicon-m-star"
-                                                        class="js-rv-media-change-filter"
+                                                        class="js-fm-media-change-filter"
                                                         data-type="view_in"
                                                         data-value="favorites"
                                                     >
@@ -318,7 +318,7 @@
                                                     size="lg"
                                             />
                                     </div>
-                                    <div class="rv-media-search">
+                                    <div class="fm-media-search">
                                         <form
                                             class="input-search-wrapper d-flex align-items-center"
                                             action=""
@@ -343,7 +343,7 @@
                                 </div>
                             </div>
                             <div class="row w-100 p-2 border-bottom bg-white dark:bg-gray-900">
-                                <div class="col p-2 d-flex align-items-center rv-media-breadcrumb">
+                                <div class="col p-2 d-flex align-items-center fm-media-breadcrumb">
                                     <ul class="breadcrumb">
                                         <li>
                                             <a href="#" data-folder="0" class="text-decoration-none js-change-folder d-flex align-items-center gap-2">
@@ -353,7 +353,7 @@
                                         </li>
                                     </ul>
                                 </div>
-                                <div class="col-md-auto d-flex justify-content-between justify-content-md-end align-items-center rv-media-tools gap-2 flex-wrap">
+                                <div class="col-md-auto d-flex justify-content-between justify-content-md-end align-items-center fm-media-tools gap-2 flex-wrap">
                                     <div
                                         class="btn-list d-flex align-items-center gap-2"
                                         role="group"
@@ -374,7 +374,7 @@
                                                 <x-filament::dropdown.list.item
                                                     :label="$item['label']"
                                                     :icon="$item['icon']"
-                                                    class="js-rv-media-change-filter"
+                                                    class="js-fm-media-change-filter"
                                                     data-type="sort_by"
                                                     :data-value="$key"
                                                 >
@@ -384,11 +384,11 @@
                                             </x-filament::dropdown.list>
                                         </x-filament::dropdown>
 
-                                        <x-filament::dropdown class="rv-dropdown-actions hidden">
+                                        <x-filament::dropdown class="fm-dropdown-actions hidden">
                                             <x-slot:trigger>
                                                 <x-filament::button
                                                     icon="heroicon-m-hand-raised"
-                                                    class="rv-dropdown-actions"
+                                                    class="fm-dropdown-actions"
                                                     disabled
                                                     outlined
                                                 >
@@ -396,11 +396,11 @@
                                                 </x-filament::button>
                                             </x-slot:trigger>
 
-                                            <x-filament::dropdown.list class="rv-dropdown-actions-list" />
+                                            <x-filament::dropdown.list class="fm-dropdown-actions-list" />
                                         </x-filament::dropdown>
                                     </div>
                                     <div
-                                        class="btn-group js-rv-media-change-view-type ms-2 d-flex align-items-center gap-2"
+                                        class="btn-group js-fm-media-change-view-type ms-2 d-flex align-items-center gap-2"
                                         role="group"
                                     >
                                         <x-filament::icon-button
@@ -432,20 +432,20 @@
                             </div>
                         </div>
 
-                        <main class="rv-media-main">
-                            <div class="rv-media-items"></div>
-                            <div class="rv-media-details" style="display: none">
-                                <div class="rv-media-thumbnail">
+                        <main class="fm-media-main">
+                            <div class="fm-media-items"></div>
+                            <div class="fm-media-details" style="display: none">
+                                <div class="fm-media-thumbnail">
                                     <x-filament::icon icon="heroicon-m-photo" />
                                 </div>
-                                <div class="rv-media-description">
-                                    <div class="rv-media-name">
+                                <div class="fm-media-description">
+                                    <div class="fm-media-name">
                                         <p>{{ trans('filament-media::media.nothing_is_selected') }}</p>
                                     </div>
                                 </div>
                             </div>
                         </main>
-                        <footer class="d-none rv-media-footer">
+                        <footer class="d-none fm-media-footer">
                             <x-filament::icon-button
                                 type="button"
                                 color="primary"
@@ -456,7 +456,7 @@
                             />
                         </footer>
                     </div>
-                    <div class="rv-upload-progress hide-the-pane position-fixed bottom-0 end-0 z-50 m-6 w-96 max-w-full">
+                    <div class="fm-upload-progress hide-the-pane position-fixed bottom-0 end-0 z-50 m-6 w-96 max-w-full">
                         <x-filament::section compact>
                             <x-slot name="heading">
                                 <div class="flex items-center justify-between gap-4">
@@ -475,7 +475,7 @@
                                 class="table-responsive overflow-auto"
                                 style="max-height: 180px"
                             >
-                                <table class="w-full text-start divide-y divide-gray-200 dark:divide-white/5 rv-upload-progress-table">
+                                <table class="w-full text-start divide-y divide-gray-200 dark:divide-white/5 fm-upload-progress-table">
                                     {{-- Content will be injected via JS --}}
                                 </table>
                             </div>
@@ -485,7 +485,7 @@
             </div>
 
 
-        <button class="d-none js-rv-clipboard-temp"></button>
+        <button class="d-none js-fm-clipboard-temp"></button>
 
 
 
@@ -504,37 +504,37 @@
         </div>
 
         <div id="filament_media_items_list" class="d-none">
-            <div class="rv-media-list">
+            <div class="fm-media-list">
                 <ul>
                     <li class="no-items">
                         <x-filament::icon icon="heroicon-m-cloud-arrow-up" />
                         <h3>Drop files and folders here</h3>
                         <p>Or use the upload button above.</p>
                     </li>
-                    <li class="rv-media-list-title up-one-level js-up-one-level" title="{{ trans('filament-media::media.up_level') }}">
+                    <li class="fm-media-list-title up-one-level js-up-one-level" title="{{ trans('filament-media::media.up_level') }}">
                         <div class="custom-checkbox"></div>
 
-                        <div class="rv-media-file-size"></div>
-                        <div class="rv-media-created-at"></div>
+                        <div class="fm-media-file-size"></div>
+                        <div class="fm-media-created-at"></div>
                     </li>
                 </ul>
             </div>
         </div>
 
         <div id="filament_media_items_tiles" class="d-none">
-            <div class="rv-media-grid">
+            <div class="fm-media-grid">
                 <ul>
                     <li class="no-items">
                         __noItemIcon__
                         <h3>__noItemTitle__</h3>
                         <p>__noItemMessage__</p>
                     </li>
-                    <li class="rv-media-list-title up-one-level js-up-one-level">
-                        <div class="rv-media-item" data-context="__type__" title="{{ trans('filament-media::media.up_level') }}">
-                            <div class="rv-media-thumbnail">
+                    <li class="fm-media-list-title up-one-level js-up-one-level">
+                        <div class="fm-media-item" data-context="__type__" title="{{ trans('filament-media::media.up_level') }}">
+                            <div class="fm-media-thumbnail">
                                 <x-filament::icon icon="heroicon-m-arrow-turn-up-left"  />
                             </div>
-                            <div class="rv-media-description">
+                            <div class="fm-media-description">
                                 <div class="title">...</div>
                             </div>
                         </div>
@@ -544,35 +544,35 @@
         </div>
 
         <div id="filament_media_items_list_element" class="d-none">
-            <li class="rv-media-list-title js-media-list-title js-context-menu" data-context="__type__" title="__name__" data-id="__id__" data-data='__data__' >
+            <li class="fm-media-list-title js-media-list-title js-context-menu" data-context="__type__" title="__name__" data-id="__id__" data-data='__data__' >
                 <div class="custom-checkbox">
                     <label>
                         <input type="checkbox">
                         <span></span>
                     </label>
                 </div>
-                <div class="rv-media-file-name flex gap-2">
+                <div class="fm-media-file-name flex gap-2">
                     __thumb__
                     <span>__name__</span>
                 </div>
-                <div class="rv-media-file-size">__size__</div>
-                <div class="rv-media-created-at">__date__</div>
+                <div class="fm-media-file-size">__size__</div>
+                <div class="fm-media-created-at">__date__</div>
             </li>
         </div>
 
         <div id="filament_media_items_tiles_element" class="d-none">
-            <li class="rv-media-list-title js-media-list-title js-context-menu" data-context="__type__" data-id="__id__" data-data='__data__' >
+            <li class="fm-media-list-title js-media-list-title js-context-menu" data-context="__type__" data-id="__id__" data-data='__data__' >
                 <input type="checkbox" class="hidden">
-                <div class="rv-media-item" title="__name__">
+                <div class="fm-media-item" title="__name__">
                     <span class="media-item-selected">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                             <path d="M186.301 339.893L96 249.461l-32 30.507L186.301 402 448 140.506 416 110z"></path>
                         </svg>
                     </span>
-                    <div class="rv-media-thumbnail">
+                    <div class="fm-media-thumbnail">
                         __thumb__
                     </div>
-                    <div class="rv-media-description">
+                    <div class="fm-media-description">
                         <div class="title title{{ (new Codenzia\FilamentMedia\Helpers\BaseHelper)->stringify(request()->input('file_id')) }}">__name__</div>
                     </div>
                 </div>

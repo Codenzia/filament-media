@@ -58,35 +58,35 @@ class MediaManagement {
          * Sidebar
          */
         const $currentFilter = $(
-            `.js-rv-media-change-filter[data-type="filter"][data-value="${Helpers.getRequestParams().filter}"]`
+            `.js-fm-media-change-filter[data-type="filter"][data-value="${Helpers.getRequestParams().filter}"]`
         )
 
         $currentFilter
             .closest('button.dropdown-item')
             .addClass('active')
             .closest('.dropdown')
-            .find('.js-rv-media-filter-current')
+            .find('.js-fm-media-filter-current')
             .html(`(${$currentFilter.html()})`)
 
         const $currentViewIn = $(
-            `.js-rv-media-change-filter[data-type="view_in"][data-value="${Helpers.getRequestParams().view_in}"]`
+            `.js-fm-media-change-filter[data-type="view_in"][data-value="${Helpers.getRequestParams().view_in}"]`
         )
 
         $currentViewIn
             .closest('button.dropdown-item')
             .addClass('active')
             .closest('.dropdown')
-            .find('.js-rv-media-filter-current')
+            .find('.js-fm-media-filter-current')
             .html(`(${$currentViewIn.html()})`)
 
         if (Helpers.isUseInModal()) {
-            $('.rv-media-footer').removeClass('d-none')
+            $('.fm-media-footer').removeClass('d-none')
         }
 
         /**
          * Sort
          */
-        $(`.js-rv-media-change-filter[data-type="sort_by"][data-value="${Helpers.getRequestParams().sort_by}"]`)
+        $(`.js-fm-media-change-filter[data-type="sort_by"][data-value="${Helpers.getRequestParams().sort_by}"]`)
             .closest('button.dropdown-item')
             .addClass('active')
 
@@ -96,7 +96,7 @@ class MediaManagement {
         let $mediaDetailsCheckbox = $('#media_details_collapse')
         $mediaDetailsCheckbox.prop('checked', MediaConfig.hide_details_pane || false)
         setTimeout(() => {
-            $('.rv-media-details').show()
+            $('.fm-media-details').show()
         }, 300)
 
         $mediaDetailsCheckbox.on('change', (event) => {
@@ -138,14 +138,14 @@ class MediaManagement {
                     if (firstItem) {
                         let firstIndex = firstItem.index_key
                         let currentIndex = $current.index()
-                        $('.rv-media-items li').each((index, el) => {
+                        $('.fm-media-items li').each((index, el) => {
                             if (index > firstIndex && index <= currentIndex) {
                                 $(el).find('input[type=checkbox]').prop('checked', true)
                             }
                         })
                     }
                 } else if (!ctrl_key && !meta_key) {
-                    $current.closest('.rv-media-items').find('input[type=checkbox]').prop('checked', false)
+                    $current.closest('.fm-media-items').find('input[type=checkbox]').prop('checked', false)
                 }
 
                 let $lineCheckBox = $current.find('input[type=checkbox]')
@@ -174,17 +174,17 @@ class MediaManagement {
             })
             .on('click', '.js-up-one-level', (event) => {
                 event.preventDefault()
-                let count = $('.rv-media-breadcrumb .breadcrumb li').length
-                $(`.rv-media-breadcrumb .breadcrumb li:nth-child(${count - 1}) a`).trigger('click')
+                let count = $('.fm-media-breadcrumb .breadcrumb li').length
+                $(`.fm-media-breadcrumb .breadcrumb li:nth-child(${count - 1}) a`).trigger('click')
             })
             .on('contextmenu', '.js-context-menu', (event) => {
                 if (!$(event.currentTarget).find('input[type=checkbox]').is(':checked')) {
                     $(event.currentTarget).trigger('click')
                 }
             })
-            .on('click contextmenu', '.rv-media-items', (e) => {
+            .on('click contextmenu', '.fm-media-items', (e) => {
                 if (!Helpers.size(e.target.closest('.js-context-menu'))) {
-                    $('.rv-media-items input[type="checkbox"]').prop('checked', false)
+                    $('.fm-media-items input[type="checkbox"]').prop('checked', false)
 
                     ActionsService.handleDropdown()
 
@@ -205,8 +205,8 @@ class MediaManagement {
     changeViewType() {
         let _self = this
         _self.$body
-            .off('click', '.js-rv-media-change-view-type button')
-            .on('click', '.js-rv-media-change-view-type button', (event) => {
+            .off('click', '.js-fm-media-change-view-type button')
+            .on('click', '.js-fm-media-change-view-type button', (event) => {
                 event.preventDefault()
 
                 let $current = $(event.currentTarget)
@@ -215,7 +215,7 @@ class MediaManagement {
                     return
                 }
 
-                $current.closest('.js-rv-media-change-view-type').find('button').removeClass('active')
+                $current.closest('.js-fm-media-change-view-type').find('button').removeClass('active')
                 $current.addClass('active')
 
                 MediaConfig.request_params.view_type = $current.data('type')
@@ -237,14 +237,14 @@ class MediaManagement {
                 _self.MediaService.getMedia(true, false)
             })
 
-        $(`.js-rv-media-change-view-type .btn[data-type="${Helpers.getRequestParams().view_type}"]`).trigger('click')
+        $(`.js-fm-media-change-view-type .btn[data-type="${Helpers.getRequestParams().view_type}"]`).trigger('click')
 
         this.bindIntegrateModalEvents()
     }
 
     changeFilter() {
         let _self = this
-        _self.$body.off('click', '.js-rv-media-change-filter').on('click', '.js-rv-media-change-filter', (event) => {
+        _self.$body.off('click', '.js-fm-media-change-filter').on('click', '.js-fm-media-change-filter', (event) => {
             event.preventDefault()
 
             if (!Helpers.isOnAjaxLoading()) {
@@ -266,7 +266,7 @@ class MediaManagement {
                     }
                 }
 
-                $current.closest('.dropdown').find('.js-rv-media-filter-current').html(`(${$current.html()})`)
+                $current.closest('.dropdown').find('.js-fm-media-filter-current').html(`(${$current.html()})`)
 
                 Helpers.storeConfig()
                 MediaService.refreshFilter()
@@ -297,14 +297,14 @@ class MediaManagement {
         let _self = this
 
         _self.$body
-            .off('click', '.rv-media-actions .js-change-action[data-type="refresh"]')
-            .on('click', '.rv-media-actions .js-change-action[data-type="refresh"]', (event) => {
+            .off('click', '.fm-media-actions .js-change-action[data-type="refresh"]')
+            .on('click', '.fm-media-actions .js-change-action[data-type="refresh"]', (event) => {
                 event.preventDefault()
 
                 Helpers.resetPagination()
 
                 let ele_options =
-                    typeof window.FilamentMedia.$el !== 'undefined' ? window.FilamentMedia.$el.data('rv-media') : undefined
+                    typeof window.FilamentMedia.$el !== 'undefined' ? window.FilamentMedia.$el.data('fm-media') : undefined
                 if (
                     typeof ele_options !== 'undefined' &&
                     ele_options.length > 0 &&
@@ -315,10 +315,10 @@ class MediaManagement {
                     _self.MediaService.getMedia(true, false)
                 }
             })
-            .off('click', '.rv-media-items li.no-items')
-            .on('click', '.rv-media-items li.no-items', (event) => {
+            .off('click', '.fm-media-items li.no-items')
+            .on('click', '.fm-media-items li.no-items', (event) => {
                 event.preventDefault()
-                $('.rv-media-header .rv-media-top-header .rv-media-actions .js-dropzone-upload').trigger('click')
+                $('.fm-media-header .fm-media-top-header .fm-media-actions .js-dropzone-upload').trigger('click')
             })
             .off('submit', '.form-add-folder')
             .on('submit', '.form-add-folder', (event) => {
@@ -418,7 +418,7 @@ class MediaManagement {
     checkFileTypeSelect(selectedFiles) {
         if (typeof window.FilamentMedia.$el !== 'undefined') {
             let firstItem = Helpers.arrayFirst(selectedFiles)
-            let ele_options = window.FilamentMedia.$el.data('rv-media')
+            let ele_options = window.FilamentMedia.$el.data('fm-media')
             if (
                 typeof ele_options !== 'undefined' &&
                 typeof ele_options[0] !== 'undefined' &&
@@ -475,7 +475,7 @@ class MediaManagement {
     // Scroll get more media
     scrollGetMore() {
         let _self = this
-        let $mediaList = $('.rv-media-main .rv-media-items')
+        let $mediaList = $('.fm-media-main .fm-media-items')
 
         // Handle both mouse wheel and touch scroll events
         $mediaList.on('wheel scroll', function (e) {

@@ -46,17 +46,17 @@ export class ContextMenuService {
     static loadAssets() {
         const scripts = [
             {
-                id: 'rv-media-contextmenu-position',
+                id: 'fm-media-contextmenu-position',
                 src: 'https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.ui.position.min.js',
             },
             {
-                id: 'rv-media-contextmenu',
+                id: 'fm-media-contextmenu',
                 src: 'https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.min.js',
             },
         ]
 
         const css = {
-            id: 'rv-media-contextmenu-css',
+            id: 'fm-media-contextmenu-css',
             href: 'https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.min.css',
         }
 

@@ -11,8 +11,8 @@ export class ActionsService {
 
         ActionsService.renderActions()
 
-        const $actions = $('.rv-dropdown-actions')
-        const $button = $actions.find('button.rv-dropdown-actions, .dropdown-toggle')
+        const $actions = $('.fm-dropdown-actions')
+        const $button = $actions.find('button.fm-dropdown-actions, .dropdown-toggle')
 
         if (selected > 0) {
             $button.removeClass('disabled').prop('disabled', false)
@@ -194,10 +194,10 @@ export class ActionsService {
 
         let ACTION_TEMPLATE = $('#filament_action_item').html() ?? ''
         let initializedItem = 0
-        let $dropdownActions = $('.rv-dropdown-actions-list')
+        let $dropdownActions = $('.fm-dropdown-actions-list')
 
         if ($dropdownActions.length === 0) {
-            $dropdownActions = $('.rv-dropdown-actions').find('.dropdown-menu, .fi-dropdown-list, .fi-dropdown-panel')
+            $dropdownActions = $('.fm-dropdown-actions').find('.dropdown-menu, .fi-dropdown-list, .fi-dropdown-panel')
         }
 
         if ($dropdownActions.length === 0) {

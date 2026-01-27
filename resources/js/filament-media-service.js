@@ -109,7 +109,7 @@ export class MediaService {
 
     renderBreadcrumbs(breadcrumbItems) {
         let _self = this
-        let $breadcrumbContainer = $('.rv-media-breadcrumb .breadcrumb')
+        let $breadcrumbContainer = $('.fm-media-breadcrumb .breadcrumb')
         $breadcrumbContainer.find('li').remove()
 
         Helpers.each(breadcrumbItems, (value) => {
@@ -127,13 +127,13 @@ export class MediaService {
                 .replace(/__folderId__/gi, value.id || 0)
             $breadcrumbContainer.append($(template))
         })
-        $('.rv-media-container').attr('data-breadcrumb-count', Helpers.size(breadcrumbItems))
+        $('.fm-media-container').attr('data-breadcrumb-count', Helpers.size(breadcrumbItems))
     }
 
     static refreshFilter() {
-        const $rvMediaContainer = $('.rv-media-container')
+        const $rvMediaContainer = $('.fm-media-container')
         const viewIn = Helpers.getRequestParams().view_in
-        const $actionsTarget = $('.rv-media-actions .btn:not([data-type="refresh"]):not([data-bs-toggle="offcanvas"])')
+        const $actionsTarget = $('.fm-media-actions .btn:not([data-type="refresh"]):not([data-bs-toggle="offcanvas"])')
 
         if (viewIn !== 'all_media' && !Helpers.getRequestParams().folder_id) {
             $actionsTarget.addClass('disabled')
@@ -143,9 +143,9 @@ export class MediaService {
             $rvMediaContainer.attr('data-allow-upload', 'true')
         }
 
-        $('.rv-media-actions .btn.js-rv-media-change-filter-group').removeClass('disabled')
+        $('.fm-media-actions .btn.js-fm-media-change-filter-group').removeClass('disabled')
 
-        const $emptyTrashBtn = $('.rv-media-actions .btn[data-action="empty_trash"]')
+        const $emptyTrashBtn = $('.fm-media-actions .btn[data-action="empty_trash"]')
 
         $emptyTrashBtn.hide()
 

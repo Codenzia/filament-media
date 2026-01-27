@@ -28,15 +28,15 @@ export class Helpers {
         return baseUrl + url
     }
 
-    static showAjaxLoading($element = $('.rv-media-main')) {
+    static showAjaxLoading($element = $('.fm-media-main')) {
         $element.addClass('on-loading').append($('#filament_media_loading').html())
     }
 
-    static hideAjaxLoading($element = $('.rv-media-main')) {
+    static hideAjaxLoading($element = $('.fm-media-main')) {
         $element.removeClass('on-loading').find('.loading-spinner').remove()
     }
 
-    static isOnAjaxLoading($element = $('.rv-media-items')) {
+    static isOnAjaxLoading($element = $('.fm-media-items')) {
         return $element.hasClass('on-loading')
     }
 

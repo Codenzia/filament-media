@@ -13,9 +13,9 @@ export class UploadService {
 
         this.uploadUrl = FilamentMedia_URL.upload_file
 
-        this.uploadProgressBox = $('.rv-upload-progress')
+        this.uploadProgressBox = $('.fm-upload-progress')
 
-        this.uploadProgressContainer = $('.rv-upload-progress .rv-upload-progress-table')
+        this.uploadProgressContainer = $('.fm-upload-progress .fm-upload-progress-table')
 
         this.uploadProgressTemplate = $('#filament_media_upload_progress_item').html()
 
@@ -37,7 +37,7 @@ export class UploadService {
         let _dropZoneConfig = this.getDropZoneConfig()
         _self.filesUpload = 0
 
-        const dropzoneElement = document.querySelector('.rv-media-items')
+        const dropzoneElement = document.querySelector('.fm-media-items')
 
         if (dropzoneElement.dropzone) {
             dropzoneElement.dropzone.destroy()
@@ -111,7 +111,7 @@ export class UploadService {
             _self.MediaService.getMedia(true)
             if (_self.totalError === 0) {
                 setTimeout(() => {
-                    $('.rv-upload-progress .close-pane').trigger('click')
+                    $('.fm-upload-progress .close-pane').trigger('click')
                 }, 1000)
             }
         })
@@ -123,10 +123,10 @@ export class UploadService {
          * Close upload progress pane
          */
         _self.$body
-            .off('click', '.rv-upload-progress .close-pane')
-            .on('click', '.rv-upload-progress .close-pane', (event) => {
+            .off('click', '.fm-upload-progress .close-pane')
+            .on('click', '.fm-upload-progress .close-pane', (event) => {
                 event.preventDefault()
-                $('.rv-upload-progress').addClass('hide-the-pane')
+                $('.fm-upload-progress').addClass('hide-the-pane')
                 _self.totalError = 0
                 setTimeout(() => {
                     _self.uploadProgressContainer.children().remove()

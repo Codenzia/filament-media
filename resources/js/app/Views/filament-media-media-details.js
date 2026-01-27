@@ -2,9 +2,9 @@ import { Helpers } from '../../filament-media-helpers'
 
 export class MediaDetails {
     constructor() {
-        this.$detailsWrapper = $('.rv-media-main .rv-media-details')
+        this.$detailsWrapper = $('.fm-media-main .fm-media-details')
 
-        this.descriptionItemTemplate = `<div class="mb-3 rv-media-name">
+        this.descriptionItemTemplate = `<div class="mb-3 fm-media-name">
             <label class="form-label">__title__</label>
             __url__
         </div>`
@@ -60,9 +60,9 @@ export class MediaDetails {
             }
         })
 
-        _self.$detailsWrapper.find('.rv-media-thumbnail').html(thumb)
-        _self.$detailsWrapper.find('.rv-media-thumbnail').css('color', data.color)
-        _self.$detailsWrapper.find('.rv-media-description').html(description)
+        _self.$detailsWrapper.find('.fm-media-thumbnail').html(thumb)
+        _self.$detailsWrapper.find('.fm-media-thumbnail').css('color', data.color)
+        _self.$detailsWrapper.find('.fm-media-description').html(description)
 
         const $copyButton = _self.$detailsWrapper.find('.js-btn-copy-to-clipboard')
         $copyButton.off('click.media-copy').on('click.media-copy', function (event) {
@@ -105,7 +105,7 @@ export class MediaDetails {
                     .replace(/__title__/gi, Helpers.trans('height'))
                     .replace(/__url__/gi, `<span title="${image.height}">${image.height}px</span>`)
 
-                _self.$detailsWrapper.find('.rv-media-description').append(dimensions)
+                _self.$detailsWrapper.find('.fm-media-description').append(dimensions)
             }
         }
     }
