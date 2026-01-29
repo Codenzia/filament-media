@@ -11,7 +11,7 @@ export class UploadService {
 
         this.dropZone = null
 
-        this.uploadUrl = FilamentMedia_URL.upload_file
+        this.uploadUrl = null
 
         this.uploadProgressBox = $('.fm-upload-progress')
 
@@ -28,6 +28,18 @@ export class UploadService {
 
     init() {
         console.log('init upload service');
+        if (!document.querySelector('.fm-media-items')) {
+            return
+        }
+
+        if (typeof FilamentMedia_URL !== 'undefined') {
+            this.uploadUrl = FilamentMedia_URL.upload_file
+        }
+
+        if (typeof FilamentMediaConfig === 'undefined') {
+            return
+        }
+
         this.setupDropZone()
         this.handleEvents()
     }
@@ -38,6 +50,10 @@ export class UploadService {
         _self.filesUpload = 0
 
         const dropzoneElement = document.querySelector('.fm-media-items')
+        console.log('dropzoneElement', dropzoneElement);
+        if (!dropzoneElement) {
+            return
+        }
 
         if (dropzoneElement.dropzone) {
             dropzoneElement.dropzone.destroy()

@@ -125,11 +125,16 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
      */
     protected function getAssets(): array
     {
-        return [
+        $assets = [
             Js::make('filament-media-jquery', 'https://code.jquery.com/jquery-3.7.1.min.js'),
-            Js::make('filament-media', __DIR__ . '/../resources/dist/filament-media.js')->module(),
             Css::make('filament-media', __DIR__ . '/../resources/dist/filament-media.css'),
         ];
+
+        if (app()->runningInConsole()) {
+            $assets[] = Js::make('filament-media', __DIR__ . '/../resources/dist/filament-media.js')->module();
+        }
+
+        return $assets;
     }
 
     /**

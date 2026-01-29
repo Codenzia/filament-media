@@ -15,7 +15,7 @@ class MediaManagement {
 
     constructor() {
         this.MediaService = new MediaService()
-        this.UploadService = new UploadService()
+        // this.UploadService = new UploadService()
         this.FolderService = new FolderService()
         this.DownloadService = new DownloadService()
 
@@ -31,7 +31,12 @@ class MediaManagement {
         this.MediaService.getMedia(true, false)
         this.search()
         this.handleActions()
-        this.UploadService.init()
+        
+        if (document.querySelector('.fm-media-items')) {
+            this.UploadService = new UploadService()
+            this.UploadService.init()
+        }
+        
         this.scrollGetMore()
 
         const registerListener = () => {
@@ -729,6 +734,10 @@ class MediaManagement {
 }
 
 const initMediaManagement = () => {
+    if (!document.querySelector('.fm-media-container')) {
+        return
+    }
+
     window.FilamentMedia = window.FilamentMedia || {}
 
     // Expose helpers for other modules

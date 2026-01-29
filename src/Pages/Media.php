@@ -3,6 +3,8 @@
 namespace Codenzia\FilamentMedia\Pages;
 
 use Filament\Pages\Page;
+use Filament\Support\Facades\FilamentAsset;
+use Filament\Support\Assets\Js;
 use Codenzia\FilamentMedia\Facades\FilamentMedia;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
@@ -45,6 +47,10 @@ class Media extends Page
     public function mount(): void
     {
         $this->sorts = FilamentMedia::getSorts();
+
+        FilamentAsset::register([
+            Js::make('filament-media', __DIR__ . '/../../resources/dist/filament-media.js')->module(),
+        ], 'codenzia/filament-media');
     }
 
     #[On('open-download-url-modal')]
