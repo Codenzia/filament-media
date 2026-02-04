@@ -104,6 +104,8 @@ class MediaFileRepository extends BaseRepository implements MediaFileInterface
                 ->union($folder);
         }
 
+        $this->applyConditions($params['condition']);
+
         // Only apply special handling for favorites view when folder_id is 0
         if (isset($params['is_favorite']) && $params['is_favorite'] && empty($folderId)) {
             // In root favorites view, don't filter by folder_id
@@ -187,6 +189,8 @@ class MediaFileRepository extends BaseRepository implements MediaFileInterface
             }
         }
 
+        $this->resetModel();
+
         return $result;
     }
 
@@ -263,9 +267,16 @@ class MediaFileRepository extends BaseRepository implements MediaFileInterface
             }
         }
 
-        //$this->resetModel();
+        $this->resetModel();
 
         return $result;
+    }
+
+    public function resetModel()
+    {
+        $this->model = $this->originalModel->newQuery();
+
+        return $this;
     }
 
     public function getTrashed(
@@ -402,8 +413,8 @@ class MediaFileRepository extends BaseRepository implements MediaFileInterface
                 [$field, $condition, $val] = $value;
 
                 $newModel = match (strtoupper($condition)) {
-                    'IN' => $newModel->whereIn($field, $val),
-                    'NOT_IN' => $newModel->whereNotIn($field, $val),
+                    'IN' => $newModel->whereIn($field, (array) $val),
+                    'NOT_IN' => $newModel->whereNotIn($field, (array) $val),
                     default => $newModel->where($field, $condition, $val),
                 };
             } else {

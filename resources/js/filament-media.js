@@ -287,8 +287,8 @@ class MediaManagement {
 
     search() {
         let _self = this
-        $('.input-search-wrapper input[type="text"]').val(Helpers.getRequestParams().search || '')
-        _self.$body.off('submit', '.input-search-wrapper').on('submit', '.input-search-wrapper', (event) => {
+        $('.fm-media-search input[name="search"]').val(Helpers.getRequestParams().search || '')
+        _self.$body.off('submit', '.fm-media-search form').on('submit', '.fm-media-search form', (event) => {
             event.preventDefault()
             MediaConfig.request_params.search = $(event.currentTarget).find('input[name="search"]').val()
 
