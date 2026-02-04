@@ -3,6 +3,7 @@
 namespace Codenzia\FilamentMedia\Helpers;
 
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Blade;
 
 class BaseHelper
 {
@@ -24,7 +25,7 @@ class BaseHelper
 
     public static function renderIcon(string $icon): string
     {
-        return '<x-filament::icon icon="' . $icon . '"></x-filament::icon>';
+        return Blade::render('<x-filament::icon icon="' . $icon . '"></x-filament::icon>');
     }
 
     public static function logError(\Throwable $exception): void
