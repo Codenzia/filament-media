@@ -13,6 +13,9 @@ return new class () extends Migration {
             $table->string('name')->nullable();
             $table->string('slug')->nullable();
             $table->foreignId('parent_id')->default(0);
+            $table->nullableMorphs('fileable');
+            $table->foreignId('created_by_user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by_user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -26,6 +29,9 @@ return new class () extends Migration {
             $table->integer('size');
             $table->string('url');
             $table->text('options')->nullable();
+            $table->nullableMorphs('fileable');
+            $table->foreignId('created_by_user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by_user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
         });
