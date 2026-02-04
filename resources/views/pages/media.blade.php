@@ -24,15 +24,15 @@
                                         size="sm"
                                     /> --}}
 
-                                    <div class="fm-media-actions__controls flex flex-wrap items-center gap-3 shadow-sm rounded-lg py-3">
-                                        <x-filament::dropdown class=" md:block bg-white dark:bg-gray-900 rounded-lg">
+                                    <div class="fm-media-actions__controls flex flex-wrap items-center gap-3 py-3">
+                                        <x-filament::dropdown class="md:block bg-white text-gray-900 dark:bg-gray-900 dark:text-white rounded-lg">
                                             <x-slot:trigger>
                                                 <x-filament::button
                                                     type="button"
                                                     icon="heroicon-m-arrow-up-tray"
                                                     color="primary"
                                                     size="lg"
-                                                    class="bg-white dark:bg-gray-900"
+                                                    class="bg-white dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
                                                     :label="trans('filament-media::media.upload')"
                                                 >
                                                     {{ trans('filament-media::media.upload') }}
@@ -62,7 +62,7 @@
                                             type="button"
                                             color="primary"
                                             :tooltip="trans('filament-media::media.create_folder')"
-                                            class="bg-white dark:bg-gray-900"
+                                            class="bg-white dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
                                             wire:click="mountAction('create_folder')"
                                             icon="heroicon-m-folder-plus"
                                             :label="trans('filament-media::media.create_folder')"
@@ -75,7 +75,7 @@
                                             type="button"
                                             color="primary"
                                             :tooltip="trans('filament-media::media.refresh')"
-                                            class="js-change-action bg-white dark:bg-gray-900"
+                                            class="js-change-action bg-white dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
                                             icon="heroicon-m-arrow-path"
                                             data-type="refresh"
                                             :label="trans('filament-media::media.refresh')"
@@ -91,7 +91,7 @@
                                                         type="button"
                                                         color="primary"
                                                         icon="heroicon-m-funnel"
-                                                        class="js-fm-media-change-filter-group js-filter-by-type bg-white dark:bg-gray-900"
+                                                        class="js-fm-media-change-filter-group js-filter-by-type bg-white dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
                                                         :tooltip="trans('filament-media::media.filter')"
                                                         :label="trans('filament-media::media.filter')"
                                                         size="lg"
@@ -149,7 +149,7 @@
                                                         type="button"
                                                         color="primary"
                                                         icon="heroicon-m-eye"
-                                                        class="js-fm-media-change-filter-group js-filter-by-view-in bg-white dark:bg-gray-900"
+                                                        class="js-fm-media-change-filter-group js-filter-by-view-in bg-white dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
                                                         :tooltip="trans('filament-media::media.view_in')"
                                                         :label="trans('filament-media::media.view_in')"
                                                         size="lg"
@@ -201,7 +201,7 @@
                                         <x-filament::button
                                             type="button"
                                             color="danger"
-                                            class="hidden flex js-files-action fm-media-actions bg-red-500"
+                                            class="hidden flex js-files-action fm-media-actions bg-red-500 dark:bg-red-500/10 dark:text-red-500 text-red-500 media-icon-button"
                                             data-action="empty_trash"
                                             icon="heroicon-m-trash"
                                             :label="trans('filament-media::media.empty_trash')"
