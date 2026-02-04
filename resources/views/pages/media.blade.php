@@ -227,7 +227,7 @@
                                                 color="primary"
                                                 icon="heroicon-m-magnifying-glass"
                                                 size="lg"
-                                                class="bg-white dark:bg-gray-900 border border-l-0 border-transparent rounded-l-none h-10"
+                                                class="bg-white dark:bg-gray-900 border border-l-0 border-transparent h-10 dark:text-white text-gray-900 media-icon-button"
                                             >
                                             </x-filament::button>
                                         </form>
@@ -255,7 +255,7 @@
                                                 <x-filament::button
                                                     icon="heroicon-m-document-arrow-up"
                                                     size="lg"
-                                                    class="px-4 py-2 shadow-sm bg-transparent"
+                                                    class="px-4 py-2 shadow-sm bg-transparent dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
                                                 >
                                                     {{ trans('filament-media::media.sort') }}
                                                 </x-filament::button>
