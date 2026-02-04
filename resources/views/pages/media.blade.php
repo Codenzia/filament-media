@@ -96,10 +96,9 @@
                                                         :label="trans('filament-media::media.filter')"
                                                         size="lg"
                                                     >
-                                                    {{ trans('filament-media::media.filter') }}
+                                                    {{ trans('filament-media::media.filter') }} <span class="js-fm-media-filter-current"></span>
                                                     </x-filament::button>
                                                 </x-slot:trigger>
-
                                                 <x-filament::dropdown.list>
                                                     <x-filament::dropdown.list.item
                                                         icon="heroicon-m-arrow-path"
@@ -154,7 +153,7 @@
                                                         :label="trans('filament-media::media.view_in')"
                                                         size="lg"
                                                     >
-                                                        {{ trans('filament-media::media.view_in') }}
+                                                        {{ trans('filament-media::media.view_in') }} <span class="js-fm-media-filter-current"></span>
                                                     </x-filament::button>
                                                 </x-slot:trigger>
 

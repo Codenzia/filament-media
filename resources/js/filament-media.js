@@ -66,23 +66,17 @@ class MediaManagement {
             `.js-fm-media-change-filter[data-type="filter"][data-value="${Helpers.getRequestParams().filter}"]`
         )
 
-        $currentFilter
-            .closest('button.dropdown-item')
-            .addClass('active')
-            .closest('.dropdown')
-            .find('.js-fm-media-filter-current')
-            .html(`(${$currentFilter.html()})`)
+        if ($currentFilter.length) {
+            $('.js-filter-by-type .js-fm-media-filter-current').html(`(${$currentFilter.text().trim()})`)
+        }
 
         const $currentViewIn = $(
             `.js-fm-media-change-filter[data-type="view_in"][data-value="${Helpers.getRequestParams().view_in}"]`
         )
 
-        $currentViewIn
-            .closest('button.dropdown-item')
-            .addClass('active')
-            .closest('.dropdown')
-            .find('.js-fm-media-filter-current')
-            .html(`(${$currentViewIn.html()})`)
+        if ($currentViewIn.length) {
+            $('.js-filter-by-view-in .js-fm-media-filter-current').html(`(${$currentViewIn.text().trim()})`)
+        }
 
         if (Helpers.isUseInModal()) {
             $('.fm-media-footer').removeClass('d-none')
@@ -271,7 +265,11 @@ class MediaManagement {
                     }
                 }
 
-                $current.closest('.dropdown').find('.js-fm-media-filter-current').html(`(${$current.html()})`)
+                if (data.type === 'filter') {
+                    $('.js-filter-by-type .js-fm-media-filter-current').html(`(${$current.text().trim()})`)
+                } else if (data.type === 'view_in') {
+                    $('.js-filter-by-view-in .js-fm-media-filter-current').html(`(${$current.text().trim()})`)
+                }
 
                 Helpers.storeConfig()
                 MediaService.refreshFilter()
