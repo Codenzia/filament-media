@@ -23,7 +23,15 @@ export class MediaDetails {
 
     renderData(data) {
         const _self = this
-        const thumb = data.type === 'image' && data.full_url ? `<img src="${data.full_url}" alt="${data.name}">` : data.icon
+        let thumb = data.icon
+        if (data.type === 'image' && data.full_url) {
+            thumb = `<img src="${data.full_url}" alt="${data.name}">`
+        } else if (data.type === 'video' && data.preview_url) {
+            thumb = `<video src="${data.preview_url}" controls class="w-full"></video>`
+        } else if (data.type === 'audio' && data.preview_url) {
+            thumb = `<audio src="${data.preview_url}" controls class="w-full"></audio>`
+        }
+        
         let description = ''
         Helpers.forEach(data, (val, index) => {
             if (Helpers.inArray(_self.onlyFields, index) && val) {

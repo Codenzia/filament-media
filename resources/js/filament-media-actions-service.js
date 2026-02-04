@@ -39,6 +39,20 @@ export class ActionsService {
                     iframe.style.width = '100vh'
                     iframe.style.height = '100vh'
                     selected.push(iframe)
+                } else if (value.data.type === 'video') {
+                    const video = document.createElement('video')
+                    video.src = value.data.preview_url
+                    video.controls = true
+                    video.style.maxWidth = '100%'
+                    video.style.maxHeight = '90vh'
+                    selected.push(video)
+                } else if (value.data.type === 'audio') {
+                    const audio = document.createElement('audio')
+                    audio.src = value.data.preview_url
+                    audio.controls = true
+                    audio.style.maxWidth = '100%'
+                    audio.style.maxHeight = '90vh'
+                    selected.push(audio)
                 } else {
                     selected.push(value.data.preview_url)
                 }
