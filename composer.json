@@ -1,10 +1,14 @@
 {
     "name": "codenzia/filament-media",
-    "description": "This is my package filament-media",
+    "description": "A powerful media manager plugin for Filament v4 with drag-and-drop uploads, folder organization, image editing, and thumbnail generation.",
     "keywords": [
         "codenzia",
         "laravel",
-        "filament-media"
+        "filament",
+        "filament-media",
+        "media-manager",
+        "file-upload",
+        "image-editor"
     ],
     "homepage": "https://github.com/codenzia/filament-media",
     "support": {
@@ -15,12 +19,12 @@
     "authors": [
         {
             "name": "Codenzia",
-            "email": "mahmoudsehsah36@gmail.com",
+            "email": "support@codenzia.com",
             "role": "Developer"
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.2",
         "ext-gd": "*",
         "ext-zip": "*",
         "filament/filament": "^4.0",
@@ -70,6 +74,6 @@
             }
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true
 }

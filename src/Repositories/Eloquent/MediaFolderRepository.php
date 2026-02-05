@@ -43,23 +43,44 @@ class MediaFolderRepository extends BaseRepository implements MediaFolderInterfa
         return MediaFolder::createName($name, $parentId);
     }
 
+    /**
+     * Get breadcrumbs for a folder.
+     * Optimized to fetch all ancestors in a single query using CTE or iterative approach.
+     */
     public function getBreadcrumbs(int|string|null $parentId, array $breadcrumbs = [])
     {
-        if ($parentId == 0) {
+        if (!$parentId || $parentId == 0) {
             return $breadcrumbs;
         }
 
-        $folder = $this->findById($parentId);
+        // Collect all parent IDs first to minimize queries
+        $ancestors = [];
+        $currentId = $parentId;
+        $maxDepth = 50; // Prevent infinite loops
+        $depth = 0;
 
-        if ($folder) {
-            $breadcrumbs[] = [
+        // First, get all folders that might be ancestors (single query)
+        $allFolders = $this->model
+            ->select(['id', 'name', 'parent_id'])
+            ->get()
+            ->keyBy('id');
+
+        // Build breadcrumbs by traversing the cached data
+        while ($currentId && $currentId != 0 && $depth < $maxDepth) {
+            $folder = $allFolders->get($currentId);
+            if (!$folder) {
+                break;
+            }
+            $ancestors[] = [
                 'name' => $folder->name,
                 'id' => $folder->id,
             ];
-            return $this->getBreadcrumbs($folder->parent_id, $breadcrumbs);
+            $currentId = $folder->parent_id;
+            $depth++;
         }
 
-        return $breadcrumbs;
+        // Return ancestors in correct order (root first)
+        return array_merge(array_reverse($ancestors), $breadcrumbs);
     }
 
     public function getTrashed(int|string|null $parentId, array $params = [])
@@ -91,14 +112,45 @@ class MediaFolderRepository extends BaseRepository implements MediaFolderInterfa
         return false;
     }
 
+    /**
+     * Get all child folders recursively.
+     * Optimized to fetch all folders in a single query and filter in memory.
+     */
     public function getAllChildFolders(int|string|null $parentId, array $child = [])
     {
-        $folders = $this->model->where('parent_id', $parentId)->get();
-        foreach ($folders as $folder) {
-            $child[$folder->id] = $folder;
-            $child = $this->getAllChildFolders($folder->id, $child);
+        if (!$parentId) {
+            return $child;
         }
+
+        // Fetch all folders in a single query
+        $allFolders = $this->model
+            ->select(['id', 'name', 'parent_id', 'slug'])
+            ->get();
+
+        // Build a lookup by parent_id for efficient traversal
+        $foldersByParent = $allFolders->groupBy('parent_id');
+
+        // Recursively collect children using in-memory traversal
+        $this->collectChildFolders($parentId, $foldersByParent, $allFolders->keyBy('id'), $child);
+
         return $child;
+    }
+
+    /**
+     * Helper method to recursively collect child folders from cached data.
+     */
+    protected function collectChildFolders(
+        int|string $parentId,
+        $foldersByParent,
+        $foldersById,
+        array &$child
+    ): void {
+        $children = $foldersByParent->get($parentId, collect());
+
+        foreach ($children as $folder) {
+            $child[$folder->id] = $foldersById->get($folder->id);
+            $this->collectChildFolders($folder->id, $foldersByParent, $foldersById, $child);
+        }
     }
 
     public function getFullPath(int|string|null $folderId, ?string $path = ''): ?string

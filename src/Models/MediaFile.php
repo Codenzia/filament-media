@@ -2,11 +2,14 @@
 
 namespace Codenzia\FilamentMedia\Models;
 
+use Codenzia\FilamentMedia\Database\Factories\MediaFileFactory;
 use Codenzia\FilamentMedia\Facades\FilamentMedia;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
@@ -17,7 +20,13 @@ use Codenzia\FilamentMedia\Services\SafeContentService;
 
 class MediaFile extends Model
 {
+    use HasFactory;
     use SoftDeletes;
+
+    protected static function newFactory(): MediaFileFactory
+    {
+        return MediaFileFactory::new();
+    }
 
     protected $table = 'media_files';
 
@@ -57,6 +66,38 @@ class MediaFile extends Model
     public function folder(): BelongsTo
     {
         return $this->belongsTo(MediaFolder::class, 'folder_id')->withDefault();
+    }
+
+    /**
+     * Get the user who owns this file.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(config('auth.providers.users.model', 'App\\Models\\User'), 'user_id');
+    }
+
+    /**
+     * Get the user who created this file.
+     */
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(config('auth.providers.users.model', 'App\\Models\\User'), 'created_by_user_id');
+    }
+
+    /**
+     * Get the user who last updated this file.
+     */
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(config('auth.providers.users.model', 'App\\Models\\User'), 'updated_by_user_id');
+    }
+
+    /**
+     * Get the parent model that this file is attached to.
+     */
+    public function fileable(): MorphTo
+    {
+        return $this->morphTo();
     }
 
     protected function type(): Attribute
@@ -243,15 +284,46 @@ class MediaFile extends Model
         return (! $this->visibility || $this->visibility === 'public') && FilamentMedia::canGenerateThumbnails($this->mime_type);
     }
 
+    /**
+     * Create a unique name for a file in the given folder.
+     * Optimized to use a single query to find all existing names with the same base.
+     */
     public static function createName(string $name, int|string|null $folder): string
     {
-        $index = 1;
+        // Escape special regex characters in the name for LIKE query
         $baseName = $name;
-        while (self::query()->where('name', $name)->where('folder_id', $folder)->withTrashed()->exists()) {
-            $name = $baseName . '-' . $index++;
+        $likePattern = str_replace(['%', '_'], ['\%', '\_'], $baseName);
+
+        // Get all existing names that match the pattern (including suffixes like -1, -2, etc.)
+        $existingNames = self::query()
+            ->where('folder_id', $folder)
+            ->where(function ($query) use ($likePattern, $baseName) {
+                $query->where('name', $baseName)
+                    ->orWhere('name', 'LIKE', $likePattern . '-%');
+            })
+            ->withTrashed()
+            ->pluck('name')
+            ->toArray();
+
+        if (empty($existingNames)) {
+            return $name;
         }
 
-        return $name;
+        if (!in_array($baseName, $existingNames)) {
+            return $baseName;
+        }
+
+        // Find the highest suffix number
+        $maxSuffix = 0;
+        foreach ($existingNames as $existingName) {
+            if ($existingName === $baseName) {
+                $maxSuffix = max($maxSuffix, 0);
+            } elseif (preg_match('/^' . preg_quote($baseName, '/') . '-(\d+)$/', $existingName, $matches)) {
+                $maxSuffix = max($maxSuffix, (int) $matches[1]);
+            }
+        }
+
+        return $baseName . '-' . ($maxSuffix + 1);
     }
 
     public static function createSlug(string $name, string $extension, ?string $folderPath): string
@@ -274,7 +346,7 @@ class MediaFile extends Model
         }
 
         if (empty($slug)) {
-            $slug = $slug . '-' . time();
+            $slug = 'file-' . time();
         }
 
         return Str::limit($slug, end: '') . '.' . $extension;

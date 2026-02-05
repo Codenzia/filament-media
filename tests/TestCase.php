@@ -13,6 +13,8 @@ use Filament\Support\SupportServiceProvider;
 use Filament\Tables\TablesServiceProvider;
 use Filament\Widgets\WidgetsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
@@ -20,6 +22,8 @@ use Codenzia\FilamentMedia\FilamentMediaServiceProvider;
 
 class TestCase extends Orchestra
 {
+    use RefreshDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -27,6 +31,9 @@ class TestCase extends Orchestra
         Factory::guessFactoryNamesUsing(
             fn (string $modelName) => 'Codenzia\\FilamentMedia\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
+
+        // Set up fake storage for testing
+        Storage::fake('public');
     }
 
     protected function getPackageProviders($app)
@@ -51,10 +58,28 @@ class TestCase extends Orchestra
     public function getEnvironmentSetUp($app)
     {
         config()->set('database.default', 'testing');
+        config()->set('database.connections.testing', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+        ]);
 
-        /*
-        $migration = include __DIR__.'/../database/migrations/create_filament-media_table.php.stub';
-        $migration->up();
-        */
+        // Set up app key for encryption (required for web middleware)
+        config()->set('app.key', 'base64:' . base64_encode(str_repeat('a', 32)));
+
+        // Set up media config
+        config()->set('media', require __DIR__ . '/../config/media.php');
+        config()->set('filesystems.default', 'public');
+        config()->set('filesystems.disks.public', [
+            'driver' => 'local',
+            'root' => storage_path('app/public'),
+            'url' => env('APP_URL') . '/storage',
+            'visibility' => 'public',
+        ]);
+    }
+
+    protected function defineDatabaseMigrations()
+    {
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 }

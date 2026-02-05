@@ -274,7 +274,7 @@ class FilamentMedia
     public function getDefaultImage(bool $relative = false, ?string $size = null): string
     {
         $default = $this->getConfig('default_image');
-
+//TODO: remove this?
 //         if ($placeholder = setting('media_default_placeholder_image')) {
 //             $filename = pathinfo($placeholder, PATHINFO_FILENAME);
 //
@@ -289,8 +289,10 @@ class FilamentMedia
             return $default;
         }
 
-        //return $default ? url($default) : $default;
-        return 'https://via.placeholder.com/150';
+        //TODO: it is safer to return null, but UI needs to handle this
+        // Return null if no default configured - let the UI handle missing images
+        //return $default ? url($default) : null;
+        return $default ? url($default) : '';         
     }
 
     public function getSize(string $name): ?string
@@ -408,8 +410,20 @@ class FilamentMedia
         if ($validator->fails()) {
             $errorMessage = $validator->getMessageBag()->first();
 
-            return response('<script>alert("' . addslashes($errorMessage) . '")</script>')
-                ->header('Content-Type', 'text/html');
+            // Return JSON for modern editors, fallback to safe script for CKEditor
+            if (!$request->input('CKEditorFuncNum')) {
+                return response()->json([
+                    'uploaded' => 0,
+                    'error' => ['message' => $errorMessage],
+                ], 422);
+            }
+
+            // For CKEditor, use proper escaping
+            return response(
+                '<script>window.parent.CKEDITOR.tools.callFunction(' .
+                json_encode($request->input('CKEditorFuncNum')) . ', "", ' .
+                json_encode($errorMessage) . ');</script>'
+            )->header('Content-Type', 'text/html');
         }
 
         $folderName = $folderName ?: $request->input('upload_type');
@@ -433,8 +447,20 @@ class FilamentMedia
                 ->header('Content-Type', 'text/html');
         }
 
-        return response('<script>alert("' . Arr::get($result, 'message') . '")</script>')
-            ->header('Content-Type', 'text/html');
+        // Return JSON for modern editors, fallback to safe script for CKEditor
+        $errorMessage = Arr::get($result, 'message', 'Upload failed');
+        if (!$request->input('CKEditorFuncNum')) {
+            return response()->json([
+                'uploaded' => 0,
+                'error' => ['message' => $errorMessage],
+            ], 422);
+        }
+
+        return response(
+            '<script>window.parent.CKEDITOR.tools.callFunction(' .
+            json_encode($request->input('CKEditorFuncNum')) . ', "", ' .
+            json_encode($errorMessage) . ');</script>'
+        )->header('Content-Type', 'text/html');
     }
 
     protected function getCustomS3Path(): string
@@ -887,10 +913,20 @@ class FilamentMedia
             ];
         }
 
+        // SSRF Protection: Validate URL against allowed domains and block internal addresses
+        $ssrfError = $this->validateUrlForSsrf($url);
+        if ($ssrfError) {
+            return [
+                'error' => true,
+                'message' => $ssrfError,
+            ];
+        }
+
         $info = pathinfo($url);
 
         try {
-            $response = Http::withoutVerifying()->get($url);
+            // Use secure HTTP client with SSL verification enabled
+            $response = Http::timeout(30)->get($url);
 
             if ($response->failed() || ! $response->body()) {
                 return [
@@ -915,17 +951,37 @@ class FilamentMedia
             ];
         }
 
-        $path = '/tmp';
-        File::ensureDirectoryExists($path);
+        // Use secure temp file creation to prevent path traversal attacks
+        $tempDir = sys_get_temp_dir();
 
-        $path = $path . '/' . Str::limit($info['basename'], 50, '');
-        file_put_contents($path, $contents);
+        // Sanitize filename - only allow alphanumeric, dots, underscores, and hyphens
+        $safeBasename = preg_replace('/[^a-zA-Z0-9._-]/', '_', $info['basename'] ?? 'download');
+        $safeBasename = Str::limit($safeBasename, 50, '');
 
-        $fileUpload = $this->newUploadedFile($path, $defaultMimetype);
+        // Create unique temp file path
+        $tempPath = tempnam($tempDir, 'media_');
+        if ($tempPath === false) {
+            return [
+                'error' => true,
+                'message' => trans('filament-media::media.unable_to_create_temp_file'),
+            ];
+        }
+
+        // Write contents to temp file
+        if (file_put_contents($tempPath, $contents) === false) {
+            @unlink($tempPath);
+            return [
+                'error' => true,
+                'message' => trans('filament-media::media.unable_to_write_temp_file'),
+            ];
+        }
+
+        $fileUpload = $this->newUploadedFile($tempPath, $defaultMimetype);
 
         $result = $this->handleUpload($fileUpload, $folderId, $folderSlug);
 
-        File::delete($path);
+        // Always clean up temp file
+        @unlink($tempPath);
 
         return $result;
     }
@@ -1510,7 +1566,7 @@ class FilamentMedia
 
     public function refreshCache(): void
     {
-        \setting(['media_random_hash' => md5((string) time())])->save();
+        \setting(['media_random_hash' => bin2hex(random_bytes(16))])->save();
     }
 
     public function getFolderColors(): array
@@ -1548,7 +1604,7 @@ class FilamentMedia
             return response()->download($filePath, $fileName);
         }
 
-        return response()->make(Http::withoutVerifying()->get($filePath)->body(), 200, [
+        return response()->make(Http::timeout(30)->get($filePath)->body(), 200, [
             'Content-type' => $this->getMimeType($filePath),
             'Content-Disposition' => sprintf('attachment; filename="%s"', $fileName),
         ]);
@@ -1691,5 +1747,91 @@ class FilamentMedia
     public function postUploadFromEditor($request)
     {
         return $this->uploadFromEditor($request);
+    }
+
+    /**
+     * Validate URL for SSRF attacks.
+     *
+     * Blocks:
+     * - Internal/private IP ranges (10.x, 172.16-31.x, 192.168.x, 127.x, etc.)
+     * - Localhost and loopback addresses
+     * - Link-local addresses
+     * - Cloud metadata endpoints (169.254.169.254, etc.)
+     * - Non-HTTP(S) schemes
+     *
+     * @param string $url The URL to validate
+     * @return string|null Error message if URL is blocked, null if valid
+     */
+    protected function validateUrlForSsrf(string $url): ?string
+    {
+        // Parse the URL
+        $parsed = parse_url($url);
+
+        if ($parsed === false || !isset($parsed['host'])) {
+            return trans('filament-media::media.url_invalid');
+        }
+
+        // Only allow HTTP and HTTPS schemes
+        $scheme = strtolower($parsed['scheme'] ?? '');
+        if (!in_array($scheme, ['http', 'https'])) {
+            return trans('filament-media::media.url_scheme_not_allowed');
+        }
+
+        $host = strtolower($parsed['host']);
+
+        // Block localhost and loopback
+        if (in_array($host, ['localhost', '127.0.0.1', '::1', '0.0.0.0', '[::1]'])) {
+            return trans('filament-media::media.url_internal_not_allowed');
+        }
+
+        // Resolve hostname to IP for additional checks
+        $ip = gethostbyname($host);
+
+        // If DNS resolution fails, gethostbyname returns the hostname
+        if ($ip === $host && !filter_var($host, FILTER_VALIDATE_IP)) {
+            // Could not resolve - allow but log for monitoring
+            logger()->warning('SSRF check: Could not resolve hostname', ['url' => $url, 'host' => $host]);
+            return null; // Allow but log
+        }
+
+        // Check if it's a valid IP
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            return trans('filament-media::media.url_invalid');
+        }
+
+        // Block private and reserved IP ranges
+        $flags = FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE;
+        if (!filter_var($ip, FILTER_VALIDATE_IP, $flags)) {
+            return trans('filament-media::media.url_internal_not_allowed');
+        }
+
+        // Additional check for cloud metadata endpoints
+        $blockedIps = [
+            '169.254.169.254', // AWS, GCP, Azure metadata
+            '169.254.170.2',   // AWS ECS task metadata
+            '100.100.100.200', // Alibaba Cloud metadata
+        ];
+
+        if (in_array($ip, $blockedIps)) {
+            return trans('filament-media::media.url_internal_not_allowed');
+        }
+
+        // Check allowed domains from config if set
+        $allowedDomains = $this->getConfig('allowed_download_domains', []);
+        if (!empty($allowedDomains)) {
+            $isAllowed = false;
+            foreach ($allowedDomains as $domain) {
+                $domain = strtolower($domain);
+                if ($host === $domain || Str::endsWith($host, '.' . $domain)) {
+                    $isAllowed = true;
+                    break;
+                }
+            }
+            if (!$isAllowed) {
+                return trans('filament-media::media.url_domain_not_allowed');
+            }
+        }
+
+        return null; // URL is valid
     }
 }

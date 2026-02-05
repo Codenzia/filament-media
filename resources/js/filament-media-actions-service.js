@@ -29,8 +29,7 @@ export class ActionsService {
     static handlePreview() {
         let selected = []
         Helpers.each(Helpers.getSelectedFiles(), (value) => {
-            console.log(value);
-
+            
             if (value.data.preview_url) {
                 if (value.data.type === 'document') {
                     const iframe = document.createElement('iframe')
@@ -100,7 +99,7 @@ export class ActionsService {
         Helpers.each(Helpers.getSelectedItems(), (value) => {
             selected.push(value)
         })
-        console.log(selected);
+        
         switch (type) {
             case 'rename':
                 Livewire.dispatch('open-rename-modal', { items: selected })
@@ -215,10 +214,9 @@ export class ActionsService {
             // Remove share action
             actionsList[key] = Helpers.arrayReject(actionsList[key], (item) => item.action === 'share')
         })
-        console.log(selectedItems.length);
+        
         if (selectedItems.length > 1) {
             Helpers.each(actionsList, (group, key) => {
-                console.log(key);
                 actionsList[key] = Helpers.arrayReject(group, (item) => item.action === 'rename' || item.action === 'copy_indirect_link' || item.action === 'copy_link')
             })
         }
@@ -398,9 +396,13 @@ export class ActionsService {
                     // Convert blob to json to show error
                     const reader = new FileReader();
                     reader.onload = () => {
-                        const result = JSON.parse(reader.result);
-                        if (result.error) {
-                             MessageService.showMessage('error', result.message, Helpers.trans('message.error_header'))
+                        try {
+                            const result = JSON.parse(reader.result);
+                            if (result && result.error) {
+                                MessageService.showMessage('error', result.message, Helpers.trans('message.error_header'));
+                            }
+                        } catch (e) {
+                            console.error("Failed to parse download error response", e);
                         }
                     };
                     reader.readAsText(response.data);

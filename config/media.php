@@ -1,6 +1,27 @@
 <?php
 
 return [
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    |
+    | Configure pagination settings for the media manager.
+    |
+    */
+    'pagination' => [
+        'per_page' => 30,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Thumbnail Sizes
+    |--------------------------------------------------------------------------
+    |
+    | Define thumbnail sizes that will be generated for uploaded images.
+    | Format: 'name' => 'WIDTHxHEIGHT'
+    |
+    */
     'sizes' => [
         'thumb' => '150x150',
     ],
@@ -59,7 +80,15 @@ return [
             'audio/wav',
         ],
     ],
-    'default_image' =>  '/vendor/core/core/base/images/placeholder.png',
+    /*
+    |--------------------------------------------------------------------------
+    | Default Placeholder Image
+    |--------------------------------------------------------------------------
+    |
+    | The default image to show when a file has no thumbnail or preview.
+    |
+    */
+    'default_image' => null, // Set to a path like '/images/placeholder.png' or leave null
     'sidebar_display' => 'horizontal', // Use "vertical" or "horizontal"
     'watermark' => [
         'enabled' => 0,
@@ -153,5 +182,44 @@ return [
         'label' => null,
         'group' => null,
     ],
+
     'use_storage_symlink' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Max File Size
+    |--------------------------------------------------------------------------
+    |
+    | Maximum file size allowed for uploads (in bytes).
+    | Default: 10MB (10 * 1024 * 1024)
+    |
+    */
+    'max_file_size' => 10 * 1024 * 1024,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Storage Driver
+    |--------------------------------------------------------------------------
+    |
+    | The storage disk to use for media files.
+    | Options: 'public', 's3', or any configured disk in filesystems.php
+    |
+    */
+    'driver' => 'public',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Allowed Download Domains
+    |--------------------------------------------------------------------------
+    |
+    | List of domains allowed for URL downloads. If empty, all external domains
+    | are allowed (except internal/private networks which are always blocked).
+    | Include subdomains by adding the parent domain (e.g., 'example.com'
+    | will also allow 'cdn.example.com').
+    |
+    */
+    'allowed_download_domains' => [
+        // 'example.com',
+        // 'cdn.example.com',
+    ],
 ];

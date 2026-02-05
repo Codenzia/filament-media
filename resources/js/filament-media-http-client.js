@@ -40,7 +40,7 @@ export class HttpClient {
             type: method,
             data: data,
             headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') || '',
             },
             ...this.configs,
         }
@@ -68,9 +68,13 @@ export class HttpClient {
         return new Promise((resolve, reject) => {
             $.ajax(options)
                 .done((data, textStatus, jqXHR) => {
+                    
                     const responseHeaders = {};
-                    const headers = jqXHR.getAllResponseHeaders().trim().split(/[]+/);
-                    headers.forEach((line) => {
+                    // Split by newline (CRLF or LF)
+                    const rawHeaders = jqXHR.getAllResponseHeaders().trim();
+                    const headerLines = rawHeaders ? rawHeaders.split(/[\r\n]+/) : [];
+
+                    headerLines.forEach((line) => {
                         const parts = line.split(': ');
                         const header = parts.shift();
                         const value = parts.join(': ');
@@ -79,14 +83,16 @@ export class HttpClient {
                         }
                     });
 
-                    resolve({
+                    const result = {
                         data: data,
                         status: jqXHR.status,
                         statusText: jqXHR.statusText,
                         headers: responseHeaders,
                         config: options,
                         request: jqXHR
-                    });
+                    };
+                    
+                    resolve(result);
                 })
                 .fail((jqXHR, textStatus, errorThrown) => {
                     reject({

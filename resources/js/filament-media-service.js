@@ -1,4 +1,7 @@
 import $ from 'jquery'
+window.jQuery = $;
+window.$ = $;
+
 import { MediaConfig } from './filament-media-config'
 import { Helpers } from './filament-media-helpers'
 import { ActionsService } from './filament-media-actions-service'
@@ -6,11 +9,12 @@ import { ContextMenuService } from './filament-media-context-menu-service'
 import { MediaList } from './app/Views/filament-media-media-list'
 import { MediaDetails } from './app/Views/filament-media-media-details'
 import { $httpClient } from './filament-media-http-client'
+
 export class MediaService {
     constructor() {
         this.MediaList = new MediaList()
         this.MediaDetails = new MediaDetails()
-        this.breadcrumbTemplate = $('#filament_media_breadcrumb_item').html()
+        this.breadcrumbTemplate = $('#filament_media_breadcrumb_item').html() || '<li>__name__</li>';
     }
 
     getMedia(reload = false, is_popup = false, load_more_file = false) {
@@ -73,9 +77,20 @@ export class MediaService {
         $httpClient
             .make()
             .get(FilamentMedia_URL.get_media, params)
-            .then(({ data }) => {
-                _self.MediaList.renderData(data.data, reload, load_more_file)
-                _self.renderBreadcrumbs(data.data.breadcrumbs)
+            .then(( response ) => {
+
+                if (!response || !response.data) {
+                    console.error('FilamentMedia: Invalid response structure', response);
+                    return;
+                }
+
+                // 2. Extract the actual payload (Laravel typically nests it in .data)
+                const payload = response.data.data || response.data;
+
+                // 3. Render
+                _self.MediaList.renderData(payload, reload, load_more_file)
+                _self.renderBreadcrumbs(payload.breadcrumbs)
+
                 MediaService.refreshFilter()
                 ActionsService.renderActions()
 
@@ -85,7 +100,7 @@ export class MediaService {
                     }
 
                     if (typeof pagination.posts_per_page != 'undefined') {
-                        const returned = data.data.files.length + data.data.folders.length
+                        const returned = payload.files.length + payload.folders.length
                         if (returned < pagination.posts_per_page && typeof pagination.has_more != 'undefined') {
                             pagination.has_more = false
                         }
@@ -119,7 +134,7 @@ export class MediaService {
                 .replace(
                     /__icon__/gi,
                     value?.icon ||
-                        `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
                 </svg>`

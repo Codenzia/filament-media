@@ -44,9 +44,7 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
             $package->hasConfigFile($configFileName);
         }
 
-        if (file_exists($package->basePath('/../database/migrations'))) {
-            $package->hasMigrations($this->getMigrations());
-        }
+        // Migrations are loaded in packageBooted() via loadMigrationsFrom()
 
         if (file_exists($package->basePath('/../resources/lang'))) {
             $package->hasTranslations();
@@ -78,9 +76,12 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         $this->loadHelpers();
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'core/media');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', static::$viewNamespace);
         $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'filament-media');
-        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+
+        // Load migrations directly so they run with php artisan migrate
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         // Asset Registration
         FilamentAsset::register(
             $this->getAssets(),
@@ -125,16 +126,10 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
      */
     protected function getAssets(): array
     {
-        $assets = [
-            Js::make('filament-media-jquery', 'https://code.jquery.com/jquery-3.7.1.min.js'),
+        return [
             Css::make('filament-media', __DIR__ . '/../resources/dist/filament-media.css'),
+            Js::make('filament-media', __DIR__ . '/../resources/dist/filament-media.js')->module(),
         ];
-
-        if (app()->runningInConsole()) {
-            $assets[] = Js::make('filament-media', __DIR__ . '/../resources/dist/filament-media.js')->module();
-        }
-
-        return $assets;
     }
 
     /**
@@ -172,19 +167,4 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
         return [];
     }
 
-    /**
-     * @return array<string>
-     */
-    protected function getMigrations(): array
-    {
-        return [
-            'create_media_tables',
-            'add_index_to_media_table',
-            'add_alt_to_media_table',
-            'add_color_column_to_media_folders_table',
-            'make_sure_column_color_in_media_folders_nullable',
-            'add_column_visibility_to_table_media_files',
-            'change_random_hash_for_media',
-        ];
-    }
 }

@@ -1,4 +1,4 @@
-let MediaConfig = $.parseJSON(localStorage.getItem('MediaConfig')) || {}
+let MediaConfig = JSON.parse(localStorage.getItem('MediaConfig')) || {}
 
 let defaultConfig = {
     app_key: MediaConfig.random_hash ? MediaConfig.random_hash : '21d06709fe1d3abdf0e35ddda89c4b282',

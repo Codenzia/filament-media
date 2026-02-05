@@ -44,18 +44,27 @@ class BaseHelper
         return $date->format($format);
     }
 
-    public function stringify($content): ?string
+    /**
+     * Convert content to a safe string representation.
+     * All output is HTML-escaped to prevent XSS attacks.
+     */
+    public function stringify(mixed $content): ?string
     {
-        if (empty($content)) {
+        // Handle booleans first before empty() check
+        if (is_bool($content)) {
+            return $content ? '1' : '0';
+        }
+
+        if (empty($content) && $content !== '0' && $content !== 0) {
             return null;
         }
 
-        if (is_string($content) || is_numeric($content) || is_bool($content)) {
-            return $content;
+        if (is_string($content) || is_numeric($content)) {
+            return htmlspecialchars((string) $content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         }
 
         if (is_array($content)) {
-            return json_encode($content);
+            return htmlspecialchars(json_encode($content), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         }
 
         return null;

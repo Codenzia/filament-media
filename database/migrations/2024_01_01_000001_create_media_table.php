@@ -16,4 +16,9 @@ return new class extends Migration
             $table->timestamps();
         });
     }
+
+    public function down()
+    {
+        Schema::dropIfExists('filament_media_table');
+    }
 };

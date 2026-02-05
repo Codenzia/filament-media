@@ -466,7 +466,7 @@
                         __thumb__
                     </div>
                     <div class="fm-media-description">
-                        <div class="title title{{ (new Codenzia\FilamentMedia\Helpers\BaseHelper)->stringify(request()->input('file_id')) }}">__name__</div>
+                        <div class="title" data-file-id="{{ e(request()->input('file_id', '')) }}">__name__</div>
                     </div>
                 </div>
             </li>

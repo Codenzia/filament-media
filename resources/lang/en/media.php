@@ -217,4 +217,11 @@ return [
     'download_image_to_local_storage_helper' => 'If it is unchecked, the image will be displayed from the original URL',
     'skip_trash' => 'Skip trash',
     'skip_trash_description' => 'If it is checked, the file will be deleted permanently without moving to trash',
+
+    // SSRF protection messages
+    'url_scheme_not_allowed' => 'Only HTTP and HTTPS URLs are allowed.',
+    'url_internal_not_allowed' => 'Internal or private network URLs are not allowed.',
+    'url_domain_not_allowed' => 'This domain is not in the allowed list for URL downloads.',
+    'unable_to_create_temp_file' => 'Unable to create temporary file.',
+    'unable_to_write_temp_file' => 'Unable to write to temporary file.',
 ];

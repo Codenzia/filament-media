@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Codenzia\FilamentMedia\Supports\Zipper;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
+use League\Flysystem\UnableToWriteFile;
 
 class MediaController extends Controller
 {
@@ -418,7 +420,7 @@ class MediaController extends Controller
                 $error = false;
                 foreach ($request->input('selected') as $item) {
                     $id = $item['id'];
-                    if ($item['is_folder'] == "false") {
+                    if (!filter_var($item['is_folder'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
                         try {
                             $this->fileRepository->restoreBy(['id' => $id]);
                         } catch (Throwable $exception) {
@@ -441,41 +443,33 @@ class MediaController extends Controller
                 break;
 
             case 'move':
-                $error = false;
                 $newFolderId = $request->input('destination');
 
-                foreach ($request->input('selected') as $item) {
-                    if (! $item['is_folder']) {
-                        try {
+                try {
+                    DB::beginTransaction();
+
+                    foreach ($request->input('selected') as $item) {
+                        if (!filter_var($item['is_folder'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
                             $file = $this->fileRepository->getFirstBy(['id' => $item['id']]);
                             if ($file) {
                                 $this->moveFile($file, $newFolderId);
                             }
-                        } catch (Throwable $exception) {
-                            BaseHelper::logError($exception);
-                            $error = true;
-                        }
-                    } else {
-                        try {
+                        } else {
                             $folder = $this->folderRepository->getFirstBy(['id' => $item['id']]);
                             if ($folder) {
                                 $folder->parent_id = $newFolderId;
                                 $folder->save();
                             }
-                        } catch (Throwable $exception) {
-                            BaseHelper::logError($exception);
-                            $error = true;
                         }
                     }
-                }
 
-                if ($error) {
+                    DB::commit();
+                    $response = FilamentMedia::responseSuccess([], trans('filament-media::media.move_success'));
+                } catch (Throwable $exception) {
+                    DB::rollBack();
+                    BaseHelper::logError($exception);
                     $response = FilamentMedia::responseError(trans('filament-media::media.move_error'));
-
-                    break;
                 }
-
-                $response = FilamentMedia::responseSuccess([], trans('filament-media::media.move_success'));
 
                 break;
 
@@ -754,7 +748,26 @@ class MediaController extends Controller
                 Validator::validate($request->input(), [
                     'selected' => ['required', 'array'],
                     'selected.*.id' => ['required', 'string'],
-                    'selected.*.name' => ['required', 'string', 'max:120'],
+                    'selected.*.name' => [
+                        'required',
+                        'string',
+                        'max:120',
+                        // Prevent path traversal and reserved filenames
+                        'regex:/^[^\/\\\\<>:"|?*\x00-\x1f]+$/',
+                        function ($attribute, $value, $fail) {
+                            // Block path traversal attempts
+                            if (str_contains($value, '..') || str_contains($value, './')) {
+                                $fail(trans('filament-media::media.name_invalid'));
+                            }
+                            // Block reserved Windows filenames
+                            $reserved = ['CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4',
+                                'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3',
+                                'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'];
+                            if (in_array(strtoupper(pathinfo($value, PATHINFO_FILENAME)), $reserved)) {
+                                $fail(trans('filament-media::media.name_invalid'));
+                            }
+                        },
+                    ],
                     'selected.*.is_folder' => ['required', 'boolean'],
                 ]);
 
@@ -948,10 +961,14 @@ class MediaController extends Controller
                                 $zip->add($filePath);
                             }
                         } else {
-                            $zip->addString(
-                                File::basename($file),
-                                Http::withoutVerifying()->get($filePath)->body()
-                            );
+                            try {
+                                $zip->addString(
+                                    File::basename($file->url),
+                                    Http::timeout(30)->get($filePath)->body()
+                                );
+                            } catch (Throwable $e) {
+                                BaseHelper::logError($e);
+                            }
                         }
                     }
                 } else {
@@ -965,10 +982,14 @@ class MediaController extends Controller
                         } else {
                             $allFiles = Storage::allFiles($this->folderRepository->getFullPath($folder->id));
                             foreach ($allFiles as $file) {
-                                $zip->addString(
-                                    File::basename($file),
-                                    Http::withoutVerifying()->get(FilamentMedia::getRealPath($file))->body()
-                                );
+                                try {
+                                    $zip->addString(
+                                        File::basename($file),
+                                        Http::timeout(30)->get(FilamentMedia::getRealPath($file))->body()
+                                    );
+                                } catch (Throwable $e) {
+                                    BaseHelper::logError($e);
+                                }
                             }
                         }
                     }

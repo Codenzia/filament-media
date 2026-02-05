@@ -9,7 +9,6 @@ import { DownloadService } from './filament-media-download-service.js'
 import { EditorService } from './filament-media-integrate.js'
 
 class MediaManagement {
-
     static noticesTimeout = {}
     static noticesTimeoutCount = 0
 
@@ -18,42 +17,57 @@ class MediaManagement {
         // this.UploadService = new UploadService()
         this.FolderService = new FolderService()
         this.DownloadService = new DownloadService()
+        this.UploadService = new UploadService()
 
         this.$body = $('body')
+        this._cleanupFolderCreated = null
+        this.keys = { ctrl: false, meta: false, shift: false }
     }
 
     init() {
+        if (!document.querySelector('.fm-media-container')) return
+
+        console.debug('Init: resetPagination');
         Helpers.resetPagination()
         this.setupLayout()
         this.handleMediaList()
         this.changeViewType()
         this.changeFilter()
+        
+        console.debug('Init: getMedia');
         this.MediaService.getMedia(true, false)
         this.search()
         this.handleActions()
         
         if (document.querySelector('.fm-media-items')) {
-            this.UploadService = new UploadService()
             this.UploadService.init()
         }
         
         this.scrollGetMore()
+        this.setupLivewireListeners()
+    }
 
+    setupLivewireListeners() {
         const registerListener = () => {
-            // Unregister if already registered to avoid duplicates
-            if (this._cleanupFolderCreated) {
+            if (typeof this._cleanupFolderCreated === 'function') {
                 this._cleanupFolderCreated()
+                this._cleanupFolderCreated = null
             }
 
-            this._cleanupFolderCreated = Livewire.on('media-folder-created', () => {
-                Helpers.resetPagination()
-                this.MediaService.getMedia(true)
-            })
+            if (typeof window.Livewire !== 'undefined') {
+                console.debug('Livewire: Registering listener');
+                this._cleanupFolderCreated = Livewire.on('media-folder-created', (data) => {
+                    console.debug('Livewire: media-folder-created triggered', data);
+                    Helpers.resetPagination()
+                    this.MediaService.getMedia(true)
+                })
+            }
         }
 
         if (typeof Livewire !== 'undefined') {
             registerListener()
         } else {
+            document.removeEventListener('livewire:initialized', registerListener)
             document.addEventListener('livewire:initialized', registerListener)
         }
     }
@@ -62,125 +76,117 @@ class MediaManagement {
         /**
          * Sidebar
          */
-        const $currentFilter = $(
-            `.js-fm-media-change-filter[data-type="filter"][data-value="${Helpers.getRequestParams().filter}"]`
-        )
+        const params = Helpers.getRequestParams()
+        
+        const updateActiveState = (type, value) => {
+            const $item = $(`.js-fm-media-change-filter[data-type="${type}"][data-value="${value}"]`)
+            if ($item.length) {
+                $item.closest('button.dropdown-item').addClass('active')
+                    .closest('.dropdown').find('.js-fm-media-filter-current').html(`(${$item.html()})`)
+            }
+        }
 
-        $currentFilter
-            .closest('button.dropdown-item')
-            .addClass('active')
-            .closest('.dropdown')
-            .find('.js-fm-media-filter-current')
-            .html(`(${$currentFilter.html()})`)
-
-        const $currentViewIn = $(
-            `.js-fm-media-change-filter[data-type="view_in"][data-value="${Helpers.getRequestParams().view_in}"]`
-        )
-
-        $currentViewIn
-            .closest('button.dropdown-item')
-            .addClass('active')
-            .closest('.dropdown')
-            .find('.js-fm-media-filter-current')
-            .html(`(${$currentViewIn.html()})`)
+        updateActiveState('filter', params.filter)
+        updateActiveState('view_in', params.view_in)
+        
+        /**
+         * Sort
+         */
+        const $sortBy = $(`.js-fm-media-change-filter[data-type="sort_by"][data-value="${params.sort_by}"]`)
+        if ($sortBy.length) {
+            $sortBy.closest('button.dropdown-item').addClass('active')
+        }
 
         if (Helpers.isUseInModal()) {
             $('.fm-media-footer').removeClass('d-none')
         }
 
         /**
-         * Sort
-         */
-        $(`.js-fm-media-change-filter[data-type="sort_by"][data-value="${Helpers.getRequestParams().sort_by}"]`)
-            .closest('button.dropdown-item')
-            .addClass('active')
-
-        /**
          * Details pane
          */
         let $mediaDetailsCheckbox = $('#media_details_collapse')
-        $mediaDetailsCheckbox.prop('checked', MediaConfig.hide_details_pane || false)
-        setTimeout(() => {
-            $('.fm-media-details').show()
-        }, 300)
+        if ($mediaDetailsCheckbox.length) {
+            $mediaDetailsCheckbox.prop('checked', MediaConfig.hide_details_pane || false)
+            
+            setTimeout(() => {
+                $('.fm-media-details').show()
+            }, 300)
 
-        $mediaDetailsCheckbox.on('change', (event) => {
-            event.preventDefault()
-            MediaConfig.hide_details_pane = $(event.currentTarget).is(':checked')
-            Helpers.storeConfig()
-        })
+            $mediaDetailsCheckbox.off('change').on('change', (event) => {
+                MediaConfig.hide_details_pane = $(event.currentTarget).is(':checked')
+                Helpers.storeConfig()
+            })
+        }
     }
 
     handleMediaList() {
-        let _self = this
+        const _self = this
 
-        /*Ctrl key in Windows*/
-        let ctrl_key = false
-
-        /*Command key in MAC*/
-        let meta_key = false
-
-        /*Shift key*/
-        let shift_key = false
-
-        $(document).on('keyup keydown', (e) => {
-            /*User hold ctrl key*/
-            ctrl_key = e.ctrlKey
-            /*User hold command key*/
-            meta_key = e.metaKey
-            /*User hold shift key*/
-            shift_key = e.shiftKey
+        /*Ctrl key in Windows, Command key in MAC, Shift key*/
+        $(document).off('keyup keydown').on('keyup keydown', (e) => {
+            if (!e) return
+            _self.keys.ctrl = e.ctrlKey || false
+            _self.keys.meta = e.metaKey || false
+            _self.keys.shift = e.shiftKey || false
         })
 
         _self.$body
             .off('click', '.js-media-list-title')
             .on('click', '.js-media-list-title', (event) => {
-                event.preventDefault()
-                let $current = $(event.currentTarget)
+                if (event) event.preventDefault()
+                const $current = $(event.currentTarget)
+                const $items = $('.fm-media-items li')
 
-                if (shift_key) {
-                    let firstItem = Helpers.arrayFirst(Helpers.getSelectedItems())
-                    if (firstItem) {
-                        let firstIndex = firstItem.index_key
-                        let currentIndex = $current.index()
-                        $('.fm-media-items li').each((index, el) => {
-                            if (index > firstIndex && index <= currentIndex) {
+                if (_self.keys.shift) {
+                    const selected = Helpers.getSelectedItems()
+                    const firstItem = Helpers.arrayFirst(selected)
+                    
+                    if (firstItem && typeof firstItem.index_key !== 'undefined') {
+                        const firstIndex = firstItem.index_key
+                        const currentIndex = $current.index()
+                        const start = Math.min(firstIndex, currentIndex)
+                        const end = Math.max(firstIndex, currentIndex)
+
+                        $items.each((index, el) => {
+                            if (index >= start && index <= end) {
                                 $(el).find('input[type=checkbox]').prop('checked', true)
                             }
                         })
                     }
-                } else if (!ctrl_key && !meta_key) {
-                    $current.closest('.fm-media-items').find('input[type=checkbox]').prop('checked', false)
+                } else if (!_self.keys.ctrl && !_self.keys.meta) {
+                    $items.find('input[type=checkbox]').prop('checked', false)
                 }
 
                 let $lineCheckBox = $current.find('input[type=checkbox]')
                 let wasChecked = $lineCheckBox.prop('checked')
                 $lineCheckBox.prop('checked', true)
+                
+                console.debug('MediaList: handleDropdown');
                 ActionsService.handleDropdown(!wasChecked)
-
-                _self.MediaService.getFileDetails($current.data())
+                _self.MediaService.getFileDetails($current.data() || {})
 
                 // Add to recent items when a file is clicked
-                if (!$current.data('is_folder')) {
+                if ($current.data('is_folder') !== true) {
                     Helpers.addToRecent($current.data('id'))
                 }
             })
             .on('dblclick doubletap', '.js-media-list-title', (event) => {
-                event.preventDefault()
-                let data = $(event.currentTarget).data()
-                if (data.is_folder === true) {
+                if (event) event.preventDefault()
+                const data = $(event.currentTarget).data()
+                if (data && data.is_folder === true) {
                     Helpers.resetPagination()
                     _self.FolderService.changeFolderAndAddToRecent(data.id)
                 } else {
                     ActionsService.handlePreview()
                 }
-
                 return false
             })
             .on('click', '.js-up-one-level', (event) => {
-                event.preventDefault()
+                if (event) event.preventDefault()
                 let count = $('.fm-media-breadcrumb .breadcrumb li').length
-                $(`.fm-media-breadcrumb .breadcrumb li:nth-child(${count - 1}) a`).trigger('click')
+                if (count > 1) {
+                    $(`.fm-media-breadcrumb .breadcrumb li:nth-child(${count - 1}) a`).trigger('click')
+                }
             })
             .on('contextmenu', '.js-context-menu', (event) => {
                 if (!$(event.currentTarget).find('input[type=checkbox]').is(':checked')) {
@@ -188,19 +194,11 @@ class MediaManagement {
                 }
             })
             .on('click contextmenu', '.fm-media-items', (e) => {
-                if (!Helpers.size(e.target.closest('.js-context-menu'))) {
+                if (e && !$(e.target).closest('.js-context-menu').length) {
                     $('.fm-media-items input[type="checkbox"]').prop('checked', false)
-
                     ActionsService.handleDropdown()
-
                     _self.MediaService.getFileDetails({
-                        icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M15 8h.01"></path>
-                            <path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z"></path>
-                            <path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"></path>
-                            <path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"></path>
-                        </svg>`,
+                        icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M15 8h.01"></path><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z"></path><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"></path><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"></path></svg>`,
                         nothing_selected: '',
                     })
                 }
@@ -208,90 +206,72 @@ class MediaManagement {
     }
 
     changeViewType() {
-        let _self = this
+        const _self = this
         _self.$body
             .off('click', '.js-fm-media-change-view-type button')
             .on('click', '.js-fm-media-change-view-type button', (event) => {
-                event.preventDefault()
-
-                let $current = $(event.currentTarget)
-
-                if ($current.hasClass('active')) {
-                    return
-                }
+                if (event) event.preventDefault()
+                const $current = $(event.currentTarget)
+                if ($current.hasClass('active')) return
 
                 $current.closest('.js-fm-media-change-view-type').find('button').removeClass('active')
                 $current.addClass('active')
 
                 MediaConfig.request_params.view_type = $current.data('type')
-
-                if ($current.data('type') === 'trash') {
-                    $(document).find('.js-insert-to-editor').prop('disabled', true)
-                } else {
-                    $(document).find('.js-insert-to-editor').prop('disabled', false)
-                }
+                $('.js-insert-to-editor').prop('disabled', $current.data('type') === 'trash')
 
                 Helpers.storeConfig()
-
-                if (typeof MediaConfig.pagination != 'undefined') {
-                    if (typeof MediaConfig.pagination.paged != 'undefined') {
-                        MediaConfig.pagination.paged = 1
-                    }
-                }
-                console.log('changeViewType', MediaConfig.pagination);
+                if (MediaConfig.pagination) MediaConfig.pagination.paged = 1
+                
                 _self.MediaService.getMedia(true, false)
             })
 
-        $(`.js-fm-media-change-view-type .btn[data-type="${Helpers.getRequestParams().view_type}"]`).trigger('click')
-
+        const currentParams = Helpers.getRequestParams()
+        $(`.js-fm-media-change-view-type .btn[data-type="${currentParams.view_type}"]`).trigger('click')
         this.bindIntegrateModalEvents()
     }
 
     changeFilter() {
-        let _self = this
+        const _self = this
         _self.$body.off('click', '.js-fm-media-change-filter').on('click', '.js-fm-media-change-filter', (event) => {
-            event.preventDefault()
+            if (event) event.preventDefault()
+            if (Helpers.isOnAjaxLoading()) return
 
-            if (!Helpers.isOnAjaxLoading()) {
-                let $current = $(event.currentTarget)
-                let data = $current.data()
+            const $current = $(event.currentTarget)
+            const data = $current.data() || {}
 
-                MediaConfig.request_params[data.type] = data.value
+            MediaConfig.request_params[data.type] = data.value
 
-                if (window.FilamentMedia.options && data.type === 'view_in') {
-                    window.FilamentMedia.options.view_in = data.value
-                }
-
-                if (data.type === 'view_in') {
-                    MediaConfig.request_params.folder_id = 0
-                    if (data.value === 'trash') {
-                        $(document).find('.js-insert-to-editor').prop('disabled', true)
-                    } else {
-                        $(document).find('.js-insert-to-editor').prop('disabled', false)
-                    }
-                }
-
-                $current.closest('.dropdown').find('.js-fm-media-filter-current').html(`(${$current.html()})`)
-
-                Helpers.storeConfig()
-                MediaService.refreshFilter()
-
-                Helpers.resetPagination()
-                _self.MediaService.getMedia(true)
-
-                $current.addClass('active')
-                $current.siblings().removeClass('active')
+            if (window.FilamentMedia.options && data.type === 'view_in') {
+                window.FilamentMedia.options.view_in = data.value
             }
+
+            if (data.type === 'view_in') {
+                MediaConfig.request_params.folder_id = 0
+                $('.js-insert-to-editor').prop('disabled', data.value === 'trash')
+            }
+
+            $current.closest('.dropdown').find('.js-fm-media-filter-current').html(`(${$current.html()})`)
+            $current.addClass('active').siblings().removeClass('active')
+
+            Helpers.storeConfig()
+            if (_self.MediaService.constructor.refreshFilter) {
+                _self.MediaService.constructor.refreshFilter()
+            }
+            
+            Helpers.resetPagination()
+            _self.MediaService.getMedia(true)
         })
     }
 
     search() {
-        let _self = this
-        $('.input-search-wrapper input[type="text"]').val(Helpers.getRequestParams().search || '')
+        const _self = this
+        const currentSearch = Helpers.getRequestParams().search || ''
+        $('.input-search-wrapper input[type="text"]').val(currentSearch)
+        
         _self.$body.off('submit', '.input-search-wrapper').on('submit', '.input-search-wrapper', (event) => {
-            event.preventDefault()
+            if (event) event.preventDefault()
             MediaConfig.request_params.search = $(event.currentTarget).find('input[name="search"]').val()
-
             Helpers.storeConfig()
             Helpers.resetPagination()
             _self.MediaService.getMedia(true)
@@ -299,51 +279,37 @@ class MediaManagement {
     }
 
     handleActions() {
-        let _self = this
-
+        const _self = this
         _self.$body
             .off('click', '.fm-media-actions .js-change-action[data-type="refresh"]')
             .on('click', '.fm-media-actions .js-change-action[data-type="refresh"]', (event) => {
-                event.preventDefault()
-
+                if (event) event.preventDefault()
                 Helpers.resetPagination()
-
-                let ele_options =
-                    typeof window.FilamentMedia.$el !== 'undefined' ? window.FilamentMedia.$el.data('fm-media') : undefined
-                if (
-                    typeof ele_options !== 'undefined' &&
-                    ele_options.length > 0 &&
-                    typeof ele_options[0].selected_file_id !== 'undefined'
-                ) {
-                    _self.MediaService.getMedia(true, true)
-                } else {
-                    _self.MediaService.getMedia(true, false)
-                }
+                const fmData = window.FilamentMedia?.$el?.data('fm-media')
+                const hasSelectedFile = fmData?.[0]?.selected_file_id !== undefined
+                _self.MediaService.getMedia(true, hasSelectedFile)
             })
             .off('click', '.fm-media-items li.no-items')
-            .on('click', '.fm-media-items li.no-items', (event) => {
-                event.preventDefault()
-                $('.fm-media-header .fm-media-top-header .fm-media-actions .js-dropzone-upload').trigger('click')
+            .on('click', '.fm-media-items li.no-items', (e) => {
+                if (e) e.preventDefault()
+                $('.fm-media-header .fm-media-top-header .fm-media-actions .js-dropzone-upload').first().trigger('click')
             })
             .off('submit', '.form-add-folder')
             .on('submit', '.form-add-folder', (event) => {
-                event.preventDefault()
+                if (event) event.preventDefault()
                 const $input = $(event.currentTarget).find('input[name="name"]')
-                const folderName = $input.val()
-                _self.FolderService.create(folderName)
+                _self.FolderService.create($input.val())
                 $input.val('')
-                return false
             })
             .off('click', '.js-change-folder')
             .on('click', '.js-change-folder', (event) => {
-                event.preventDefault()
-                let folderId = $(event.currentTarget).data('folder')
+                if (event) event.preventDefault()
                 Helpers.resetPagination()
-                _self.FolderService.changeFolderAndAddToRecent(folderId)
+                _self.FolderService.changeFolderAndAddToRecent($(event.currentTarget).data('folder'))
             })
             .off('click', '.js-files-action')
             .on('click', '.js-files-action', (event) => {
-                event.preventDefault()
+                if (event) event.preventDefault()
                 ActionsService.handleGlobalAction($(event.currentTarget).data('action'), () => {
                     Helpers.resetPagination()
                     _self.MediaService.getMedia(true)
@@ -351,8 +317,7 @@ class MediaManagement {
             })
             .off('submit', '.form-download-url')
             .on('submit', '.form-download-url', async (event) => {
-                event.preventDefault()
-
+                if (event) event.preventDefault()
                 const $el = $('#modal_download_url')
                 const $wrapper = $el.find('#download-form-wrapper')
                 const $notice = $el.find('#modal-notice').empty()
@@ -362,83 +327,38 @@ class MediaManagement {
                 const url = $input.val()
                 const remainUrls = []
 
-            window.FilamentMedia.showButtonLoading?.($button)
-
+                window.FilamentMedia.showButtonLoading?.($button)
                 $wrapper.slideUp()
 
-                // start to download
-                await _self.DownloadService.download(
-                    url,
-                    (progress, item, url) => {
-                        let $noticeItem = $(`
-                        <div class="p-2 text-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
-                                <path d="M12 9h.01"></path>
-                                <path d="M11 12h1v4h1"></path>
-                            </svg>
-                            <span>${item}</span>
-                        </div>
-                    `)
-                        $notice.append($noticeItem).scrollTop($notice[0].scrollHeight)
-                        $header.html(
-                            `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                            <path d="M7 11l5 5l5 -5"></path>
-                            <path d="M12 4l0 12"></path>
-                        </svg>
-                        ${$header.data('downloading')} (${progress})`
-                        )
-                        return (success, message = '') => {
-                            if (!success) {
-                                remainUrls.push(url)
-                            }
-                            $noticeItem.find('span').text(`${item}: ${message}`)
-                            $noticeItem
-                                .attr('class', `py-2 text-${success ? 'success' : 'danger'}`)
-                                .find('i')
-                                .attr('class', success ? 'icon heroicon-m-check-circle' : 'icon heroicon-m-x-circle')
-                        }
-                    },
-                    () => {
-                        $wrapper.slideDown()
-                        $input.val(remainUrls.join('\n')).prop('disabled', false)
-                        $header.html(`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                            <path d="M7 11l5 5l5 -5"></path>
-                            <path d="M12 4l0 12"></path>
-                        </svg>
-                        ${$header.data('text')}
-                    `)
-                        FilamentMedia.hideButtonLoading($button)
+                await _self.DownloadService.download(url, (progress, item, currentUrl) => {
+                    let $noticeItem = $(`<div class="p-2 text-primary"><span>${item}</span></div>`)
+                    $notice.append($noticeItem).scrollTop($notice[0].scrollHeight)
+                    $header.html(`${$header.data('downloading')} (${progress})`)
+
+                    return (success, message = '') => {
+                        if (!success) remainUrls.push(currentUrl)
+                        $noticeItem.find('span').text(`${item}: ${message}`)
+                        $noticeItem.attr('class', `py-2 text-${success ? 'success' : 'danger'}`)
                     }
-                )
-                return false
+                }, () => {
+                    $wrapper.slideDown()
+                    $input.val(remainUrls.join('\n')).prop('disabled', false)
+                    $header.html($header.data('text'))
+                    MediaManagement.hideButtonLoading($button)
+                })
             })
     }
 
     checkFileTypeSelect(selectedFiles) {
-        if (typeof window.FilamentMedia.$el !== 'undefined') {
-            let firstItem = Helpers.arrayFirst(selectedFiles)
-            let ele_options = window.FilamentMedia.$el.data('fm-media')
-            if (
-                typeof ele_options !== 'undefined' &&
-                typeof ele_options[0] !== 'undefined' &&
-                typeof ele_options[0].file_type !== 'undefined' &&
-                firstItem !== 'undefined' &&
-                firstItem.type !== 'undefined'
-            ) {
-                if (!ele_options[0].file_type.match(firstItem.type)) {
-                    return false
-                } else {
-                    if (typeof ele_options[0].ext_allowed !== 'undefined' && $.isArray(ele_options[0].ext_allowed)) {
-                        if ($.inArray(firstItem.mime_type, ele_options[0].ext_allowed) === -1) {
-                            return false
-                        }
-                    }
+        if (window.FilamentMedia && window.FilamentMedia.$el) {
+            const fmData = window.FilamentMedia.$el.data('fm-media')
+            const ele_options = fmData ? fmData[0] : null
+            const firstItem = Helpers.arrayFirst(selectedFiles)
+            
+            if (ele_options && firstItem && firstItem.type) {
+                if (ele_options.file_type && !ele_options.file_type.match(firstItem.type)) return false
+                if (ele_options.ext_allowed && Array.isArray(ele_options.ext_allowed)) {
+                    if ($.inArray(firstItem.mime_type, ele_options.ext_allowed) === -1) return false
                 }
             }
         }
@@ -446,27 +366,32 @@ class MediaManagement {
     }
 
     bindIntegrateModalEvents() {
-        let $mainModal = $('#filament_media_modal')
-        let _self = this
-        $mainModal.off('click', '.js-insert-to-editor').on('click', '.js-insert-to-editor', (event) => {
-            event.preventDefault()
-            let selectedFiles = Helpers.getSelectedFiles()
+        const $mainModal = $('#filament_media_modal')
+        const _self = this
+
+        $mainModal.off('click', '.js-insert-to-editor').on('click', '.js-insert-to-editor', (e) => {
+            if (e) e.preventDefault()
+            const selectedFiles = Helpers.getSelectedFiles()
             if (Helpers.size(selectedFiles) > 0) {
-                window.FilamentMedia.options.onSelectFiles(selectedFiles, window.FilamentMedia.$el)
+                if (window.FilamentMedia.options && typeof window.FilamentMedia.options.onSelectFiles === 'function') {
+                    window.FilamentMedia.options.onSelectFiles(selectedFiles, window.FilamentMedia.$el)
+                }
                 if (_self.checkFileTypeSelect(selectedFiles)) {
                     $mainModal.find('.btn-close').trigger('click')
                 }
             }
         })
 
-        $mainModal
-            .off('dblclick doubletap', '.js-media-list-title[data-context="file"]')
-            .on('dblclick doubletap', '.js-media-list-title[data-context="file"]', (event) => {
-                event.preventDefault()
-                if (Helpers.getConfigs().request_params.view_in !== 'trash') {
-                    let selectedFiles = Helpers.getSelectedFiles()
+        $mainModal.off('dblclick doubletap', '.js-media-list-title[data-context="file"]')
+            .on('dblclick doubletap', '.js-media-list-title[data-context="file"]', (e) => {
+                if (e) e.preventDefault()
+                const configs = Helpers.getConfigs()
+                if (configs && configs.request_params && configs.request_params.view_in !== 'trash') {
+                    const selectedFiles = Helpers.getSelectedFiles()
                     if (Helpers.size(selectedFiles) > 0) {
-                        window.FilamentMedia.options.onSelectFiles(selectedFiles, window.FilamentMedia.$el)
+                        if (window.FilamentMedia.options && typeof window.FilamentMedia.options.onSelectFiles === 'function') {
+                            window.FilamentMedia.options.onSelectFiles(selectedFiles, window.FilamentMedia.$el)
+                        }
                         if (_self.checkFileTypeSelect(selectedFiles)) {
                             $mainModal.find('.btn-close').trigger('click')
                         }
@@ -477,280 +402,153 @@ class MediaManagement {
             })
     }
 
-    // Scroll get more media
     scrollGetMore() {
-        let _self = this
-        let $mediaList = $('.fm-media-main .fm-media-items')
+        const _self = this
+        const $mediaList = $('.fm-media-main .fm-media-items')
 
-        // Handle both mouse wheel and touch scroll events
-        $mediaList.on('wheel scroll', function (e) {
-            let $target = $(e.currentTarget)
-            let scrollHeight = $target[0].scrollHeight
-            let scrollTop = $target.scrollTop()
-            let innerHeight = $target.innerHeight()
+        $mediaList.off('wheel scroll').on('wheel scroll', function (e) {
+            const $target = $(e.currentTarget)
+            if (!$target.length) return
+            const threshold = $target.closest('.media-modal').length > 0 ? 450 : 150
+            const loadMore = $target.scrollTop() + $target.innerHeight() >= $target[0].scrollHeight - threshold
 
-            let threshold = $target.closest('.media-modal').length > 0 ? 450 : 150
-            let loadMore = scrollTop + innerHeight >= scrollHeight - threshold
-
-            if (loadMore && FilamentMediaConfig.pagination?.has_more) {
+            if (loadMore && MediaConfig.pagination && MediaConfig.pagination.has_more) {
                 _self.MediaService.getMedia(false, false, true)
             }
         })
     }
 
     static lightbox(items) {
-        console.log(items);
-        if (!items || !items.length) {
-            return
-        }
-
+        if (!items || !items.length) return
         let currentIndex = 0
-        const $body = $('body')
         const $overlay = $('<div id="filament-media-lightbox"></div>').css({
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.9)',
-            zIndex: 99999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
+            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.9)', zIndex: 99999, display: 'flex',
+            alignItems: 'center', justifyContent: 'center', flexDirection: 'column',
         })
         const $close = $('<button type="button">&times;</button>').css({
-            position: 'absolute',
-            top: '20px',
-            right: '30px',
-            background: 'transparent',
-            border: 'none',
-            color: '#fff',
-            fontSize: '30px',
-            cursor: 'pointer',
-            zIndex: 100000,
+            position: 'absolute', top: '20px', right: '30px', background: 'transparent',
+            border: 'none', color: '#fff', fontSize: '30px', cursor: 'pointer'
         })
-        const $content = $('<div></div>').css({
-            maxWidth: '90%',
-            maxHeight: '90%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-        })
-        const $prev = $('<button type="button">&lt;</button>').css({
-            position: 'absolute',
-            left: '15%',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            background: 'transparent',
-            border: 'none',
-            color: '#fff',
-            fontSize: '40px',
-            cursor: 'pointer',
-            display: 'none',
-        })
-        const $next = $('<button type="button">&gt;</button>').css({
-            position: 'absolute',
-            right: '15%',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            background: 'transparent',
-            border: 'none',
-            color: '#fff',
-            fontSize: '40px',
-            cursor: 'pointer',
-            display: 'none',
-        })
+        const $content = $('<div></div>').css({ maxWidth: '90%', maxHeight: '90%' })
+        const $prev = $('<button type="button">&lt;</button>').css({ position: 'absolute', left: '5%', color: '#fff', fontSize: '40px', background: 'none', border: 'none' })
+        const $next = $('<button type="button">&gt;</button>').css({ position: 'absolute', right: '5%', color: '#fff', fontSize: '40px', background: 'none', border: 'none' })
 
         const showItem = (index) => {
             $content.empty()
             const item = items[index]
-
             if (item instanceof HTMLElement) {
                 $content.append(item)
-            } else if (typeof item === 'string') {
-                const $img = $('<img>').attr('src', item).css({
-                    maxWidth: '100%',
-                    maxHeight: '90vh',
-                    objectFit: 'contain',
-                })
-                $content.append($img)
+            } else {
+                $content.append($('<img>').attr('src', item).css({ maxWidth: '100%', maxHeight: '90vh' }))
             }
-
-            if (items.length > 1) {
-                if (index > 0) $prev.show()
-                else $prev.hide()
-                if (index < items.length - 1) $next.show()
-                else $next.hide()
-            }
+            $prev.toggle(index > 0)
+            $next.toggle(index < items.length - 1)
         }
 
-        $overlay.append($close).append($content)
-        if (items.length > 1) {
-            $overlay.append($prev).append($next)
-        }
-
-        $body.append($overlay)
+        $overlay.append($close, $content, $prev, $next).appendTo('body')
         showItem(currentIndex)
 
-        const closeLightbox = () => {
-            $overlay.remove()
-            $(document).off('keydown.lightbox')
-        }
-
-        $close.on('click', closeLightbox)
-        $overlay.on('click', (e) => {
-            if (e.target === $overlay[0]) closeLightbox()
-        })
-
-        $prev.on('click', (e) => {
-            e.stopPropagation()
-            if (currentIndex > 0) showItem(--currentIndex)
-        })
-        $next.on('click', (e) => {
-            e.stopPropagation()
-            if (currentIndex < items.length - 1) showItem(++currentIndex)
-        })
-
+        const close = () => { $overlay.remove(); $(document).off('keydown.lightbox') }
+        $close.on('click', close)
+        $overlay.on('click', (e) => { if (e.target === $overlay[0]) close() })
+        $prev.on('click', (e) => { if (e) e.stopPropagation(); showItem(--currentIndex) })
+        $next.on('click', (e) => { if (e) e.stopPropagation(); showItem(++currentIndex) })
         $(document).on('keydown.lightbox', (e) => {
-            if (e.key === 'Escape') closeLightbox()
+            if (e.key === 'Escape') close()
             if (e.key === 'ArrowLeft' && currentIndex > 0) showItem(--currentIndex)
             if (e.key === 'ArrowRight' && currentIndex < items.length - 1) showItem(++currentIndex)
         })
     }
 
-    static showButtonLoading(element, overlay = true, position = 'start') {
-        if (overlay && element) {
-            $(element).addClass('btn-loading').attr('disabled', true)
-
-            return
-        }
-
-        const loading = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>'
-        const icon = $(element).find('svg')
-
-        if (icon.length) {
-            icon.addClass('d-none')
-        }
-
-        if (position === 'start') {
-            $(element).prepend(loading)
-        } else if (position === 'end') {
-            $(element).append(loading)
-        }
+    static showButtonLoading(element) {
+        if (!element) return
+        $(element).addClass('btn-loading').attr('disabled', true)
+            .prepend('<span class="spinner-border spinner-border-sm me-2"></span>')
+            .find('svg').addClass('d-none')
     }
 
     static hideButtonLoading(element) {
-        if (!element) {
-            return
-        }
-
-        if ($(element).hasClass('btn-loading')) {
-            $(element).removeClass('btn-loading').removeAttr('disabled')
-
-            return
-        }
-
-        $(element).find('.spinner-border').remove()
+        if (!element) return
+        $(element).removeClass('btn-loading').removeAttr('disabled')
+            .find('.spinner-border').remove()
         $(element).find('svg').removeClass('d-none')
     }
 
-    /**
-     * @param {HTMLElement} element
-     */
-    static showLoading(element = null) {
-        if (!element) {
-            element = document.querySelector('.page-wrapper')
-        }
-
-        if ($(element).find('.loading-spinner').length) {
-            return
-        }
-
-        $(element).addClass('position-relative')
-        $(element).append('<div class="loading-spinner"></div>')
-    }
-
-    static hideLoading(element = null) {
-        if (!element) {
-            element = document.querySelector('.page-wrapper')
-        }
-
-        $(element).removeClass('position-relative')
-        $(element).find('.loading-spinner').remove()
-    }
-
-    static async copyToClipboard(textToCopy, parentTarget) {
-        console.log('copyToClipboard', textToCopy, parentTarget);
-        if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(textToCopy)
-        } else {
-            this.unsecuredCopyToClipboard(textToCopy, parentTarget)
+    static showLoading(element = document.querySelector('.page-wrapper')) {
+        const $el = $(element)
+        if ($el.length && !$el.find('.loading-spinner').length) {
+            $el.addClass('position-relative').append('<div class="loading-spinner"></div>')
         }
     }
 
-    static unsecuredCopyToClipboard(textToCopy, parentTarget) {
-        parentTarget = parentTarget || document.body
-        const textArea = document.createElement('textarea')
-        textArea.value = textToCopy
-        textArea.style.position = 'absolute'
-        textArea.style.left = '-999999px'
-        parentTarget.append(textArea)
-        textArea.select()
+    static hideLoading(element = document.querySelector('.page-wrapper')) {
+        $(element).removeClass('position-relative').find('.loading-spinner').remove()
+    }
 
+    static async copyToClipboard(text, target = document.body) {
         try {
-            document.execCommand('copy')
-        } catch (error) {
-            console.error('Unable to copy to clipboard', error)
-        }
-
-        parentTarget.removeChild(textArea)
+            if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+                await navigator.clipboard.writeText(text)
+            } else {
+                const area = document.createElement('textarea')
+                area.value = text
+                area.style.position = 'fixed'
+                area.style.left = '-9999px'
+                target.appendChild(area)
+                area.select()
+                document.execCommand('copy')
+                area.remove()
+            }
+        } catch (err) { console.error('Copy failed', err) }
     }
 
-    static showNotice(messageType, message, messageHeader = '') {
-        // Ensure per-class storage even if called via window.FilamentMedia.showNotice
-        MediaManagement.noticesTimeout = MediaManagement.noticesTimeout || {}
-
-        const key = `notices_msg.${messageType}.${message}`
-
-        if (MediaManagement.noticesTimeout[key]) {
-            clearTimeout(MediaManagement.noticesTimeout[key])
-        }
-
-        MediaManagement.noticesTimeout[key] = setTimeout(() => {
-            // Filament listens for `notify` events on window
-            window.dispatchEvent(
-                new CustomEvent('notify', {
-                    detail: {
-                        status: messageType === 'error' ? 'danger' : 'success',
-                        message: messageHeader ? `${messageHeader}: ${message}` : message,
-                        duration: 5000,
-                    },
-                })
-            )
+    static showNotice(type, message, header = '') {
+        const key = `${type}.${message}`
+        if (this.noticesTimeout[key]) clearTimeout(this.noticesTimeout[key])
+        this.noticesTimeout[key] = setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('notify', {
+                detail: {
+                    status: type === 'error' ? 'danger' : 'success',
+                    message: header ? `${header}: ${message}` : message,
+                    duration: 5000
+                }
+            }))
         }, 200)
     }
-
 }
 
 const initMediaManagement = () => {
-    if (!document.querySelector('.fm-media-container')) {
-        return
+    // 1. Check if the container exists
+    if (!document.querySelector('.fm-media-container')) return
+    
+    // 2. Safely check for jQuery before using $
+    const $ = window.jQuery || window.$;
+    if (!$) {
+        console.warn('FilamentMedia: Waiting for jQuery...');
+        setTimeout(initMediaManagement, 100);
+        return;
     }
 
     window.FilamentMedia = window.FilamentMedia || {}
+    Object.assign(window.FilamentMedia, {
+        copyToClipboard: MediaManagement.copyToClipboard,
+        showButtonLoading: MediaManagement.showButtonLoading,
+        hideButtonLoading: MediaManagement.hideButtonLoading,
+        showLoading: MediaManagement.showLoading,
+        hideLoading: MediaManagement.hideLoading,
+        showNotice: MediaManagement.showNotice,
+        lightbox: MediaManagement.lightbox
+    })
 
-    // Expose helpers for other modules
-    window.FilamentMedia.copyToClipboard = MediaManagement.copyToClipboard
-    window.FilamentMedia.showButtonLoading = MediaManagement.showButtonLoading
-    window.FilamentMedia.hideButtonLoading = MediaManagement.hideButtonLoading
-    window.FilamentMedia.showLoading = MediaManagement.showLoading
-    window.FilamentMedia.hideLoading = MediaManagement.hideLoading
-    window.FilamentMedia.showNotice = MediaManagement.showNotice
-    window.FilamentMedia.lightbox = MediaManagement.lightbox
-
-    new MediaManagement().init()
+    // Now it's safe to use $
+    $(() => {
+        new MediaManagement().init();
+    });
 }
 
-$(initMediaManagement)
-document.addEventListener('livewire:navigated', initMediaManagement)
+// Start the check
+initMediaManagement();
+
+// Keep the Livewire listener for SPA navigation
+document.addEventListener('livewire:navigated', initMediaManagement);

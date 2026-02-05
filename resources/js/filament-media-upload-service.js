@@ -27,7 +27,7 @@ export class UploadService {
     }
 
     init() {
-        console.log('init upload service');
+        
         if (!document.querySelector('.fm-media-items')) {
             return
         }
@@ -50,7 +50,7 @@ export class UploadService {
         _self.filesUpload = 0
 
         const dropzoneElement = document.querySelector('.fm-media-items')
-        console.log('dropzoneElement', dropzoneElement);
+        
         if (!dropzoneElement) {
             return
         }
@@ -111,7 +111,7 @@ export class UploadService {
         })
 
         _self.dropZone.on('sending', (file) => {
-            console.log('sending', file);
+            
             _self.initProgress(file.name, file.size, file.index)
         })
 
@@ -182,9 +182,8 @@ export class UploadService {
         const $label = $progressLine.find('.file-status')
 
         const response = Helpers.jsonDecode(file.xhr.responseText || '', {})
-        console.log('response', response);
         const isError = response.error === true || file.status === 'error'
-        console.log('isError', isError);
+        
 
         _self.totalError = _self.totalError + (isError ? 1 : 0)
 
@@ -197,25 +196,27 @@ export class UploadService {
         }
 
         if (file.status === 'error') {
-            console.log('file xhr status', file.xhr.status);
             if (file.xhr.status === 422) {
-                let errorHtml = ''
+                const $errorContainer = $progressLine.find('.file-error').empty();
                 $.each(response.errors, (key, item) => {
-                    errorHtml += `<span class="text-danger">${item}</span><br>`
+                    $('<span>').addClass('text-danger').text(item).appendTo($errorContainer);
+                    $('<br>').appendTo($errorContainer);
                 })
-                $progressLine.find('.file-error').html(errorHtml)
-                console.log('error html', errorHtml);
+                console.error('error', response.errors);
             } else if (file.xhr.status === 500) {
-                $progressLine.find('.file-error').html(`<span class="text-danger">${file.xhr.statusText}</span>`)
+                $progressLine.find('.file-error').empty().append(
+                    $('<span>').addClass('text-danger').text(file.xhr.statusText)
+                );
             }
 
             $progressLine.find('.progress-percent').html('');
         } else if (response.error) {
-            console.log('response error message', response.message);
-            $progressLine.find('.file-error').html(`<span class="text-danger">${response.message}</span>`)
+            console.error('response error message', response.message);
+            $progressLine.find('.file-error').empty().append(
+                $('<span>').addClass('text-danger').text(response.message)
+            );
             $progressLine.find('.progress-percent').html('');
         } else {
-            console.log('response success', response);
             Helpers.addToRecent(response.data.id)
             Helpers.setSelectedFile(response.data.id)
         }
@@ -245,7 +246,7 @@ export class UploadService {
     }
 
     getDropZoneConfig() {
-        console.log('getDropZoneConfig'), FilamentMediaConfig.chunk.chunk_size;
+        
         return {
             url: this.uploadUrl,
             uploadMultiple: !FilamentMediaConfig.chunk.enabled,
