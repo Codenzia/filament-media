@@ -81,8 +81,12 @@ class MediaManagement {
         const updateActiveState = (type, value) => {
             const $item = $(`.js-fm-media-change-filter[data-type="${type}"][data-value="${value}"]`)
             if ($item.length) {
-                $item.closest('button.dropdown-item').addClass('active')
-                    .closest('.dropdown').find('.js-fm-media-filter-current').html(`(${$item.text().trim()})`)
+                $(`.js-fm-media-change-filter[data-type="${type}"]`).removeClass('active')
+                $item.addClass('active')
+                const $currentLabel = $(`.js-filter-by-${type.replace('_', '-')}`).find('.js-fm-media-filter-current')
+                if ($currentLabel.length) {
+                    $currentLabel.html(`(${$item.text().trim()})`)
+                }
             }
         }
 
@@ -220,7 +224,7 @@ class MediaManagement {
             })
 
         const currentParams = Helpers.getRequestParams()
-        $(`.js-fm-media-change-view-type .btn[data-type="${currentParams.view_type}"]`).trigger('click')
+        $(`.js-fm-media-change-view-type button[data-type="${currentParams.view_type}"]`).trigger('click')
         this.bindIntegrateModalEvents()
     }
 
@@ -245,8 +249,13 @@ class MediaManagement {
             }
 
             // Update Labels
-            $current.closest('.dropdown').find('.js-fm-media-filter-current').html(`(${$current.text().trim()})`)
-            $current.addClass('active').siblings().removeClass('active')
+            const $currentLabel = $(`.js-filter-by-${data.type.replace('_', '-')}`).find('.js-fm-media-filter-current')
+            if ($currentLabel.length) {
+                $currentLabel.html(`(${$current.text().trim()})`)
+            }
+
+            $(`.js-fm-media-change-filter[data-type="${data.type}"]`).removeClass('active')
+            $current.addClass('active')
 
             Helpers.storeConfig()
             

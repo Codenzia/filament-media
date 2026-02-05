@@ -91,7 +91,7 @@
                                                         type="button"
                                                         color="primary"
                                                         icon="heroicon-m-funnel"
-                                                        class="js-fm-media-change-filter-group js-filter-by-type bg-white dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
+                                                        class="js-fm-media-change-filter-group js-filter-by-filter bg-white dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
                                                         :tooltip="trans('filament-media::media.filter')"
                                                         :label="trans('filament-media::media.filter')"
                                                         size="lg"
@@ -255,9 +255,9 @@
                                                 <x-filament::button
                                                     icon="heroicon-m-document-arrow-up"
                                                     size="lg"
-                                                    class="px-4 py-2 shadow-sm bg-transparent dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
+                                                    class="js-filter-by-sort-by px-4 py-2 shadow-sm bg-transparent dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
                                                 >
-                                                    {{ trans('filament-media::media.sort') }}
+                                                    {{ trans('filament-media::media.sort') }} <span class="js-fm-media-filter-current"></span>
                                                 </x-filament::button>
                                             </x-slot:trigger>
 
