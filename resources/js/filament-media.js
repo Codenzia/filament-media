@@ -82,20 +82,13 @@ class MediaManagement {
             const $item = $(`.js-fm-media-change-filter[data-type="${type}"][data-value="${value}"]`)
             if ($item.length) {
                 $item.closest('button.dropdown-item').addClass('active')
-                    .closest('.dropdown').find('.js-fm-media-filter-current').html(`(${$item.html()})`)
+                    .closest('.dropdown').find('.js-fm-media-filter-current').html(`(${$item.text().trim()})`)
             }
         }
 
         updateActiveState('filter', params.filter)
         updateActiveState('view_in', params.view_in)
-        
-        /**
-         * Sort
-         */
-        const $sortBy = $(`.js-fm-media-change-filter[data-type="sort_by"][data-value="${params.sort_by}"]`)
-        if ($sortBy.length) {
-            $sortBy.closest('button.dropdown-item').addClass('active')
-        }
+        updateActiveState('sort_by', params.sort_by)
 
         if (Helpers.isUseInModal()) {
             $('.fm-media-footer').removeClass('d-none')
@@ -251,12 +244,14 @@ class MediaManagement {
                 $('.js-insert-to-editor').prop('disabled', data.value === 'trash')
             }
 
-            $current.closest('.dropdown').find('.js-fm-media-filter-current').html(`(${$current.html()})`)
+            // Update Labels
+            $current.closest('.dropdown').find('.js-fm-media-filter-current').html(`(${$current.text().trim()})`)
             $current.addClass('active').siblings().removeClass('active')
 
             Helpers.storeConfig()
-            if (_self.MediaService.constructor.refreshFilter) {
-                _self.MediaService.constructor.refreshFilter()
+            
+            if (MediaService.refreshFilter) {
+                MediaService.refreshFilter()
             }
             
             Helpers.resetPagination()
@@ -267,9 +262,12 @@ class MediaManagement {
     search() {
         const _self = this
         const currentSearch = Helpers.getRequestParams().search || ''
-        $('.input-search-wrapper input[type="text"]').val(currentSearch)
+        const $searchForm = $('.fm-media-search form')
+        const $searchInput = $('.fm-media-search input[name="search"]')
         
-        _self.$body.off('submit', '.input-search-wrapper').on('submit', '.input-search-wrapper', (event) => {
+        $searchInput.val(currentSearch)
+        
+        _self.$body.off('submit', '.fm-media-search form').on('submit', '.fm-media-search form', (event) => {
             if (event) event.preventDefault()
             MediaConfig.request_params.search = $(event.currentTarget).find('input[name="search"]').val()
             Helpers.storeConfig()

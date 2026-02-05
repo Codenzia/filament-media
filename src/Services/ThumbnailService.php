@@ -120,7 +120,9 @@ class ThumbnailService
     /**
      * Generate a thumbnail with the specified size.
      *
+     * @param string $sourcePath
      * @param string $size Format: "WIDTHxHEIGHT" (e.g., "150x150")
+     * @param string $destinationPath
      * @return string The path to the saved thumbnail
      */
     public function generateThumbnail(string $sourcePath, string $size, string $destinationPath): string
