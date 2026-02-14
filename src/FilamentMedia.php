@@ -36,6 +36,7 @@ use League\Flysystem\UnableToWriteFile;
 use Codenzia\FilamentMedia\Services\ThumbnailService;
 use Codenzia\FilamentMedia\Services\UploadsManager;
 use Illuminate\Validation\Rules\File as ValidationFile;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class FilamentMedia
 {
@@ -245,30 +246,39 @@ class FilamentMedia
         $path = $path ? trim($path) : $path;
 
         if (Str::contains($path, ['http://', 'https://'])) {
-            return $path;
+            return $this->normalizeUrl($path);
         }
 
         if ($this->getMediaDriver() === 'do_spaces' && (int) \setting('media_do_spaces_cdn_enabled')) {
             $customDomain = \setting('media_do_spaces_cdn_custom_domain');
 
             if ($customDomain) {
-                return $customDomain . '/' . ltrim($path, '/');
+                return $this->normalizeUrl(rtrim($customDomain, '/') . '/' . ltrim($path, '/'));
             }
 
-            return str_replace('.digitaloceanspaces.com', '.cdn.digitaloceanspaces.com', Storage::url($path));
+            return $this->normalizeUrl(str_replace('.digitaloceanspaces.com', '.cdn.digitaloceanspaces.com', Storage::url($path)));
         } else {
             if ($this->getMediaDriver() === 'backblaze' && (int) \setting('media_backblaze_cdn_enabled')) {
                 $customDomain = \setting('media_backblaze_cdn_custom_domain');
                 $currentEndpoint = \setting('media_backblaze_endpoint');
                 if ($customDomain) {
-                    return $customDomain . '/' . ltrim($path, '/');
+                    return $this->normalizeUrl(rtrim($customDomain, '/') . '/' . ltrim($path, '/'));
                 }
 
-                return str_replace($currentEndpoint, $customDomain, Storage::url($path));
+                return $this->normalizeUrl(str_replace($currentEndpoint, $customDomain, Storage::url($path)));
             }
         }
 
-        return Storage::url($path);
+        return $this->normalizeUrl(Storage::url($path));
+    }
+
+    /**
+     * Normalize URL to fix common issues like double slashes (except after protocol).
+     */
+    protected function normalizeUrl(string $url): string
+    {
+        // Fix double slashes in path (but not in protocol)
+        return preg_replace('#(?<!:)//+#', '/', $url);
     }
 
     public function getDefaultImage(bool $relative = false, ?string $size = null): string
@@ -302,19 +312,31 @@ class FilamentMedia
 
     public function deleteFile(MediaFile $file): bool
     {
+        // Try to delete thumbnails (ignore errors if files don't exist)
         $this->deleteThumbnails($file);
 
+        // If file doesn't exist on disk, that's okay - just return true
+        // The database record will still be deleted
         if (! $this->isUsingCloud() && ! Storage::exists($file->url)) {
-            return false;
+            return true;
         }
 
-        return Storage::delete($file->url);
+        try {
+            return Storage::delete($file->url);
+        } catch (\Throwable $e) {
+            // Log but don't fail - the database record is already deleted
+            logger()->warning('Failed to delete file from disk', [
+                'file' => $file->url,
+                'error' => $e->getMessage(),
+            ]);
+            return true;
+        }
     }
 
     public function deleteThumbnails(MediaFile $file): bool
     {
         if (! $file->canGenerateThumbnails()) {
-            return false;
+            return true;
         }
 
         $filename = pathinfo($file->url, PATHINFO_FILENAME);
@@ -324,12 +346,39 @@ class FilamentMedia
             $files[] = str_replace($filename, $filename . '-' . $size, $file->url);
         }
 
-        return Storage::delete($files);
+        try {
+            return Storage::delete($files);
+        } catch (\Throwable $e) {
+            // Ignore errors when deleting thumbnails - they may not exist
+            return true;
+        }
     }
+
+    /**
+     * Default permissions that are always included.
+     * These ensure basic operations work even if config hasn't been updated.
+     */
+    protected array $defaultPermissions = [
+        'folders.create',
+        'folders.edit',
+        'folders.trash',
+        'folders.destroy',
+        'folders.favorite',
+        'files.create',
+        'files.read',
+        'files.edit',
+        'files.trash',
+        'files.destroy',
+        'files.favorite',
+        'settings.access',
+    ];
 
     public function getPermissions(): array
     {
-        return $this->permissions ?: $this->getConfig('permissions', []);
+        $configPermissions = $this->permissions ?: $this->getConfig('permissions', []);
+
+        // Merge with default permissions to ensure basic operations always work
+        return array_unique(array_merge($this->defaultPermissions, $configPermissions));
     }
 
     public function setPermissions(array $permissions): void
@@ -349,21 +398,20 @@ class FilamentMedia
 
     public function hasPermission(string $permission): bool
     {
-        return in_array($permission, $this->permissions);
+        return in_array($permission, $this->getPermissions());
     }
 
     public function hasAnyPermission(array $permissions): bool
     {
-        $hasPermission = false;
-        foreach ($permissions as $permission) {
-            if (in_array($permission, $this->permissions)) {
-                $hasPermission = true;
+        $availablePermissions = $this->getPermissions();
 
-                break;
+        foreach ($permissions as $permission) {
+            if (in_array($permission, $availablePermissions)) {
+                return true;
             }
         }
 
-        return $hasPermission;
+        return false;
     }
 
     public function addSize(string $name, int|string $width, int|string $height = 'auto'): self
@@ -557,7 +605,6 @@ class FilamentMedia
             $fileExtension = $fileUpload->getClientOriginalExtension() ?: $fileUpload->guessExtension();
 
             $fileExtension = strtolower($fileExtension);
-
             if (
                 ! $skipValidation
                 && ! in_array(strtolower($fileExtension), explode(',', $allowedMimeTypes))
@@ -607,55 +654,11 @@ class FilamentMedia
                 $filePath = $this->getCustomS3Path() . $filePath;
             }
 
-            if ($this->canGenerateThumbnails($fileUpload->getMimeType())) {
-                $originalFilePath = $filePath;
-
-                try {
-                    $encoder = new AutoEncoder();
-                    $shouldConvertToWebp = in_array($fileExtension, ['jpg', 'jpeg', 'png'])
-                        && \setting('media_convert_image_to_webp', false);
-
-                    $keepOriginalQuality = \setting('media_keep_original_file_size_and_quality');
-
-                    if ($shouldConvertToWebp) {
-                        $encoder = new WebpEncoder();
-
-                        if ($keepOriginalQuality) {
-                            $encoder = new WebpEncoder(quality: 100);
-                        }
-
-                        $dirName = File::dirname($filePath);
-                        $filePath = ($dirName === '.' ? '' : $dirName . '/') . File::name($filePath) . '.webp';
-                    }
-
-                    if ($keepOriginalQuality && ! $shouldConvertToWebp) {
-                        $content = File::get($fileUpload->getRealPath());
-                    } else {
-                        $image = $this->imageManager()->read($fileUpload->getRealPath());
-
-                        if (
-                            ! $keepOriginalQuality
-                            && in_array($fileExtension, ['jpg', 'jpeg', 'png', 'webp'])
-                            && \setting('media_reduce_large_image_size', false)
-                        ) {
-                            $maxWith = \setting('media_image_max_width');
-
-                            $maxHeight = \setting('media_image_max_height');
-
-                            if ($maxWith || $maxHeight) {
-                                $image->scaleDown($maxWith, $maxHeight);
-                            }
-                        }
-
-                        $content = $image->encode($encoder);
-                    }
-                } catch (Throwable $exception) {
-                    BaseHelper::logError($exception);
-
-                    $content = File::get($fileUpload->getRealPath());
-
-                    $filePath = $originalFilePath;
-                }
+            // Read file content - use Livewire's storage-aware method for TemporaryUploadedFile
+            // This skips Intervention Image processing during upload for reliability
+            // Image resizing/conversion happens during thumbnail generation instead
+            if ($fileUpload instanceof TemporaryUploadedFile) {
+                $content = $fileUpload->get();
             } else {
                 $content = File::get($fileUpload->getRealPath());
             }
@@ -786,10 +789,24 @@ class FilamentMedia
                 continue;
             }
 
+            // Get the full destination path for local storage
+            // For local storage, we need the full filesystem path
+            // For cloud storage, we use the relative path within the bucket
+            if ($this->isUsingCloud()) {
+                $destinationPath = ($dirName === '.' || ! $dirName) ? '' : $dirName;
+            } else {
+                // Get the storage disk root path and append the directory
+                $disk = $this->getMediaDriver();
+                $storagePath = Storage::disk($disk)->path('');
+                $destinationPath = ($dirName === '.' || ! $dirName)
+                    ? rtrim($storagePath, '/\\')
+                    : $storagePath . $dirName;
+            }
+
             $this->thumbnailService
                 ->setImage($fileUpload)
                 ->setSize($readableSize[0], $readableSize[1])
-                ->setDestinationPath(File::dirname($file->url))
+                ->setDestinationPath($destinationPath)
                 ->setFileName($thumbnailFileName)
                 ->save();
         }
@@ -1576,20 +1593,65 @@ class FilamentMedia
 
     public function imageManager(?string $driver = null): ImageManager
     {
-        if (! $driver) {
-            $driver = GdDriver::class;
-
-            if ($this->getImageProcessingLibrary() === 'imagick' && extension_loaded('imagick')) {
-                $driver = ImagickDriver::class;
-            }
+        // Use static factory methods for Intervention Image v3
+        if ($this->getImageProcessingLibrary() === 'imagick' && extension_loaded('imagick')) {
+            return ImageManager::imagick();
         }
 
-        return new ImageManager($driver);
+        return ImageManager::gd();
     }
 
     public function canOnlyViewOwnMedia(): bool
     {
         return false;
+    }
+
+    /**
+     * Get the maximum upload file size in bytes.
+     */
+    public function getMaxSize(): int
+    {
+        // Check setting first (stored in bytes in database)
+        $maxUploadFilesizeAllowed = \setting('media_max_file_size');
+        if ($maxUploadFilesizeAllowed) {
+            return (int) $maxUploadFilesizeAllowed;
+        }
+
+        // Fall back to server config (parseSize already returns bytes)
+        return (int) $this->getServerConfigMaxUploadFileSize();
+    }
+
+    /**
+     * Get the human-readable maximum upload file size.
+     */
+    public function getMaxSizeForHumans(): string
+    {
+        return BaseHelper::humanFilesize($this->getMaxSize());
+    }
+
+    /**
+     * Get allowed MIME types as an array.
+     */
+    public function getAllowedMimeTypes(): array
+    {
+        $allowedMimeTypes = $this->getConfig('allowed_mime_types', '');
+
+        if (empty($allowedMimeTypes)) {
+            return [];
+        }
+
+        // The config stores file extensions, not MIME types
+        $extensions = array_map('trim', explode(',', $allowedMimeTypes));
+
+        return $extensions;
+    }
+
+    /**
+     * Get allowed MIME types as a comma-separated string.
+     */
+    public function getAllowedMimeTypesString(): string
+    {
+        return $this->getConfig('allowed_mime_types', '');
     }
 
     public function responseDownloadFile(string $filePath)

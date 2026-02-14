@@ -140,3 +140,125 @@ describe('MediaSetting Factory States', function () {
         expect($setting->media_id)->toBe($file->id);
     });
 });
+
+describe('MediaSetting System Settings', function () {
+    it('filters to system settings with scopeSystem', function () {
+        // Create a system setting (no user_id, no media_id)
+        MediaSetting::factory()->create([
+            'key' => 'system-setting',
+            'value' => 'system-value',
+            'user_id' => null,
+            'media_id' => null,
+        ]);
+
+        // Create a user setting
+        MediaSetting::factory()->create([
+            'key' => 'user-setting',
+            'value' => 'user-value',
+            'user_id' => 1,
+        ]);
+
+        // Create a media setting
+        $file = MediaFile::factory()->create();
+        MediaSetting::factory()->create([
+            'key' => 'media-setting',
+            'value' => 'media-value',
+            'media_id' => $file->id,
+        ]);
+
+        $systemSettings = MediaSetting::system()->get();
+
+        expect($systemSettings)->toHaveCount(1)
+            ->and($systemSettings->first()->key)->toBe('system-setting');
+    });
+
+    it('can get system setting with getSystemSetting', function () {
+        MediaSetting::factory()->create([
+            'key' => 'media_driver',
+            'value' => 's3',
+            'user_id' => null,
+            'media_id' => null,
+        ]);
+
+        $value = MediaSetting::getSystemSetting('media_driver');
+
+        expect($value)->toBe('s3');
+    });
+
+    it('returns default when system setting not found', function () {
+        $value = MediaSetting::getSystemSetting('nonexistent_setting', 'default-value');
+
+        expect($value)->toBe('default-value');
+    });
+
+    it('can create new system setting with setSystemSetting', function () {
+        MediaSetting::setSystemSetting('media_max_file_size', 10485760);
+
+        $setting = MediaSetting::system()->where('key', 'media_max_file_size')->first();
+
+        expect($setting)->not->toBeNull()
+            ->and($setting->value)->toBe(10485760)
+            ->and($setting->user_id)->toBeNull()
+            ->and($setting->media_id)->toBeNull();
+    });
+
+    it('updates existing system setting with setSystemSetting', function () {
+        MediaSetting::factory()->create([
+            'key' => 'media_driver',
+            'value' => 'public',
+            'user_id' => null,
+            'media_id' => null,
+        ]);
+
+        MediaSetting::setSystemSetting('media_driver', 's3');
+
+        expect(MediaSetting::system()->where('key', 'media_driver')->count())->toBe(1)
+            ->and(MediaSetting::getSystemSetting('media_driver'))->toBe('s3');
+    });
+
+    it('returns all system settings as key-value array with getAllSystemSettings', function () {
+        MediaSetting::factory()->create([
+            'key' => 'media_driver',
+            'value' => 's3',
+            'user_id' => null,
+            'media_id' => null,
+        ]);
+
+        MediaSetting::factory()->create([
+            'key' => 'media_max_file_size',
+            'value' => 10485760,
+            'user_id' => null,
+            'media_id' => null,
+        ]);
+
+        // This should not be included
+        MediaSetting::factory()->create([
+            'key' => 'user_preference',
+            'value' => 'grid',
+            'user_id' => 1,
+        ]);
+
+        $settings = MediaSetting::getAllSystemSettings();
+
+        expect($settings)->toBeArray()
+            ->and($settings)->toHaveKey('media_driver')
+            ->and($settings)->toHaveKey('media_max_file_size')
+            ->and($settings)->not->toHaveKey('user_preference')
+            ->and($settings['media_driver'])->toBe('s3')
+            ->and($settings['media_max_file_size'])->toBe(10485760);
+    });
+
+    it('can batch set multiple system settings with setSystemSettings', function () {
+        $settings = [
+            'media_driver' => 'r2',
+            'media_max_file_size' => 52428800,
+            'media_generate_thumbnails_enabled' => true,
+        ];
+
+        MediaSetting::setSystemSettings($settings);
+
+        expect(MediaSetting::getSystemSetting('media_driver'))->toBe('r2')
+            ->and(MediaSetting::getSystemSetting('media_max_file_size'))->toBe(52428800)
+            ->and(MediaSetting::getSystemSetting('media_generate_thumbnails_enabled'))->toBe(true);
+    });
+});

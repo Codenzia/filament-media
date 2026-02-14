@@ -30,12 +30,14 @@ return [
         'folders.edit',
         'folders.trash',
         'folders.destroy',
+        'folders.favorite',
         'files.create',
+        'files.read',
         'files.edit',
         'files.trash',
         'files.destroy',
         'files.favorite',
-        'folders.favorite',
+        'settings.access',
     ],
     'allowed_mime_types' =>'jpg,jpeg,png,gif,txt,docx,zip,mp3,bmp,csv,xls,xlsx,ppt,pptx,pdf,mp4,m4v,doc,mpga,wav,webp,webm,mov,jfif,avif,rar,x-rar',
     'mime_types' => [
@@ -221,5 +223,21 @@ return [
     'allowed_download_domains' => [
         // 'example.com',
         // 'cdn.example.com',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Settings Page Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure the Media Settings admin page.
+    |
+    */
+    'settings' => [
+        // Enable/disable the settings page
+        'enabled' => true,
+
+        // Access control: 'all', 'super_admin', or a custom permission name
+        'access' => 'all',
     ],
 ];

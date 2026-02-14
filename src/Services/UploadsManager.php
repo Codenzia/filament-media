@@ -60,7 +60,7 @@ class UploadsManager
 
     protected function cleanFolder(string $folder): string
     {
-        return DIRECTORY_SEPARATOR . trim(str_replace('..', '', $folder), DIRECTORY_SEPARATOR);
+        return trim(str_replace(['..', '\\'], ['', '/'], $folder), '/');
     }
 
     public function deleteDirectory(string $folder): bool|string
@@ -98,7 +98,7 @@ class UploadsManager
         if (! FilamentMedia::isChunkUploadEnabled() || ! $file) {
             try {
                 return $storage->put($this->cleanFolder($path), $content, ['visibility' => $visibility]);
-            } catch (Exception|FilesystemException) {
+            } catch (Exception | FilesystemException) {
                 return $storage->put($this->cleanFolder($path), $content);
             }
         }
@@ -111,14 +111,14 @@ class UploadsManager
 
             try {
                 $result = Storage::writeStream($path, $stream, ['visibility' => $visibility]);
-            } catch (Exception|FilesystemException) {
+            } catch (Exception | FilesystemException) {
                 $result = Storage::writeStream($path, $stream);
             }
 
             if ($result) {
                 $disk->delete($currentChunksPath);
             }
-        } catch (Exception|FilesystemException) {
+        } catch (Exception | FilesystemException) {
             return $storage->put($this->cleanFolder($path), $content);
         }
 

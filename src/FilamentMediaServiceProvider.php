@@ -13,6 +13,7 @@ use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Codenzia\FilamentMedia\Commands\FilamentMediaCommand;
+use Livewire\Livewire;
 
 class FilamentMediaServiceProvider extends PackageServiceProvider
 {
@@ -82,6 +83,10 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
 
         // Load migrations directly so they run with php artisan migrate
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        // Register Livewire components
+        Livewire::component('filament-media::upload-modal', \Codenzia\FilamentMedia\Livewire\UploadModal::class);
+        Livewire::component('filament-media::preview-modal', \Codenzia\FilamentMedia\Livewire\PreviewModal::class);
         // Asset Registration
         FilamentAsset::register(
             $this->getAssets(),
@@ -140,6 +145,7 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
         return [
             FilamentMediaCommand::class,
             \Codenzia\FilamentMedia\Commands\SyncMediaCommand::class,
+            \Codenzia\FilamentMedia\Console\Commands\CleanupOrphanedMedia::class,
         ];
     }
 

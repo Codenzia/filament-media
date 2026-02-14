@@ -74,4 +74,72 @@ class MediaSetting extends BaseModel
 
         return static::updateOrCreate($attributes, ['value' => $value]);
     }
+
+    /**
+     * Scope to system-wide settings (no user or media association).
+     */
+    public function scopeSystem($query)
+    {
+        return $query->whereNull('user_id')->whereNull('media_id');
+    }
+
+    /**
+     * Get a system-wide setting value.
+     *
+     * @param string $key The setting key
+     * @param mixed $default Default value if not found
+     * @return mixed
+     */
+    public static function getSystemSetting(string $key, mixed $default = null): mixed
+    {
+        $setting = static::system()
+            ->where('key', $key)
+            ->first();
+
+        return $setting?->value ?? $default;
+    }
+
+    /**
+     * Set a system-wide setting value.
+     *
+     * @param string $key The setting key
+     * @param mixed $value The value to store
+     * @return static
+     */
+    public static function setSystemSetting(string $key, mixed $value): static
+    {
+        return static::updateOrCreate(
+            [
+                'key' => $key,
+                'user_id' => null,
+                'media_id' => null,
+            ],
+            ['value' => $value]
+        );
+    }
+
+    /**
+     * Get all system settings as an array.
+     *
+     * @return array
+     */
+    public static function getAllSystemSettings(): array
+    {
+        return static::system()
+            ->pluck('value', 'key')
+            ->toArray();
+    }
+
+    /**
+     * Set multiple system settings at once.
+     *
+     * @param array $settings Key-value pairs
+     * @return void
+     */
+    public static function setSystemSettings(array $settings): void
+    {
+        foreach ($settings as $key => $value) {
+            static::setSystemSetting($key, $value);
+        }
+    }
 }

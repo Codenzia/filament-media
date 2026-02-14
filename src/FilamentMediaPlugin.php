@@ -14,9 +14,16 @@ class FilamentMediaPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        $panel->pages([
+        $pages = [
             Pages\Media::class,
-        ]);
+        ];
+
+        // Register settings page if enabled in config
+        if (config('media.settings.enabled', true)) {
+            $pages[] = Pages\MediaSettings::class;
+        }
+
+        $panel->pages($pages);
     }
 
     public function boot(Panel $panel): void

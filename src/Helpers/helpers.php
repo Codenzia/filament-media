@@ -1,14 +1,18 @@
 <?php
 
+use Codenzia\FilamentMedia\Models\MediaSetting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 if (!function_exists('setting')) {
     /**
-     * Get a setting value from config or cache.
+     * Get a setting value from database, then config, with caching.
      *
      * This helper provides a unified way to access media settings.
-     * Settings are first looked up in the config, then cached for performance.
+     * Priority order:
+     * 1. Database (MediaSetting with system scope) - for runtime configuration
+     * 2. Config file (config/media.php) - for default/fallback values
+     * 3. Provided default value
      *
      * @param string $key The setting key (e.g., 'media_driver', 'media_max_file_size')
      * @param mixed $default Default value if setting is not found
@@ -16,48 +20,106 @@ if (!function_exists('setting')) {
      */
     function setting(string $key, mixed $default = null): mixed
     {
-        // Map common setting keys to their config equivalents
-        $configMap = [
-            'media_driver' => 'media.driver',
-            'media_max_file_size' => 'media.max_file_size',
-            'max_upload_filesize' => 'media.max_file_size',
-            'media_chunk_enabled' => 'media.chunk.enabled',
-            'media_chunk_size' => 'media.chunk.chunk_size',
-            'media_chunk_max_file_size' => 'media.chunk.max_file_size',
-            'media_watermark_enabled' => 'media.watermark.enabled',
-            'media_watermark_source' => 'media.watermark.source',
-            'media_watermark_position' => 'media.watermark.position',
-            'media_watermark_size' => 'media.watermark.size',
-            'media_watermark_opacity' => 'media.watermark.opacity',
-            'media_convert_file_name_to_uuid' => 'media.convert_file_name_to_uuid',
-            'media_use_original_name_for_file_path' => 'media.use_original_name_for_file_path',
-            'media_default_placeholder_image' => 'media.default_placeholder_image',
-            'media_sizes' => 'media.sizes',
-            'media_folders_can_have_colors' => 'media.folders_can_have_colors',
-            'media_turn_off_automatic_url_translation_into_latin' => 'media.turn_off_automatic_url_translation_into_latin',
-        ];
+        // Cache key for this setting
+        $cacheKey = 'filament-media.setting.' . $key;
 
-        // Check if we have a direct mapping
-        if (isset($configMap[$key])) {
-            return config($configMap[$key], $default);
-        }
+        // Try to get from cache first (5 minute cache)
+        return Cache::remember($cacheKey, 300, function () use ($key, $default) {
+            // 1. First, check database for system settings
+            try {
+                $dbValue = MediaSetting::getSystemSetting($key);
+                if ($dbValue !== null) {
+                    return $dbValue;
+                }
+            } catch (\Throwable $e) {
+                // Database might not be available (during migrations, etc.)
+                // Continue to config fallback
+            }
 
-        // Try to find in media config with the key directly
-        if (Str::startsWith($key, 'media_')) {
-            $configKey = 'media.' . Str::after($key, 'media_');
-            $value = config($configKey);
+            // 2. Map common setting keys to their config equivalents
+            $configMap = [
+                'media_driver' => 'media.driver',
+                'media_max_file_size' => 'media.max_file_size',
+                'max_upload_filesize' => 'media.max_file_size',
+                'media_chunk_enabled' => 'media.chunk.enabled',
+                'media_chunk_size' => 'media.chunk.chunk_size',
+                'media_chunk_max_file_size' => 'media.chunk.max_file_size',
+                'media_watermark_enabled' => 'media.watermark.enabled',
+                'media_watermark_source' => 'media.watermark.source',
+                'media_watermark_position' => 'media.watermark.position',
+                'media_watermark_size' => 'media.watermark.size',
+                'media_watermark_opacity' => 'media.watermark.opacity',
+                'media_convert_file_name_to_uuid' => 'media.convert_file_name_to_uuid',
+                'media_use_original_name_for_file_path' => 'media.use_original_name_for_file_path',
+                'media_default_placeholder_image' => 'media.default_placeholder_image',
+                'media_sizes' => 'media.sizes',
+                'media_folders_can_have_colors' => 'media.folders_can_have_colors',
+                'media_turn_off_automatic_url_translation_into_latin' => 'media.turn_off_automatic_url_translation_into_latin',
+                'media_allowed_mime_types' => 'media.allowed_mime_types',
+            ];
+
+            // Check if we have a direct mapping
+            if (isset($configMap[$key])) {
+                return config($configMap[$key], $default);
+            }
+
+            // Try to find in media config with the key directly
+            if (Str::startsWith($key, 'media_')) {
+                $configKey = 'media.' . Str::after($key, 'media_');
+                $value = config($configKey);
+                if ($value !== null) {
+                    return $value;
+                }
+            }
+
+            // Try the key as-is in media config
+            $value = config('media.' . $key);
             if ($value !== null) {
                 return $value;
             }
-        }
 
-        // Try the key as-is in media config
-        $value = config('media.' . $key);
-        if ($value !== null) {
-            return $value;
-        }
+            return $default;
+        });
+    }
+}
 
-        return $default;
+if (!function_exists('clear_media_settings_cache')) {
+    /**
+     * Clear all cached media settings.
+     *
+     * Call this after updating settings in the database.
+     *
+     * @param string|null $key Specific key to clear, or null to clear all
+     * @return void
+     */
+    function clear_media_settings_cache(?string $key = null): void
+    {
+        if ($key) {
+            Cache::forget('filament-media.setting.' . $key);
+        } else {
+            // Clear all known setting keys
+            $keys = [
+                'media_driver',
+                'media_max_file_size',
+                'max_upload_filesize',
+                'media_chunk_enabled',
+                'media_chunk_size',
+                'media_chunk_max_file_size',
+                'media_watermark_enabled',
+                'media_watermark_source',
+                'media_watermark_position',
+                'media_watermark_size',
+                'media_watermark_opacity',
+                'media_sizes',
+                'media_allowed_mime_types',
+                'media_image_processing_library',
+                'media_generate_thumbnails_enabled',
+            ];
+
+            foreach ($keys as $k) {
+                Cache::forget('filament-media.setting.' . $k);
+            }
+        }
     }
 }
 

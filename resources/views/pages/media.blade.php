@@ -1,528 +1,517 @@
-<x-filament-panels::page>
-    <div>
-        <div id="media-content" wire:ignore>
+<x-filament-panels::page x-data="{
+    ctrlKey: false,
+    shiftKey: false,
+    lastSelectedIndex: null,
+    contextMenu: { show: false, x: 0, y: 0, item: null },
+    focusedIndex: -1,
+    viewIn: '{{ $viewIn }}',
 
-            <div class="fm-media-container min-h-screen flex flex-col">
-                <div class="fm-media-wrapper">
-                    <input
-                        type="checkbox"
-                        id="media_details_collapse"
-                        class="hidden fake-click-event"
-                    >
+    handleKeydown(e) {
+        // Don't handle shortcuts if typing in an input
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+            return;
+        }
 
-                    <div class="fm-media-main-wrapper flex-1 flex flex-col h-full">
-                        <div class="flex flex-col fm-media-header p-0">
-                            <div class="w-full fm-media-top-header flex flex-wrap gap-3 justify-between items-start">
-                                <div class="flex flex-wrap gap-3 py-2 justify-between w-full md:w-auto fm-media-actions rounded-xl shadow-sm items-center">
-                                    {{-- <x-filament::icon-button
-                                        class="flex md:hidden bg-white dark:bg-gray-900"
-                                        icon="heroicon-m-bars-3"
-                                        data-bs-toggle="offcanvas"
-                                        href="#fm-media-aside"
-                                        :label="trans('filament-media::media.menu_name')"
-                                        color="gray"
-                                        size="sm"
-                                    /> --}}
+        // Get current items count from the wire component
+        const itemCount = {{ $this->items->count() }};
+        const selectedCount = {{ count($selectedItems) }};
+        const columns = this.getGridColumns();
 
-                                    <div class="fm-media-actions__controls flex flex-wrap items-center gap-3 py-3">
-                                        <x-filament::dropdown class="md:block bg-white text-gray-900 dark:bg-gray-900 dark:text-white rounded-lg">
-                                            <x-slot:trigger>
-                                                <x-filament::button
-                                                    type="button"
-                                                    icon="heroicon-m-arrow-up-tray"
-                                                    color="primary"
-                                                    size="lg"
-                                                    class="bg-white dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
-                                                    :label="trans('filament-media::media.upload')"
-                                                >
-                                                    {{ trans('filament-media::media.upload') }}
-                                                </x-filament::button>
-                                            </x-slot:trigger>
-                                            <x-filament::dropdown.list>
-                                                <x-filament::dropdown.list.item
-                                                    icon="heroicon-m-globe-alt"
-                                                    class="js-dropzone-upload"
-                                                    data-type="view_in"
-                                                    data-value="all_media"
-                                                >
-                                                    {{ trans('filament-media::media.upload_from_local') }}
-                                                </x-filament::dropdown.list.item>
+        switch (e.key) {
+            // Arrow navigation
+            case 'ArrowRight':
+                e.preventDefault();
+                this.navigate(1, itemCount);
+                break;
+            case 'ArrowLeft':
+                e.preventDefault();
+                this.navigate(-1, itemCount);
+                break;
+            case 'ArrowDown':
+                e.preventDefault();
+                this.navigate(columns, itemCount);
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                this.navigate(-columns, itemCount);
+                break;
 
-                                                <x-filament::dropdown.list.item
-                                                    icon="heroicon-m-trash"
-                                                    wire:click="mountAction('download_url')"
-                                                >
-                                                    {{ trans('filament-media::media.upload_from_url') }}
-                                                </x-filament::dropdown.list.item>
-                                            </x-filament::dropdown.list>
+                // Enter: Open folder or preview file
+            case 'Enter':
+                if (this.focusedIndex >= 0) {
+                    e.preventDefault();
+                    $wire.openItemByIndex(this.focusedIndex);
+                }
+                break;
 
-                                        </x-filament::dropdown>
+                // Space: Toggle selection
+            case ' ':
+                if (this.focusedIndex >= 0) {
+                    e.preventDefault();
+                    $wire.toggleSelectionByIndex(this.focusedIndex);
+                }
+                break;
 
-                                        <x-filament::button
-                                            type="button"
-                                            color="primary"
-                                            :tooltip="trans('filament-media::media.create_folder')"
-                                            class="bg-white dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
-                                            wire:click="mountAction('create_folder')"
-                                            icon="heroicon-m-folder-plus"
-                                            :label="trans('filament-media::media.create_folder')"
-                                            size="lg"
-                                        >
-                                            {{ trans('filament-media::media.create_folder') }}
-                                        </x-filament::button>
+                // Delete: Move to trash
+            case 'Delete':
+            case 'Backspace':
+                if (selectedCount > 0) {
+                    e.preventDefault();
+                    $wire.$dispatch('open-trash-modal', { items: $wire.selectedItems });
+                }
+                break;
 
-                                        <x-filament::button
-                                            type="button"
-                                            color="primary"
-                                            :tooltip="trans('filament-media::media.refresh')"
-                                            class="js-change-action bg-white dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
-                                            icon="heroicon-m-arrow-path"
-                                            data-type="refresh"
-                                            :label="trans('filament-media::media.refresh')"
-                                            size="lg"
-                                        >
-                                            {{ trans('filament-media::media.refresh') }}
-                                        </x-filament::button>
+                // F2: Rename
+            case 'F2':
+                if (selectedCount === 1) {
+                    e.preventDefault();
+                    $wire.$dispatch('open-rename-modal', { items: $wire.selectedItems });
+                }
+                break;
 
-                                        @if (FilamentMedia::getConfig('sidebar_display') !== 'vertical')
-                                            <x-filament::dropdown>
-                                                <x-slot:trigger>
-                                                    <x-filament::button
-                                                        type="button"
-                                                        color="primary"
-                                                        icon="heroicon-m-funnel"
-                                                        class="js-fm-media-change-filter-group js-filter-by-filter bg-white dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
-                                                        :tooltip="trans('filament-media::media.filter')"
-                                                        :label="trans('filament-media::media.filter')"
-                                                        size="lg"
-                                                    >
-                                                    {{ trans('filament-media::media.filter') }} <span class="js-fm-media-filter-current"></span>
-                                                    </x-filament::button>
-                                                </x-slot:trigger>
-                                                <x-filament::dropdown.list>
-                                                    <x-filament::dropdown.list.item
-                                                        icon="heroicon-m-arrow-path"
-                                                        class="js-fm-media-change-filter"
-                                                        data-type="filter"
-                                                        data-value="everything"
-                                                    >
-                                                        {{ trans('filament-media::media.everything') }}
-                                                    </x-filament::dropdown.list.item>
+                // Ctrl/Cmd + A: Select all
+            case 'a':
+            case 'A':
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    $wire.selectAll();
+                }
+                break;
 
-                                                    @if (array_key_exists('image', FilamentMedia::getConfig('mime_types', [])))
-                                                        <x-filament::dropdown.list.item
-                                                            icon="heroicon-m-photo"
-                                                            class="js-fm-media-change-filter"
-                                                            data-type="filter"
-                                                            data-value="image"
-                                                        >
-                                                            {{ trans('filament-media::media.image') }}
-                                                        </x-filament::dropdown.list.item>
-                                                    @endif
+                // Escape: Clear selection
+            case 'Escape':
+                this.contextMenu.show = false;
+                $wire.clearSelection();
+                this.focusedIndex = -1;
+                break;
 
-                                                    @if (array_key_exists('video', FilamentMedia::getConfig('mime_types', [])))
-                                                        <x-filament::dropdown.list.item
-                                                            icon="heroicon-m-film"
-                                                            class="js-fm-media-change-filter"
-                                                            data-type="filter"
-                                                            data-value="video"
-                                                        >
-                                                            {{ trans('filament-media::media.video') }}
-                                                        </x-filament::dropdown.list.item>
-                                                    @endif
+                // Home: Go to first item
+            case 'Home':
+                if (itemCount > 0) {
+                    e.preventDefault();
+                    this.focusedIndex = 0;
+                    this.selectFocused();
+                }
+                break;
 
-                                                    <x-filament::dropdown.list.item
-                                                        icon="heroicon-m-document-text"
-                                                        class="js-fm-media-change-filter"
-                                                        data-type="filter"
-                                                        data-value="document"
-                                                    >
-                                                        {{ trans('filament-media::media.document') }}
-                                                    </x-filament::dropdown.list.item>
-                                                </x-filament::dropdown.list>
-                                            </x-filament::dropdown>
+                // End: Go to last item
+            case 'End':
+                if (itemCount > 0) {
+                    e.preventDefault();
+                    this.focusedIndex = itemCount - 1;
+                    this.selectFocused();
+                }
+                break;
+        }
+    },
 
-                                            <x-filament::dropdown>
-                                                <x-slot:trigger>
-                                                    <x-filament::button
-                                                        type="button"
-                                                        color="primary"
-                                                        icon="heroicon-m-eye"
-                                                        class="js-fm-media-change-filter-group js-filter-by-view-in bg-white dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
-                                                        :tooltip="trans('filament-media::media.view_in')"
-                                                        :label="trans('filament-media::media.view_in')"
-                                                        size="lg"
-                                                    >
-                                                        {{ trans('filament-media::media.view_in') }} <span class="js-fm-media-filter-current"></span>
-                                                    </x-filament::button>
-                                                </x-slot:trigger>
+    navigate(delta, itemCount) {
+        if (itemCount === 0) return;
 
-                                                <x-filament::dropdown.list>
-                                                    <x-filament::dropdown.list.item
-                                                        icon="heroicon-m-globe-alt"
-                                                        class="js-fm-media-change-filter"
-                                                        data-type="view_in"
-                                                        data-value="all_media"
-                                                    >
-                                                        {{ trans('filament-media::media.all_media') }}
-                                                    </x-filament::dropdown.list.item>
+        if (this.focusedIndex < 0) {
+            this.focusedIndex = 0;
+        } else {
+            this.focusedIndex = Math.max(0, Math.min(itemCount - 1, this.focusedIndex + delta));
+        }
 
-                                                    <x-filament::dropdown.list.item
-                                                        icon="heroicon-m-trash"
-                                                        class="js-fm-media-change-filter"
-                                                        data-type="view_in"
-                                                        data-value="trash"
-                                                    >
-                                                        {{ trans('filament-media::media.trash') }}
-                                                    </x-filament::dropdown.list.item>
+        this.selectFocused();
+        this.scrollToFocused();
+    },
 
-                                                    <x-filament::dropdown.list.item
-                                                        icon="heroicon-m-clock"
-                                                        class="js-fm-media-change-filter"
-                                                        data-type="view_in"
-                                                        data-value="recent"
-                                                    >
-                                                        {{ trans('filament-media::media.recent') }}
-                                                    </x-filament::dropdown.list.item>
+    selectFocused() {
+        if (this.focusedIndex >= 0) {
+            $wire.selectByIndex(this.focusedIndex, this.ctrlKey);
+            this.lastSelectedIndex = this.focusedIndex;
+        }
+    },
 
-                                                    <x-filament::dropdown.list.item
-                                                        icon="heroicon-m-star"
-                                                        class="js-fm-media-change-filter"
-                                                        data-type="view_in"
-                                                        data-value="favorites"
-                                                    >
-                                                        {{ trans('filament-media::media.favorites') }}
-                                                    </x-filament::dropdown.list.item>
-                                                </x-filament::dropdown.list>
-                                            </x-filament::dropdown>
-                                        @endif
+    scrollToFocused() {
+        this.$nextTick(() => {
+            const focusedEl = document.querySelector(`[data-item-index='${this.focusedIndex}']`);
+            if (focusedEl) {
+                focusedEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+        });
+    },
 
-                                        <x-filament::button
-                                            type="button"
-                                            color="danger"
-                                            class="hidden flex js-files-action fm-media-actions bg-red-500 dark:bg-red-500/10 dark:text-red-500 text-red-500 media-icon-button"
-                                            data-action="empty_trash"
-                                            icon="heroicon-m-trash"
-                                            :label="trans('filament-media::media.empty_trash')"
-                                            :tooltip="trans('filament-media::media.empty_trash')"
-                                            size="lg"
-                                        >
-                                            {{ trans('filament-media::media.empty_trash') }}
-                                        </x-filament::button>
-                                    </div>
-                                    <div class="fm-media-search">
-                                        <form
-                                            class="flex items-center"
-                                            action=""
-                                            method="GET"
-                                        >
-                                            <x-filament::input
-                                                type="search"
-                                                name="search"
-                                                class="w-36 bg-white dark:bg-gray-900 border border-r-0 rounded-r-none border-l-0 border-transparent rounded-l-none h-10"
-                                                placeholder="{{ trans('filament-media::media.search_file_and_folder') }}"
-                                            />
-                                            <x-filament::button
-                                                type="submit"
-                                                color="primary"
-                                                icon="heroicon-m-magnifying-glass"
-                                                size="lg"
-                                                class="bg-white dark:bg-gray-900 border border-l-0 border-transparent h-10 dark:text-white text-gray-900 media-icon-button"
-                                            >
-                                            </x-filament::button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex w-full p-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 justify-between">
-                                <div class="flex-1 p-2 flex items-center fm-media-breadcrumb">
-                                    <ul class="breadcrumb flex flex-wrap items-center gap-2 text-sm text-gray-500">
-                                        <li>
-                                            <a href="#" data-folder="0" class="no-underline hover:text-primary-500 js-change-folder flex items-center gap-2">
-                                                <x-filament::icon icon="heroicon-m-photo" class="w-5 h-5" />
-                                                All media
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="flex-1 w-full md:w-auto flex justify-end items-center fm-media-tools gap-2 flex-wrap">
-                                    <div
-                                        class="flex items-center gap-2"
-                                        role="group"
-                                    >
-                                        <x-filament::dropdown>
-                                            <x-slot:trigger>
-                                                <x-filament::button
-                                                    icon="heroicon-m-document-arrow-up"
-                                                    size="lg"
-                                                    class="js-filter-by-sort-by px-4 py-2 shadow-sm bg-transparent dark:bg-gray-900 dark:text-white text-gray-900 media-icon-button"
-                                                >
-                                                    {{ trans('filament-media::media.sort') }} <span class="js-fm-media-filter-current"></span>
-                                                </x-filament::button>
-                                            </x-slot:trigger>
+    getGridColumns() {
+        // Approximate column count based on screen width
+        const width = window.innerWidth;
+        if (width >= 1536) return 8; // 2xl
+        if (width >= 1280) return 6; // xl
+        if (width >= 1024) return 5; // lg
+        if (width >= 768) return 4; // md
+        if (width >= 640) return 3; // sm
+        return 2;
+    }
+}"
+    x-on:keydown.window="ctrlKey = $event.ctrlKey || $event.metaKey; shiftKey = $event.shiftKey; handleKeydown($event)"
+    x-on:keyup.window="ctrlKey = $event.ctrlKey || $event.metaKey; shiftKey = $event.shiftKey"
+    x-on:click.away="contextMenu.show = false">
+    {{-- Main Container --}}
+    <div
+        class="fm-container flex flex-col h-[calc(100vh-12rem)] bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
 
-                                            <x-filament::dropdown.list>
-                                                @foreach ($this->sorts as $key => $item)
-                                                <x-filament::dropdown.list.item
-                                                    :label="$item['label']"
-                                                    :icon="$item['icon']"
-                                                    class="js-fm-media-change-filter"
-                                                    data-type="sort_by"
-                                                    :data-value="$key"
-                                                >
-                                                {{ $item['label'] }}
-                                                </x-filament::dropdown.list.item>
-                                                @endforeach
-                                            </x-filament::dropdown.list>
-                                        </x-filament::dropdown>
+        {{-- Top Toolbar - Reorganized Layout --}}
+        <header class="fm-toolbar flex-shrink-0 flex flex-wrap items-center justify-between gap-3 p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+            {{-- LEFT side: Search, View In, Filter, Refresh --}}
+            <div class="flex items-center gap-3">
+                {{-- Search --}}
+                <div class="relative">
+                    <x-filament::input.wrapper>
+                        <x-filament::input type="search" wire:model.live.debounce.300ms="search"
+                            placeholder="{{ trans('filament-media::media.search_in_current_folder') }}"
+                            class="w-40 sm:w-48" />
+                    </x-filament::input.wrapper>
+                </div>
 
-                                        <x-filament::dropdown class="fm-dropdown-actions hidden">
-                                            <x-slot:trigger>
-                                                <x-filament::button
-                                                    icon="heroicon-m-hand-raised"
-                                                    class="fm-dropdown-actions"
-                                                    disabled
-                                                    outlined
-                                                >
-                                                    {{ trans('filament-media::media.actions') }}
-                                                </x-filament::button>
-                                            </x-slot:trigger>
+                {{-- View In Dropdown (All media) --}}
+                @php
+                    $viewIcon = match ($viewIn) {
+                        'trash' => 'heroicon-m-trash',
+                        'recent' => 'heroicon-m-clock',
+                        'favorites' => 'heroicon-m-star',
+                        default => 'heroicon-m-photo',
+                    };
+                    $viewLabel = match ($viewIn) {
+                        'trash' => trans('filament-media::media.trash'),
+                        'recent' => trans('filament-media::media.recent'),
+                        'favorites' => trans('filament-media::media.favorites'),
+                        default => trans('filament-media::media.all_media'),
+                    };
+                    $viewBadgeColor = match ($viewIn) {
+                        'trash' => 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300',
+                        'recent' => 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',
+                        'favorites' => 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
+                        default => 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
+                    };
+                @endphp
+                <x-filament-media::toolbar-dropdown :icon="$viewIcon" :label="$viewLabel" :badge-color="$viewBadgeColor">
+                    <x-filament::dropdown.list.item icon="heroicon-m-photo" wire:click="setViewIn('all_media')"
+                        :color="$viewIn === 'all_media' ? 'primary' : 'gray'">
+                        {{ trans('filament-media::media.all_media') }}
+                    </x-filament::dropdown.list.item>
 
-                                            <x-filament::dropdown.list class="fm-dropdown-actions-list" />
-                                        </x-filament::dropdown>
-                                    </div>
-                                    <div
-                                        class="inline-flex rounded-md shadow-sm isolate js-fm-media-change-view-type ms-2 flex items-center gap-2"
-                                        role="group"
-                                    >
-                                        <x-filament::icon-button
-                                            type="button"
-                                            data-type="tiles"
-                                            icon="heroicon-m-squares-2x2"
-                                            :label="trans('filament-media::media.view_type') ?? 'Tiles'"
-                                            size="lg"
-                                            class="shadow-sm"
-                                        />
-                                        <x-filament::icon-button
-                                            type="button"
-                                            data-type="list"
-                                            icon="heroicon-m-list-bullet"
-                                            :label="trans('filament-media::media.view_type') ?? 'List'"
-                                            size="lg"
-                                            class="shadow-sm"
-                                        />
-                                    </div>
-                                    <x-filament::icon-button
-                                        tag="label"
-                                        for="media_details_collapse"
-                                        class="collapse-panel ms-2 hidden lg:flex shadow-sm"
-                                        icon="heroicon-m-chevron-double-right"
-                                        :label="trans('filament-media::media.details') ?? 'Toggle details'"
-                                        size="lg"
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                    <x-filament::dropdown.list.item icon="heroicon-m-clock" wire:click="setViewIn('recent')"
+                        :color="$viewIn === 'recent' ? 'primary' : 'gray'">
+                        {{ trans('filament-media::media.recent') }}
+                    </x-filament::dropdown.list.item>
 
-                        <main class="fm-media-main">
-                            <div class="fm-media-items"></div>
-                            <div class="fm-media-details" style="display: none">
-                                <div class="fm-media-thumbnail">
-                                    <x-filament::icon icon="heroicon-m-photo" />
-                                </div>
-                                <div class="fm-media-description">
-                                    <div class="fm-media-name">
-                                        <p>{{ trans('filament-media::media.nothing_is_selected') }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </main>
-                        <footer class="hidden fm-media-footer">
-                            <x-filament::icon-button
-                                type="button"
-                                color="primary"
-                                class="js-insert-to-editor"
-                                icon="heroicon-m-check"
-                                :label="trans('filament-media::media.insert')"
-                                :tooltip="trans('filament-media::media.insert')"
-                            />
-                        </footer>
+                    <x-filament::dropdown.list.item icon="heroicon-m-star" wire:click="setViewIn('favorites')"
+                        :color="$viewIn === 'favorites' ? 'primary' : 'gray'">
+                        {{ trans('filament-media::media.favorites') }}
+                    </x-filament::dropdown.list.item>
+
+                    <x-filament::dropdown.list.item icon="heroicon-m-trash" wire:click="setViewIn('trash')"
+                        :color="$viewIn === 'trash' ? 'primary' : 'gray'">
+                        {{ trans('filament-media::media.trash') }}
+                    </x-filament::dropdown.list.item>
+                </x-filament-media::toolbar-dropdown>
+
+                {{-- Filter Dropdown (Everything) --}}
+                @php
+                    $filterIcon = match ($filter) {
+                        'image' => 'heroicon-m-photo',
+                        'video' => 'heroicon-m-film',
+                        'document' => 'heroicon-m-document-text',
+                        default => 'heroicon-m-squares-2x2',
+                    };
+                    $filterLabel = match ($filter) {
+                        'image' => trans('filament-media::media.image'),
+                        'video' => trans('filament-media::media.video'),
+                        'document' => trans('filament-media::media.document'),
+                        default => trans('filament-media::media.everything'),
+                    };
+                    $filterBadgeColor = $filter !== 'everything'
+                        ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-300'
+                        : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
+                @endphp
+                <x-filament-media::toolbar-dropdown :icon="$filterIcon" :label="$filterLabel" :badge-color="$filterBadgeColor">
+                    <x-filament::dropdown.list.item icon="heroicon-m-squares-2x2"
+                        wire:click="setFilter('everything')" :color="$filter === 'everything' ? 'primary' : 'gray'">
+                        {{ trans('filament-media::media.everything') }}
+                    </x-filament::dropdown.list.item>
+
+                    @if (array_key_exists('image', $mimeTypes))
+                        <x-filament::dropdown.list.item icon="heroicon-m-photo" wire:click="setFilter('image')"
+                            :color="$filter === 'image' ? 'primary' : 'gray'">
+                            {{ trans('filament-media::media.image') }}
+                        </x-filament::dropdown.list.item>
+                    @endif
+
+                    @if (array_key_exists('video', $mimeTypes))
+                        <x-filament::dropdown.list.item icon="heroicon-m-film" wire:click="setFilter('video')"
+                            :color="$filter === 'video' ? 'primary' : 'gray'">
+                            {{ trans('filament-media::media.video') }}
+                        </x-filament::dropdown.list.item>
+                    @endif
+
+                    <x-filament::dropdown.list.item icon="heroicon-m-document-text"
+                        wire:click="setFilter('document')" :color="$filter === 'document' ? 'primary' : 'gray'">
+                        {{ trans('filament-media::media.document') }}
+                    </x-filament::dropdown.list.item>
+                </x-filament-media::toolbar-dropdown>
+
+                {{-- Refresh --}}
+                <x-filament::icon-button icon="heroicon-m-arrow-path" color="gray" size="sm" wire:click="refresh"
+                    wire:loading.attr="disabled" wire:loading.class="animate-spin" :tooltip="trans('filament-media::media.refresh')" />
+
+                {{-- Empty Trash (only in trash view) --}}
+                @if ($viewIn === 'trash')
+                    <x-filament::button color="danger" icon="heroicon-m-trash" size="sm"
+                        wire:click="mountAction('empty_trash')">
+                        {{ trans('filament-media::media.empty_trash') }}
+                    </x-filament::button>
+                @endif
+            </div>
+
+            {{-- RIGHT side: Sort, View Toggle --}}
+            <div class="flex items-center gap-3">
+                {{-- Sort Dropdown --}}
+                @php
+                    $sortIcon = str_ends_with($sortBy, '-desc') ? 'heroicon-m-arrow-down' : 'heroicon-m-arrow-up';
+                    $sortLabel = $sorts[$sortBy]['label'] ?? trans('filament-media::media.uploaded_date_desc');
+                @endphp
+                <x-filament-media::toolbar-dropdown :icon="$sortIcon" :label="$sortLabel" placement="bottom-end">
+                    @foreach ($sorts as $key => $sort)
+                        <x-filament::dropdown.list.item :icon="$sort['icon']"
+                            wire:click="setSortBy('{{ $key }}')" :color="$sortBy === $key ? 'primary' : 'gray'">
+                            {{ $sort['label'] }}
+                        </x-filament::dropdown.list.item>
+                    @endforeach
+                </x-filament-media::toolbar-dropdown>
+
+                {{-- View Type Toggle --}}
+                <div class="fm-view-toggle flex items-center gap-0.5">
+                    <button type="button" wire:click="setViewType('grid')"
+                        class="p-2 rounded-md transition-all duration-200
+                            {{ $viewType === 'grid'
+                                ? 'active text-primary-600 dark:text-primary-400'
+                                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}"
+                        title="{{ trans('filament-media::media.grid_view') }}">
+                        <x-filament::icon icon="heroicon-m-squares-2x2" class="w-4 h-4" />
+                    </button>
+                    <button type="button" wire:click="setViewType('list')"
+                        class="p-2 rounded-md transition-all duration-200
+                            {{ $viewType === 'list'
+                                ? 'active text-primary-600 dark:text-primary-400'
+                                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}"
+                        title="{{ trans('filament-media::media.list_view') }}">
+                        <x-filament::icon icon="heroicon-m-list-bullet" class="w-4 h-4" />
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        {{-- Breadcrumbs --}}
+        <nav class="fm-breadcrumbs flex-shrink-0 flex items-center gap-2 px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm overflow-x-auto">
+            @foreach ($this->breadcrumbs as $index => $crumb)
+                @if ($index > 0)
+                    <x-filament::icon icon="heroicon-m-chevron-right" class="w-4 h-4 text-gray-400 flex-shrink-0" />
+                @endif
+
+                <button type="button" wire:click="navigateToFolder({{ $crumb['id'] }})"
+                    class="flex items-center gap-1.5 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors whitespace-nowrap {{ $loop->last ? 'font-medium text-gray-900 dark:text-white' : '' }}">
+                    @if (isset($crumb['icon']))
+                        {!! $crumb['icon'] !!}
+                    @endif
+                    <span>{{ $crumb['name'] }}</span>
+                </button>
+            @endforeach
+        </nav>
+
+        {{-- Main Content Area --}}
+        <div class="fm-content flex flex-1 overflow-hidden">
+            {{-- File Browser --}}
+            <main x-data="{ isDropZone: false }" class="fm-browser flex-1 overflow-y-auto p-4 relative"
+                :class="{ 'fm-drag-over': isDropZone }" wire:loading.class="opacity-50"
+                x-on:contextmenu.prevent="if (!$event.target.closest('.fm-item')) { $wire.clearSelection() }"
+                x-on:dragover.prevent="
+                    if ($event.dataTransfer.types.includes('Files')) {
+                        isDropZone = true;
+                        $event.dataTransfer.dropEffect = 'copy';
+                    }
+                "
+                x-on:dragleave.prevent="isDropZone = false"
+                x-on:drop.prevent="
+                    isDropZone = false;
+                    if ($event.dataTransfer.files.length > 0) {
+                        $dispatch('open-upload-modal', { folderId: {{ $folderId }} });
+                    }
+                ">
+                {{-- Drop Overlay --}}
+                <div x-show="isDropZone" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="absolute inset-0 z-20 bg-primary-50/90 dark:bg-primary-900/50 border-2 border-dashed border-primary-500 rounded-lg flex items-center justify-center pointer-events-none">
+                    <div class="text-center">
+                        <x-filament::icon icon="heroicon-o-cloud-arrow-up"
+                            class="w-12 h-12 text-primary-500 mx-auto mb-2" />
+                        <p class="text-lg font-medium text-primary-600 dark:text-primary-400">
+                            {{ trans('filament-media::media.drop_files_to_upload') }}
+                        </p>
                     </div>
-                    <div class="fm-upload-progress hide-the-pane fixed bottom-0 end-0 z-50 m-6 w-96 max-w-full">
-                        <x-filament::section compact>
-                            <x-slot name="heading">
-                                <div class="flex items-center justify-between gap-4">
-                                    <span>{{ trans('filament-media::media.upload_progress') }}</span>
-                                    <x-filament::icon-button
-                                        icon="heroicon-m-x-mark"
-                                        color="gray"
-                                        size="sm"
-                                        class="close-pane"
-                                        :label="trans('filament-media::media.close')"
-                                    />
-                                </div>
-                            </x-slot>
-
+                </div>
+                @if ($this->items->isEmpty())
+                    {{-- Enhanced Empty State with Animations --}}
+                    <div class="fm-empty-state flex flex-col items-center justify-center h-full text-center py-16">
+                        {{-- Animated Icon --}}
+                        <div class="fm-empty-icon relative mb-6">
                             <div
-                                class="table-responsive overflow-auto"
-                                style="max-height: 180px"
-                            >
-                                <table class="w-full text-start divide-y divide-gray-200 dark:divide-white/5 fm-upload-progress-table">
-                                    {{-- Content will be injected via JS --}}
-                                </table>
-                            </div>
-                        </x-filament::section>
-                    </div>
-                </div>
-            </div>
-
-
-        <button class="hidden js-fm-clipboard-temp"></button>
-
-
-
-        <div id="filament_media_loading" class="hidden" >
-            <x-filament::loading-indicator class="h-12 w-12 text-primary loading-spinner loading-spinner--transparent" />
-        </div>
-
-        <div id="filament_action_item" class="hidden">
-            <button
-                class="block w-full px-4 py-2 text-start text-sm hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-800 transition duration-150 ease-in-out js-files-action"
-                data-action="__action__"
-            >
-                <span class="me-2 opacity-50 dropdown-item-icon">__icon__</span>
-                <span class="dropdown-item-label">__name__</span>
-            </button>
-        </div>
-
-        <div id="filament_media_items_list" class="hidden">
-            <div class="fm-media-list">
-                <ul>
-                    <li class="no-items">
-                        <x-filament::icon icon="heroicon-m-cloud-arrow-up" />
-                        <h3>Drop files and folders here</h3>
-                        <p>Or use the upload button above.</p>
-                    </li>
-                    <li class="fm-media-list-title up-one-level js-up-one-level" title="{{ trans('filament-media::media.up_level') }}">
-                        <div class="custom-checkbox"></div>
-
-                        <div class="fm-media-file-size"></div>
-                        <div class="fm-media-created-at"></div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <div id="filament_media_items_tiles" class="hidden">
-            <div class="fm-media-grid">
-                <ul>
-                    <li class="no-items">
-                        __noItemIcon__
-                        <h3>__noItemTitle__</h3>
-                        <p>__noItemMessage__</p>
-                    </li>
-                    <li class="fm-media-list-title up-one-level js-up-one-level">
-                        <div class="fm-media-item" data-context="__type__" title="{{ trans('filament-media::media.up_level') }}">
-                            <div class="fm-media-thumbnail">
-                                <x-filament::icon icon="heroicon-m-arrow-turn-up-left"  />
-                            </div>
-                            <div class="fm-media-description">
-                                <div class="title">...</div>
+                                class="w-20 h-20 rounded-full bg-gradient-to-br from-primary-100 to-primary-200
+                                dark:from-primary-900/40 dark:to-primary-800/40
+                                flex items-center justify-center shadow-lg shadow-primary-500/20">
+                                @if ($viewIn === 'trash')
+                                    <x-filament::icon icon="heroicon-o-trash"
+                                        class="w-10 h-10 text-gray-400 dark:text-gray-500" />
+                                @elseif($viewIn === 'favorites')
+                                    <x-filament::icon icon="heroicon-o-star" class="w-10 h-10 text-amber-400" />
+                                @else
+                                    <x-filament::icon icon="heroicon-o-cloud-arrow-up"
+                                        class="w-10 h-10 text-primary-500 dark:text-primary-400" />
+                                @endif
                             </div>
                         </div>
-                    </li>
-                </ul>
-            </div>
-        </div>
 
-        <div id="filament_media_items_list_element" class="hidden">
-            <li class="fm-media-list-title js-media-list-title js-context-menu" data-context="__type__" title="__name__" data-id="__id__" data-data='__data__' >
-                <div class="custom-checkbox">
-                    <label>
-                        <input type="checkbox">
-                        <span></span>
-                    </label>
-                </div>
-                <div class="fm-media-file-name flex gap-2">
-                    __thumb__
-                    <span>__name__</span>
-                </div>
-                <div class="fm-media-file-size">__size__</div>
-                <div class="fm-media-created-at">__date__</div>
-            </li>
-        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                            @if ($viewIn === 'trash')
+                                {{ trans('filament-media::media.trash_empty') }}
+                            @elseif($viewIn === 'favorites')
+                                {{ trans('filament-media::media.no_favorites') }}
+                            @elseif($search)
+                                {{ trans('filament-media::media.no_search_results') }}
+                            @else
+                                {{ trans('filament-media::media.no_files') }}
+                            @endif
+                        </h3>
 
-        <div id="filament_media_items_tiles_element" class="hidden">
-            <li class="fm-media-list-title js-media-list-title js-context-menu" data-context="__type__" data-id="__id__" data-data='__data__' >
-                <input type="checkbox" class="hidden">
-                <div class="fm-media-item" title="__name__">
-                    <span class="media-item-selected">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                            <path d="M186.301 339.893L96 249.461l-32 30.507L186.301 402 448 140.506 416 110z"></path>
-                        </svg>
-                    </span>
-                    <div class="fm-media-thumbnail">
-                        __thumb__
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm">
+                            @if ($viewIn === 'trash')
+                                {{ trans('filament-media::media.trash_empty_description') }}
+                            @elseif($viewIn === 'favorites')
+                                {{ trans('filament-media::media.no_favorites_description') }}
+                            @elseif($search)
+                                {{ trans('filament-media::media.no_search_results_description') }}
+                            @else
+                                {{ trans('filament-media::media.drop_files_here') }}
+                            @endif
+                        </p>
+
+                        @if ($viewIn === 'all_media' && !$search)
+                            <button type="button"
+                                x-on:click="$dispatch('open-upload-modal', { folderId: {{ $folderId }} })"
+                                class="fm-upload-btn inline-flex items-center gap-2 px-6 py-3
+                                    text-white font-medium rounded-xl transition-all duration-200">
+                                <x-filament::icon icon="heroicon-m-arrow-up-tray" class="w-5 h-5" />
+                                {{ trans('filament-media::media.upload_files') }}
+                            </button>
+                        @endif
                     </div>
-                    <div class="fm-media-description">
-                        <div class="title" data-file-id="{{ e(request()->input('file_id', '')) }}">__name__</div>
-                    </div>
-                </div>
-            </li>
+                @else
+                    {{-- Grid View --}}
+                    @if ($viewType === 'grid')
+                        <div
+                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4">
+                            @foreach ($this->items as $index => $item)
+                                @include('filament-media::components.grid-item', [
+                                    'item' => $item,
+                                    'index' => $index,
+                                ])
+                            @endforeach
+                        </div>
+                    @else
+                        {{-- List View --}}
+                        <div class="fm-list-view">
+                            {{-- List Header --}}
+                            <div
+                                class="hidden sm:grid grid-cols-12 gap-4 px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
+                                <div class="col-span-6">{{ trans('filament-media::media.name') }}</div>
+                                <div class="col-span-2">{{ trans('filament-media::media.size') }}</div>
+                                <div class="col-span-2">{{ trans('filament-media::media.type') }}</div>
+                                <div class="col-span-2">{{ trans('filament-media::media.modified') }}</div>
+                            </div>
+
+                            {{-- List Items --}}
+                            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                                @foreach ($this->items as $index => $item)
+                                    @include('filament-media::components.list-item', [
+                                        'item' => $item,
+                                        'index' => $index,
+                                    ])
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                @endif
+            </main>
+
+            {{-- Details Panel --}}
+            @if ($showDetailsPanel)
+                <aside
+                    class="fm-details hidden lg:flex flex-col w-80 flex-shrink-0 border-l border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 overflow-hidden">
+                    @if ($this->selectedItemDetails)
+                        @include('filament-media::components.details-panel', [
+                            'details' => $this->selectedItemDetails,
+                        ])
+                    @elseif(count($selectedItems) > 1)
+                        {{-- Multiple Selection --}}
+                        <div class="flex flex-col items-center justify-center h-full p-6 text-center">
+                            <div
+                                class="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mb-4">
+                                <span
+                                    class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ count($selectedItems) }}</span>
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">
+                                {{ trans('filament-media::media.items_selected', ['count' => count($selectedItems)]) }}
+                            </h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                {{ trans('filament-media::media.select_one_for_details') }}
+                            </p>
+                        </div>
+                    @else
+                        {{-- No Selection --}}
+                        <div class="flex flex-col items-center justify-center h-full p-6 text-center">
+                            <div
+                                class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+                                <x-filament::icon icon="heroicon-o-cursor-arrow-rays" class="w-8 h-8 text-gray-400" />
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">
+                                {{ trans('filament-media::media.nothing_is_selected') }}
+                            </h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                {{ trans('filament-media::media.select_file_for_details') }}
+                            </p>
+                        </div>
+                    @endif
+                </aside>
+            @endif
         </div>
 
-        <div id="filament_media_upload_progress_item" class="hidden">
-            <div class="flex flex-row gap-2 hover:bg-gray-50 dark:hover:bg-white/5 transition duration-75 justify-between">
-                <div class="p-4 align-top">
-                    <div class="flex flex-col gap-1 justify-between">
-                        <span class="file-name font-medium text-gray-950 dark:text-white">__fileName__</span>
-                        <div class="file-error text-sm text-danger-600 dark:text-danger-400"></div>
-                    </div>
-                </div>
-                <div class="p-4 align-top">
-                    <span class="file-size text-sm text-gray-500 dark:text-gray-400">__fileSize__</span>
-                </div>
-                <div class="p-4 align-top text-end">
-                    <div class="flex flex-col items-end gap-1">
-                        <span class="file-status text-sm font-medium text-__status__-600 dark:text-__status__-400">__message__</span>
-                        <span class="progress-percent text-xs text-gray-500 dark:text-gray-400"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="filament_media_breadcrumb_item" class="hidden">
-            <li>
-                <a href="#" data-folder="__folderId__" class="no-underline hover:text-primary-500 flex items-center gap-2 js-change-folder">
-                    __icon__
-                    __name__
-                </a>
-            </li>
-        </div>
-
-
-        <div id="filament_media_alt_text_item" class="hidden">
-            <div class="mb-3">
-                <div class="flex w-full">
-                    <div class="flex items-center px-3 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 rounded-l-lg border-r-0">
-                        __icon__
-                    </div>
-                    <input class="block w-full border-gray-300 dark:border-gray-600 rounded-r-lg shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm bg-transparent" placeholder="__placeholder__" value="__value__">
-                </div>
-            </div>
-        </div>
-
-
-
-        <div class="media-download-popup" style="display: none">
-            <div class="p-4 mb-4 text-sm text-fg-success-strong rounded-base bg-success-soft" role="alert">
-                {{ trans('filament-media::media.prepare_file_to_download') }}
-            </div>
-        </div>
-
-        </div>
-
-        @include('filament-media::config')
     </div>
 
+    {{-- Context Menu --}}
+    <div x-show="contextMenu.show" x-cloak
+        class="fm-context-menu fixed min-w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-1 overflow-hidden"
+        :style="`left: ${contextMenu.x}px; top: ${contextMenu.y}px;`" x-on:click.away="contextMenu.show = false"
+        x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75"
+        x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+        @include('filament-media::components.context-menu')
+    </div>
+
+    {{-- Loading Overlay --}}
+    <div wire:loading.flex wire:target="navigateToFolder, setViewIn, setFilter, setSortBy, refresh"
+        class="fixed inset-0 bg-white/50 dark:bg-gray-900/50 z-40 items-center justify-center">
+        <x-filament::loading-indicator class="h-10 w-10" />
+    </div>
+
+    {{-- Upload Modal --}}
+    @livewire('filament-media::upload-modal', ['folderId' => $folderId])
+
+    {{-- Preview Modal --}}
+    @livewire('filament-media::preview-modal')
+
+    {{-- Filament Action Modals (required for mountAction to show modal dialogs) --}}
+    <x-filament-actions::modals />
 </x-filament-panels::page>

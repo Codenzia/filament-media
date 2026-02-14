@@ -198,7 +198,8 @@ class MediaFileRepository extends BaseRepository implements MediaFileInterface
     {
         $this->applyConditions($params['condition']);
 
-        if ($params['filter'] != 'everything') {
+        // Only apply filter if it's set and not 'everything'
+        if (!empty($params['filter']) && $params['filter'] !== 'everything') {
             $this->model = $this->model->where(function (EloquentBuilder $query) use ($params) {
                 /**
                  * @var EloquentBuilder $query
@@ -310,6 +311,8 @@ class MediaFileRepository extends BaseRepository implements MediaFileInterface
                 'current_paged' => 1,
             ],
             'filter' => 'everything',
+            'selected_file_id' => null,
+            'is_popup' => false,
             'take' => null,
             'with' => [],
         ], $params);
