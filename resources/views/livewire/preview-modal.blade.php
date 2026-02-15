@@ -8,12 +8,22 @@
         x-data="{
             open: @entangle('isOpen'),
             showVersions: false,
+            closing: false,
+            closeModal() {
+                if (this.closing) return;
+                this.closing = true;
+                this.open = false;
+                setTimeout(() => {
+                    $wire.close();
+                    this.closing = false;
+                }, 250);
+            },
             handleKeydown(e) {
                 if (!this.open) return;
 
                 if (e.key === 'Escape') {
                     if (this.showVersions) { this.showVersions = false; return; }
-                    $wire.close();
+                    this.closeModal();
                 } else if (e.key === 'ArrowRight') {
                     $wire.next();
                 } else if (e.key === 'ArrowLeft') {
@@ -23,29 +33,22 @@
         }"
         x-show="open"
         x-cloak
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
         x-on:keydown.window="handleKeydown($event)"
-        class="fm-preview-modal fixed inset-0 overflow-hidden"
+        class="fm-preview-modal fixed inset-0 overflow-hidden z-50"
         aria-labelledby="preview-modal-title"
         role="dialog"
         aria-modal="true"
     >
         {{-- Backdrop --}}
-        <div
-            x-show="open"
-            x-transition:enter="ease-out duration-300"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-            x-transition:leave="ease-in duration-200"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
-            class="fixed inset-0 bg-black/90"
-            x-on:click="$wire.close()"
-        ></div>
+        <div class="fixed inset-0 bg-black" x-on:click="closeModal()"></div>
 
         {{-- Modal Content --}}
         <div class="relative w-full h-full flex flex-col">
             {{-- Header --}}
-            <header class="flex-shrink-0 flex items-center justify-between px-4 py-3 bg-black/50 z-10">
+            <header class="flex-shrink-0 flex items-center justify-between px-4 py-3 bg-gray-950 z-10">
                 <div class="flex items-center gap-3">
                     <h2 id="preview-modal-title" class="text-sm font-medium text-white truncate max-w-xs sm:max-w-md">
                         {{ $name }}
@@ -95,7 +98,7 @@
                     <button
                         type="button"
                         class="p-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
-                        x-on:click="$wire.close()"
+                        x-on:click="closeModal()"
                         title="{{ trans('filament-media::media.close') }}"
                     >
                         <x-filament::icon icon="heroicon-m-x-mark" class="w-5 h-5" />
@@ -196,7 +199,7 @@
                                 <button
                                     type="button"
                                     wire:click="$dispatch('open-delete-modal', { items: [{ id: {{ $currentFileId }}, is_folder: false }] })"
-                                    x-on:click="$wire.close()"
+                                    x-on:click="closeModal()"
                                     class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors text-sm"
                                 >
                                     <x-filament::icon icon="heroicon-m-trash" class="w-4 h-4" />
@@ -205,7 +208,7 @@
                                 @endif
                                 <button
                                     type="button"
-                                    x-on:click="$wire.close()"
+                                    x-on:click="closeModal()"
                                     class="inline-flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm"
                                 >
                                     {{ trans('filament-media::media.close') }}

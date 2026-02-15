@@ -11,7 +11,7 @@
     isDragOver: false,
     isDragging: false,
 }"
-    class="fm-item group relative rounded-lg overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-150 cursor-pointer
+    class="fm-item group relative rounded-lg overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-150 cursor-pointer flex flex-col h-44
         {{ $isSelected ? 'ring-2 ring-primary-500 ring-offset-2 dark:ring-offset-gray-900 border-primary-500' : '' }}"
     :class="{
         'opacity-50': isDragging,
@@ -68,25 +68,25 @@
     </div>
 
     {{-- Thumbnail Area --}}
-    <div class="aspect-square bg-gray-100 dark:bg-gray-900 flex items-center justify-center overflow-hidden relative">
+    <div class="flex-1 bg-gray-100 dark:bg-gray-900 flex items-center justify-center overflow-hidden relative">
         @if ($isFolder)
             {{-- Folder Icon --}}
-            <div class="w-16 h-16 flex items-center justify-center"
-                style="{{ isset($item['color']) && $item['color'] ? 'color: ' . $item['color'] : '' }}">
+            <div class="w-12 h-12 flex items-center justify-center">
                 <x-filament::icon icon="heroicon-s-folder"
-                    class="w-16 h-16 {{ isset($item['color']) && $item['color'] ? '' : 'text-amber-500' }}" />
+                    class="w-12 h-12 {{ isset($item['color']) && $item['color'] ? '' : 'text-amber-500' }}"
+                    style="{{ isset($item['color']) && $item['color'] ? 'color: ' . $item['color'] : '' }}" />
             </div>
         @elseif(!$fileExists)
             @include('filament-media::components.missing-file')
         @elseif(isset($item['thumb']) && $item['thumb'])
             {{-- Image Thumbnail --}}
             <img src="{{ $item['thumb'] }}" alt="{{ $item['name'] }}"
-                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                 loading="lazy" />
         @elseif(($item['type'] ?? '') === 'image')
             {{-- Image without thumbnail --}}
             <img src="{{ $item['full_url'] ?? ($item['url'] ?? '') }}" alt="{{ $item['name'] }}"
-                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                 loading="lazy" />
         @else
             {{-- File Type Icon --}}
@@ -119,12 +119,12 @@
     </div>
 
     {{-- File Name --}}
-    <div class="p-3 border-t border-gray-100 dark:border-gray-700">
-        <p class="text-sm font-medium text-gray-900 dark:text-white truncate" title="{{ $item['name'] }}">
+    <div class="flex-shrink-0 px-2 py-1.5 border-t border-gray-100 dark:border-gray-700 h-12 flex flex-col gap-1 justify-center">
+        <p class="text-xs font-medium text-gray-900 dark:text-white truncate" title="{{ $item['name'] }}">
             {{ $item['name'] }}
         </p>
-        @if (!$isFolder && isset($item['size']))
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+        @if (isset($item['size']) && $item['size'])
+            <p class="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">
                 {{ $item['size'] }}
             </p>
         @endif

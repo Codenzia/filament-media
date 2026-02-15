@@ -5,9 +5,9 @@
 {{-- Details Panel Content --}}
 <div class="flex flex-col h-full overflow-hidden">
     {{-- Preview Area --}}
-    <div class="flex-shrink-0 p-4 border-b border-gray-200 dark:border-gray-700">
+    <div class="flex-shrink-0 p-3 border-b border-gray-200 dark:border-gray-700">
         <div
-            class="aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative">
+            class="h-48 max-h-48 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative">
             @if ($details['type'] === 'folder')
                 <x-filament::icon icon="heroicon-s-folder"
                     class="w-24 h-24 {{ isset($details['color']) && $details['color'] ? '' : 'text-amber-500' }}"
@@ -15,7 +15,10 @@
             @elseif(!$fileExists)
                 @include('filament-media::components.missing-file')
             @elseif($details['thumbnail'])
-                <img src="{{ $details['thumbnail'] }}" alt="{{ $details['name'] }}" class="w-full h-full object-contain" />
+                <img src="{{ $details['thumbnail'] }}" alt="{{ $details['name'] }}"
+                    class="max-w-full max-h-48 object-contain cursor-pointer"
+                    wire:click="openItem({{ Js::from(['id' => $details['id'], 'is_folder' => false]) }})"
+                    title="{{ trans('filament-media::media.preview') }}" />
             @else
                 @php
                     $iconColor = match ($details['file_type'] ?? 'document') {
@@ -49,6 +52,11 @@
         <div class="flex flex-wrap gap-2 mb-6">
             @if ($details['type'] === 'file')
                 @if ($fileExists)
+                    <x-filament::button size="sm" color="gray" icon="heroicon-m-eye"
+                        wire:click="openItem({{ Js::from(['id' => $details['id'], 'is_folder' => false]) }})">
+                        {{ trans('filament-media::media.preview') }}
+                    </x-filament::button>
+
                     <x-filament::button size="sm" color="gray" icon="heroicon-m-arrow-down-tray" tag="a"
                         :href="$details['url']" target="_blank" download>
                         {{ trans('filament-media::media.download') }}
@@ -268,7 +276,7 @@
             </x-filament::button>
 
             @if ($details['type'] === 'folder')
-                <x-filament::button size="sm" color="gray" icon="heroicon-m-paint-brush"
+                <x-filament::button size="sm" color="gray" icon="heroicon-m-swatch"
                     wire:click="openPropertiesModal({{ Js::from($itemData) }})">
                     {{ trans('filament-media::media.properties.name') }}
                 </x-filament::button>

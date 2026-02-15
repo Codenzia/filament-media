@@ -12,7 +12,6 @@ use Codenzia\FilamentMedia\Services\TagService;
 use Codenzia\FilamentMedia\Services\VersionService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Infolists\Components\TextEntry;
@@ -89,6 +88,7 @@ trait HasExtendedMediaActions
     {
         return Action::make('properties')
             ->label(trans('filament-media::media.properties.name'))
+            ->modalWidth('md')
             ->fillForm(function (array $arguments): array {
                 $items = $arguments['items'] ?? [];
                 if (count($items) === 1) {
@@ -101,8 +101,9 @@ trait HasExtendedMediaActions
                 return [];
             })
             ->schema([
-                ColorPicker::make('color')
+                TextInput::make('color')
                     ->label(trans('filament-media::media.properties.color_label'))
+                    ->type('color')
                     ->required(),
             ])
             ->action(function (array $data, array $arguments) {

@@ -24,6 +24,7 @@ class FileResource extends JsonResource
 
         return [
             'id' => $this->getKey(),
+            'is_folder' => false,
             'name' => $this->name,
             'basename' => File::basename($this->url),
             'url' => $this->url,

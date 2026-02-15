@@ -72,7 +72,20 @@ trait HasFileManagementActions
                     ->label(trans('filament-media::media.folder_name'))
                     ->required()
                     ->maxLength(120)
-                    ->autofocus(),
+                    ->autofocus()
+                    ->rules([
+                        fn () => function (string $attribute, $value, \Closure $fail) {
+                            $exists = MediaFolder::withoutGlobalScopes()
+                                ->where('name', $value)
+                                ->where('parent_id', $this->folderId ?? 0)
+                                ->whereNull('deleted_at')
+                                ->exists();
+
+                            if ($exists) {
+                                $fail(trans('filament-media::media.folder_name_exists'));
+                            }
+                        },
+                    ]),
             ])
             ->action(function (array $data) {
                 FilamentMedia::createFolder($data['name'], $this->folderId);

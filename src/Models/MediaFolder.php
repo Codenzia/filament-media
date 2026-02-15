@@ -4,7 +4,6 @@ namespace Codenzia\FilamentMedia\Models;
 
 use Codenzia\FilamentMedia\Database\Factories\MediaFolderFactory;
 use Codenzia\FilamentMedia\Facades\FilamentMedia as RvMedia;
-use Codenzia\FilamentMedia\Services\SafeContentService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -42,9 +41,14 @@ class MediaFolder extends BaseModel
         'color',
     ];
 
-    protected $casts = [
-        'name' => SafeContentService::class,
-    ];
+    protected $casts = [];
+
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $value ? strip_tags($value) : $value,
+        );
+    }
 
     protected static function booted(): void
     {

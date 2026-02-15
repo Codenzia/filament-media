@@ -153,7 +153,8 @@
         class="fm-container flex flex-col h-[calc(100vh-12rem)] bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
 
         {{-- Top Toolbar - Reorganized Layout --}}
-        <header class="fm-toolbar flex-shrink-0 flex flex-wrap items-center justify-between gap-3 p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+        <header
+            class="fm-toolbar flex-shrink-0 flex flex-wrap items-center justify-between gap-3 p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
             {{-- LEFT side: Search, View In, Filter, Refresh --}}
             <div class="flex items-center gap-3">
                 {{-- Search --}}
@@ -161,7 +162,7 @@
                     <x-filament::input.wrapper>
                         <x-filament::input type="search" wire:model.live.debounce.300ms="search"
                             placeholder="{{ trans('filament-media::media.search_in_current_folder') }}"
-                            class="w-40 sm:w-48" />
+                            class="w-64" />
                     </x-filament::input.wrapper>
                 </div>
 
@@ -205,9 +206,9 @@
                         {{ trans('filament-media::media.favorites') }}
                     </x-filament::dropdown.list.item>
 
-                    @if(config('media.features.collections', true))
-                        <x-filament::dropdown.list.item icon="heroicon-m-rectangle-stack" wire:click="setViewIn('collections')"
-                            :color="$viewIn === 'collections' ? 'primary' : 'gray'">
+                    @if (config('media.features.collections', true))
+                        <x-filament::dropdown.list.item icon="heroicon-m-rectangle-stack"
+                            wire:click="setViewIn('collections')" :color="$viewIn === 'collections' ? 'primary' : 'gray'">
                             {{ trans('filament-media::media.collections') }}
                         </x-filament::dropdown.list.item>
                     @endif
@@ -232,13 +233,14 @@
                         'document' => trans('filament-media::media.document'),
                         default => trans('filament-media::media.everything'),
                     };
-                    $filterBadgeColor = $filter !== 'everything'
-                        ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-300'
-                        : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
+                    $filterBadgeColor =
+                        $filter !== 'everything'
+                            ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-300'
+                            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
                 @endphp
                 <x-filament-media::toolbar-dropdown :icon="$filterIcon" :label="$filterLabel" :badge-color="$filterBadgeColor">
-                    <x-filament::dropdown.list.item icon="heroicon-m-squares-2x2"
-                        wire:click="setFilter('everything')" :color="$filter === 'everything' ? 'primary' : 'gray'">
+                    <x-filament::dropdown.list.item icon="heroicon-m-squares-2x2" wire:click="setFilter('everything')"
+                        :color="$filter === 'everything' ? 'primary' : 'gray'">
                         {{ trans('filament-media::media.everything') }}
                     </x-filament::dropdown.list.item>
 
@@ -256,8 +258,8 @@
                         </x-filament::dropdown.list.item>
                     @endif
 
-                    <x-filament::dropdown.list.item icon="heroicon-m-document-text"
-                        wire:click="setFilter('document')" :color="$filter === 'document' ? 'primary' : 'gray'">
+                    <x-filament::dropdown.list.item icon="heroicon-m-document-text" wire:click="setFilter('document')"
+                        :color="$filter === 'document' ? 'primary' : 'gray'">
                         {{ trans('filament-media::media.document') }}
                     </x-filament::dropdown.list.item>
                 </x-filament-media::toolbar-dropdown>
@@ -285,31 +287,23 @@
                 <div class="relative" x-data="{ open: false }" x-on:click.outside="open = false">
                     <button type="button" class="fm-dropdown-trigger" x-on:click="open = !open">
                         <x-filament::icon :icon="$sortIcon" class="fm-dropdown-icon" />
-                        <span class="fm-dropdown-badge bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">{{ $sortLabel }}</span>
+                        <span
+                            class="fm-dropdown-badge bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">{{ $sortLabel }}</span>
                         <x-filament::icon icon="heroicon-m-chevron-down" class="fm-dropdown-chevron" />
                     </button>
 
-                    <div
-                        x-show="open"
-                        x-cloak
-                        x-transition:enter="transition ease-out duration-100"
-                        x-transition:enter-start="opacity-0 scale-95"
-                        x-transition:enter-end="opacity-100 scale-100"
+                    <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                         x-transition:leave="transition ease-in duration-75"
-                        x-transition:leave-start="opacity-100 scale-100"
-                        x-transition:leave-end="opacity-0 scale-95"
-                        class="fm-sort-panel absolute right-0 top-full mt-1 w-56 rounded-lg bg-white dark:bg-gray-900 shadow-lg ring-1 ring-gray-200 dark:ring-gray-700 py-1"
-                    >
+                        x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                        class="fm-sort-panel absolute right-0 top-full mt-1 w-56 rounded-lg bg-white dark:bg-gray-900 shadow-lg ring-1 ring-gray-200 dark:ring-gray-700 py-1">
                         @foreach ($sorts as $key => $sort)
-                            <button
-                                type="button"
-                                wire:click="setSortBy('{{ $key }}')"
+                            <button type="button" wire:click="setSortBy('{{ $key }}')"
                                 x-on:click="open = false"
                                 class="flex items-center gap-2 w-full px-3 py-2 text-sm text-left transition-colors
                                     {{ $sortBy === $key
                                         ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/10'
-                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800' }}"
-                            >
+                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800' }}">
                                 <x-filament::icon :icon="$sort['icon']" class="w-4 h-4" />
                                 {{ $sort['label'] }}
                             </button>
@@ -336,11 +330,23 @@
                         <x-filament::icon icon="heroicon-m-list-bullet" class="w-4 h-4" />
                     </button>
                 </div>
+
+                {{-- Details Panel Toggle --}}
+                <div class="w-px h-5 bg-gray-300 dark:bg-gray-600"></div>
+                <button type="button" wire:click="toggleDetailsPanel"
+                    class="p-2 rounded-md transition-all duration-200
+                        {{ $showDetailsPanel
+                            ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/10'
+                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}"
+                    title="{{ trans('filament-media::media.toggle_details') }}">
+                    <x-filament::icon icon="heroicon-m-information-circle" class="w-4 h-4" />
+                </button>
             </div>
         </header>
 
         {{-- Breadcrumbs --}}
-        <nav class="fm-breadcrumbs flex-shrink-0 flex items-center gap-2 px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm overflow-x-auto">
+        <nav
+            class="fm-breadcrumbs flex-shrink-0 flex items-center gap-2 px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm overflow-x-auto">
             @foreach ($this->breadcrumbs as $index => $crumb)
                 @if ($index > 0)
                     <x-filament::icon icon="heroicon-m-chevron-right" class="w-4 h-4 text-gray-400 flex-shrink-0" />
@@ -394,8 +400,10 @@
                     @if ($allCollections->isEmpty())
                         <div class="fm-empty-state flex flex-col items-center justify-center h-full text-center py-16">
                             <div class="fm-empty-icon relative mb-6">
-                                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/40 dark:to-purple-800/40 flex items-center justify-center shadow-lg shadow-purple-500/20">
-                                    <x-filament::icon icon="heroicon-o-rectangle-stack" class="w-10 h-10 text-purple-400" />
+                                <div
+                                    class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/40 dark:to-purple-800/40 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                                    <x-filament::icon icon="heroicon-o-rectangle-stack"
+                                        class="w-10 h-10 text-purple-400" />
                                 </div>
                             </div>
                             <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -406,15 +414,19 @@
                             </p>
                         </div>
                     @else
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                        <div
+                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                             @foreach ($allCollections as $collection)
                                 <button type="button" wire:click="setCollection({{ $collection->id }})"
                                     class="fm-item group flex flex-col items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-primary-300 dark:hover:border-primary-600 cursor-pointer text-center">
-                                    <div class="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-colors">
-                                        <x-filament::icon icon="heroicon-o-rectangle-stack" class="w-7 h-7 text-purple-500 dark:text-purple-400" />
+                                    <div
+                                        class="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-colors">
+                                        <x-filament::icon icon="heroicon-o-rectangle-stack"
+                                            class="w-7 h-7 text-purple-500 dark:text-purple-400" />
                                     </div>
                                     <div class="min-w-0 w-full">
-                                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $collection->name }}</p>
+                                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                            {{ $collection->name }}</p>
                                         <p class="text-xs text-gray-500 dark:text-gray-400">
                                             {{ trans('filament-media::media.collection_file_count', ['count' => $collection->files_count]) }}
                                         </p>
@@ -438,7 +450,8 @@
                                 @elseif($viewIn === 'favorites')
                                     <x-filament::icon icon="heroicon-o-star" class="w-10 h-10 text-amber-400" />
                                 @elseif($viewIn === 'collections')
-                                    <x-filament::icon icon="heroicon-o-rectangle-stack" class="w-10 h-10 text-purple-400" />
+                                    <x-filament::icon icon="heroicon-o-rectangle-stack"
+                                        class="w-10 h-10 text-purple-400" />
                                 @else
                                     <x-filament::icon icon="heroicon-o-cloud-arrow-up"
                                         class="w-10 h-10 text-primary-500 dark:text-primary-400" />
@@ -488,7 +501,8 @@
                     {{-- Grid View --}}
                     @if ($viewType === 'grid')
                         <div
-                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4">
+                            class="grid gap-2"
+                            style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr))">
                             @foreach ($this->items as $index => $item)
                                 @include('filament-media::components.grid-item', [
                                     'item' => $item,
@@ -525,7 +539,7 @@
             {{-- Details Panel --}}
             @if ($showDetailsPanel)
                 <aside
-                    class="fm-details hidden lg:flex flex-col w-80 flex-shrink-0 border-l border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 overflow-hidden">
+                    class="fm-details flex flex-col w-80 flex-shrink-0 border-l border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 overflow-hidden">
                     @if ($this->selectedItemDetails)
                         @include('filament-media::components.details-panel', [
                             'details' => $this->selectedItemDetails,

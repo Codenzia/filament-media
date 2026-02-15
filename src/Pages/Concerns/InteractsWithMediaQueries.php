@@ -310,6 +310,10 @@ trait InteractsWithMediaQueries
 
     protected function mergeResults(Collection $folders, Collection $files): Collection
     {
+        if ($folders->isNotEmpty()) {
+            $folders->loadSum('files', 'size');
+        }
+
         $folderResources = $folders->isNotEmpty()
             ? FolderResource::collection($folders)->resolve()
             : [];

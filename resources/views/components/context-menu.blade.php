@@ -85,7 +85,7 @@
         class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         x-on:click="if(contextMenu.item) { $wire.openPropertiesModal([{ id: contextMenu.item.id, is_folder: true }]); contextMenu.show = false; }"
     >
-        <x-filament::icon icon="heroicon-m-paint-brush" class="w-5 h-5 text-gray-400" />
+        <x-filament::icon icon="heroicon-m-swatch" class="w-5 h-5 text-gray-400" />
         <span>{{ trans('filament-media::media.properties.name') }}</span>
     </button>
 

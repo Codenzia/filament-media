@@ -1,6 +1,7 @@
 <?php
 
 use Codenzia\FilamentMedia\Http\Resources\FolderResource;
+use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
 use Codenzia\FilamentMedia\Models\MediaTag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -25,9 +26,10 @@ describe('FolderResource', function () {
 
         expect($resource)->toBeArray()
             ->and($resource)->toHaveKeys([
-                'id', 'name', 'color', 'created_at', 'updated_at', 'tags',
+                'id', 'is_folder', 'name', 'color', 'size', 'created_at', 'updated_at', 'tags',
             ])
             ->and($resource['id'])->toBe($folder->id)
+            ->and($resource['is_folder'])->toBeTrue()
             ->and($resource['name'])->toBe('Photos')
             ->and($resource['created_at'])->not->toBeNull()
             ->and($resource['updated_at'])->not->toBeNull();
@@ -41,5 +43,25 @@ describe('FolderResource', function () {
         $resource = (new FolderResource($folder))->toArray(Request::create('/'));
 
         expect($resource['color'])->toBe('#e74c3c');
+    });
+
+    it('returns null size for empty folder', function () {
+        $folder = MediaFolder::factory()->create();
+
+        $resource = (new FolderResource($folder))->toArray(Request::create('/'));
+
+        expect($resource['size'])->toBeNull();
+    });
+
+    it('returns human readable size when files_sum_size is loaded', function () {
+        $folder = MediaFolder::factory()->create();
+        MediaFile::factory()->create(['folder_id' => $folder->id, 'size' => 1024]);
+        MediaFile::factory()->create(['folder_id' => $folder->id, 'size' => 2048]);
+
+        $folder->loadSum('files', 'size');
+
+        $resource = (new FolderResource($folder))->toArray(Request::create('/'));
+
+        expect($resource['size'])->toBe('3 kB');
     });
 });

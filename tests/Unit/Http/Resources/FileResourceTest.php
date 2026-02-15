@@ -31,12 +31,13 @@ describe('FileResource', function () {
 
         expect($resource)->toBeArray()
             ->and($resource)->toHaveKeys([
-                'id', 'name', 'basename', 'url', 'full_url',
+                'id', 'is_folder', 'name', 'basename', 'url', 'full_url',
                 'type', 'icon', 'thumb', 'size', 'mime_type',
                 'created_at', 'updated_at', 'options', 'folder_id',
                 'alt', 'file_exists', 'tags',
             ])
             ->and($resource['id'])->toBe($file->id)
+            ->and($resource['is_folder'])->toBeFalse()
             ->and($resource['name'])->toBe('test-photo')
             ->and($resource['url'])->toBe('images/test-photo.jpg')
             ->and($resource['basename'])->toBe('test-photo.jpg')

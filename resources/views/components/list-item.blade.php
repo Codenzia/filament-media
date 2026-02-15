@@ -88,7 +88,7 @@
             <p class="sm:hidden text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                 @if (!$isFolder && !$fileExists)
                     <span class="text-red-500">{{ trans('filament-media::media.file_missing') }}</span>
-                @elseif(!$isFolder && isset($item['size']))
+                @elseif(isset($item['size']) && $item['size'])
                     {{ $item['size'] }}
                 @endif
                 @if (isset($item['created_at']))
@@ -101,7 +101,7 @@
 
     {{-- Size Column --}}
     <div class="hidden sm:block col-span-2 text-sm text-gray-500 dark:text-gray-400">
-        @if (!$isFolder && isset($item['size']))
+        @if (isset($item['size']) && $item['size'])
             {{ $item['size'] }}
         @else
             —
