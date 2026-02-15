@@ -11,6 +11,10 @@ use Illuminate\Support\Str;
 use Symfony\Component\Mime\MimeTypes;
 use Throwable;
 
+/**
+ * Resolves media file URLs, real paths, MIME types, and download responses
+ * across local and cloud storage drivers.
+ */
 class MediaUrlService
 {
     public function __construct(

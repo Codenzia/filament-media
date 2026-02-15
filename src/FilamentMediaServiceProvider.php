@@ -27,6 +27,12 @@ use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
+/**
+ * Laravel service provider for the Filament Media package.
+ *
+ * Registers all singleton services, Livewire components, Filament assets,
+ * config/views/translations, routes, migrations, and Artisan commands.
+ */
 class FilamentMediaServiceProvider extends PackageServiceProvider
 {
     public static string $name = 'filament-media';

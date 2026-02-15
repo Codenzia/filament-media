@@ -7,6 +7,10 @@ use Codenzia\FilamentMedia\Models\MediaFile;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Artisan command that finds and removes database entries for media files
+ * whose physical files no longer exist on disk.
+ */
 class CleanupOrphanedMedia extends Command
 {
     protected $signature = 'media:cleanup

@@ -5,6 +5,9 @@ namespace Codenzia\FilamentMedia\Services;
 use Codenzia\FilamentMedia\Helpers\BaseHelper;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
+/**
+ * Eloquent cast that sanitizes HTML content on get and set to prevent XSS.
+ */
 class SafeContentService implements CastsAttributes
 {
     public function set($model, string $key, $value, array $attributes)

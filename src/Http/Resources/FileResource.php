@@ -9,6 +9,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\File;
 
 /**
+ * API resource that transforms a MediaFile model into its JSON representation
+ * including URLs, thumbnails, metadata, and linked model information.
+ *
  * @mixin MediaFile
  */
 class FileResource extends JsonResource

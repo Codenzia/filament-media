@@ -11,6 +11,10 @@ use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
+/**
+ * Livewire component that manages the file upload modal with queue tracking,
+ * progress updates, and batch upload completion notifications.
+ */
 class UploadModal extends Component
 {
     public bool $isOpen = false;

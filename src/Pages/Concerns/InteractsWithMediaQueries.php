@@ -15,6 +15,13 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 
+/**
+ * Provides computed Livewire properties for querying media data.
+ *
+ * Exposes items, breadcrumbs, selected item details, and sidebar data as
+ * computed properties, with query strategies for all media, trash, recent,
+ * favorites, and collection views.
+ */
 trait InteractsWithMediaQueries
 {
     #[Computed]

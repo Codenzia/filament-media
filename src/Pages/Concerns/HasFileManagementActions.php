@@ -15,6 +15,12 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 
+/**
+ * Provides core file management Filament actions for the media manager.
+ *
+ * Includes actions for uploading files (local and URL), creating folders,
+ * renaming, moving, copying, trashing, permanent deletion, emptying trash, and restoring items.
+ */
 trait HasFileManagementActions
 {
     protected function getHeaderActions(): array
@@ -73,10 +79,7 @@ trait HasFileManagementActions
 
                 $this->refresh();
 
-                Notification::make()
-                    ->title(trans('filament-media::media.folder_created'))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('folder_created');
             });
     }
 
@@ -122,10 +125,7 @@ trait HasFileManagementActions
                         ->success()
                         ->send();
                 } else {
-                    Notification::make()
-                        ->title(trans('filament-media::media.upload_error'))
-                        ->danger()
-                        ->send();
+                    $this->notifyError('upload_error');
                 }
             });
     }
@@ -176,10 +176,7 @@ trait HasFileManagementActions
                 $this->selectedItems = [];
                 $this->refresh();
 
-                Notification::make()
-                    ->title(trans('filament-media::media.trash_success'))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('trash_success');
             });
     }
 
@@ -233,10 +230,7 @@ trait HasFileManagementActions
 
                 $this->refresh();
 
-                Notification::make()
-                    ->title(trans('filament-media::media.rename_success'))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('rename_success');
             });
     }
 
@@ -309,10 +303,7 @@ trait HasFileManagementActions
                 $this->selectedItems = [];
                 $this->refresh();
 
-                Notification::make()
-                    ->title(trans('filament-media::media.move_success'))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('move_success');
             });
     }
 
@@ -356,10 +347,7 @@ trait HasFileManagementActions
 
                 $this->refresh();
 
-                Notification::make()
-                    ->title(trans('filament-media::media.copy_success', ['count' => $count]))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('copy_success', ['count' => $count]);
             });
     }
 
@@ -397,10 +385,7 @@ trait HasFileManagementActions
                 $this->selectedItems = [];
                 $this->refresh();
 
-                Notification::make()
-                    ->title(trans('filament-media::media.delete_success'))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('delete_success');
             });
     }
 
@@ -423,10 +408,7 @@ trait HasFileManagementActions
 
                 $this->refresh();
 
-                Notification::make()
-                    ->title(trans('filament-media::media.empty_trash_success'))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('empty_trash_success');
             });
     }
 
@@ -449,10 +431,7 @@ trait HasFileManagementActions
                 $this->selectedItems = [];
                 $this->refresh();
 
-                Notification::make()
-                    ->title(trans('filament-media::media.restore_success'))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('restore_success');
             });
     }
 }

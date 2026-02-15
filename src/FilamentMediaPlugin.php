@@ -5,6 +5,9 @@ namespace Codenzia\FilamentMedia;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 
+/**
+ * Filament panel plugin that registers the media manager and settings pages.
+ */
 class FilamentMediaPlugin implements Plugin
 {
     public function getId(): string

@@ -9,6 +9,10 @@ use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 use Intervention\Image\ImageManager;
 
+/**
+ * Crops and resizes images to generate thumbnails using Imagick or GD,
+ * with support for both local and cloud storage.
+ */
 class ThumbnailService
 {
     protected string $image;

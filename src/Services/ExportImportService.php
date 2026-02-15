@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use ZipArchive;
 
+/**
+ * Handles exporting media files as ZIP archives and importing from ZIP files or directories,
+ * with support for metadata manifests including tags, collections, and custom fields.
+ */
 class ExportImportService
 {
     public function __construct(

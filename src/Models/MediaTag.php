@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
+/**
+ * Represents a tag or collection used to categorize media files and folders.
+ * Supports hierarchical parent-child relationships.
+ */
 class MediaTag extends Model
 {
     protected $table = 'media_tags';

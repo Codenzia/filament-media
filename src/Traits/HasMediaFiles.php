@@ -8,6 +8,10 @@ use Codenzia\FilamentMedia\Services\UploadService;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Http\UploadedFile;
 
+/**
+ * Provides polymorphic media file relationships and convenience methods for
+ * attaching, detaching, querying, and uploading media on Eloquent models.
+ */
 trait HasMediaFiles
 {
     public function files(): MorphMany

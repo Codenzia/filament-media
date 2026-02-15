@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Encoders\AutoEncoder;
 use Intervention\Image\ImageManager;
 
+/**
+ * Handles image processing including thumbnail generation, watermark application,
+ * and size-aware URL resolution for media files.
+ */
 class ImageService
 {
     public function __construct(

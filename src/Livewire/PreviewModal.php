@@ -11,6 +11,10 @@ use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
+/**
+ * Livewire component that displays a file preview modal with navigation
+ * between files, version history, and thumbnail strip support.
+ */
 class PreviewModal extends Component
 {
     public bool $isOpen = false;

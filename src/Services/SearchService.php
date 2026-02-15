@@ -6,6 +6,10 @@ use Codenzia\FilamentMedia\Models\MediaFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
+/**
+ * Handles media file searching via database queries or Laravel Scout,
+ * with support for advanced multi-criteria filtering.
+ */
 class SearchService
 {
     public function search(string $query, array $filters = []): Collection

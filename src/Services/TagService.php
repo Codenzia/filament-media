@@ -8,6 +8,10 @@ use Codenzia\FilamentMedia\Models\MediaTag;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
+/**
+ * Manages tags and collections for media files and folders,
+ * including attaching, syncing, merging, and collection CRUD operations.
+ */
 class TagService
 {
     public function attachTags(MediaFile|MediaFolder $item, array $tagNames): void

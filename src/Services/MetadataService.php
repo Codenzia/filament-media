@@ -6,6 +6,10 @@ use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaMetadataField;
 use Illuminate\Support\Collection;
 
+/**
+ * Manages custom metadata fields and their values on media files,
+ * including EXIF data extraction from images.
+ */
 class MetadataService
 {
     // ──────────────────────────────────────────────────

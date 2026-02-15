@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+/**
+ * Artisan command that scans the configured storage disk and creates
+ * database records for any files and folders not yet tracked.
+ */
 class SyncMediaCommand extends Command
 {
     protected $signature = 'filament-media:sync';
@@ -89,12 +93,7 @@ class SyncMediaCommand extends Command
                 ->first();
 
             if ($existingFile) {
-                // Determine if we should check for extension too? 
-                // MediaFile 'name' stores filename without extension usually, 
-                // but checking the model, 'name' seems to be the name displayed.
-                // The 'url' stores the full path or relative path.
-                
-                // Let's check by URL/path to be safer
+                // Verify by storage path to avoid duplicates with the same display name
                 if (MediaFile::where('url', $filePath)->exists()) {
                      continue;
                 }
@@ -104,9 +103,7 @@ class SyncMediaCommand extends Command
             $size = $storage->size($filePath);
             
             $file = new MediaFile();
-            $file->name = pathinfo($fileName, PATHINFO_FILENAME); // Or full name? ModelFactory uses logic.
-            // In MediaFile model: createSlug uses name and extension.
-            // Let's use the exact file name found.
+            $file->name = pathinfo($fileName, PATHINFO_FILENAME);
             
             $file->folder_id = $parentId;
             $file->user_id = 0;

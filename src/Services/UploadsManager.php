@@ -11,6 +11,10 @@ use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToRetrieveMetadata;
 use Codenzia\FilamentMedia\Facades\FilamentMedia;
 
+/**
+ * Low-level filesystem operations for saving, deleting, and inspecting uploaded files,
+ * with support for chunked uploads and visibility-based disk selection.
+ */
 class UploadsManager
 {
     public function fileDetails(string $path): array

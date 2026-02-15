@@ -11,6 +11,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Central service class for the Filament Media package.
+ *
+ * Provides configuration access, permission management, folder creation,
+ * service delegation for URL/file/image operations, and JSON response helpers.
+ */
 class FilamentMedia
 {
     protected array $permissions = [];

@@ -4,6 +4,9 @@ namespace Codenzia\FilamentMedia\Services;
 
 use Codenzia\FilamentMedia\Models\MediaSetting;
 
+/**
+ * Manages per-user favorite and recently accessed media items.
+ */
 class FavoriteService
 {
     public function addToFavorites(array $items, int $userId): void

@@ -7,6 +7,10 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Mime\MimeTypes;
 
+/**
+ * Detects files on the storage disk that have no corresponding database record,
+ * and provides options to import or delete them.
+ */
 class OrphanScanService
 {
     public function __construct(

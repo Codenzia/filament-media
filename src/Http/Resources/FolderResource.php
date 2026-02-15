@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
+ * API resource that transforms a MediaFolder model into its JSON representation
+ * with optional nested file resources.
+ *
  * @mixin MediaFolder
  */
 class FolderResource extends JsonResource

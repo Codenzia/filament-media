@@ -4,6 +4,9 @@ namespace Codenzia\FilamentMedia\Commands;
 
 use Illuminate\Console\Command;
 
+/**
+ * Scaffold command for the filament-media package.
+ */
 class FilamentMediaCommand extends Command
 {
     public $signature = 'filament-media';

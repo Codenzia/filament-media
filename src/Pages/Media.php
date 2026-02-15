@@ -4,6 +4,7 @@ namespace Codenzia\FilamentMedia\Pages;
 
 use Codenzia\FilamentMedia\Pages\Concerns\HasExtendedMediaActions;
 use Codenzia\FilamentMedia\Pages\Concerns\HasFileManagementActions;
+use Codenzia\FilamentMedia\Pages\Concerns\HasMediaHelpers;
 use Codenzia\FilamentMedia\Pages\Concerns\InteractsWithMediaEvents;
 use Codenzia\FilamentMedia\Pages\Concerns\InteractsWithMediaQueries;
 use Codenzia\FilamentMedia\Pages\Concerns\InteractsWithMediaState;
@@ -11,9 +12,16 @@ use Filament\Pages\Page;
 use Livewire\Attributes\Url;
 use Livewire\WithFileUploads;
 
+/**
+ * Primary Filament page for the media manager interface.
+ *
+ * Composes traits for state management, data queries, event handling,
+ * file management actions, extended media actions, and shared helpers.
+ */
 class Media extends Page
 {
     use WithFileUploads;
+    use HasMediaHelpers;
     use InteractsWithMediaQueries;
     use InteractsWithMediaState;
     use InteractsWithMediaEvents;

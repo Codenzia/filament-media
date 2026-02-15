@@ -12,15 +12,22 @@ use Codenzia\FilamentMedia\Services\TagService;
 use Codenzia\FilamentMedia\Services\VersionService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
+/**
+ * Provides extended Filament modal actions for the media manager.
+ *
+ * Includes actions for favorites, collections, folder properties, alt text,
+ * tags, file versioning, custom metadata, bulk export, and parent model details.
+ */
 trait HasExtendedMediaActions
 {
     public function favoriteAction(): Action
@@ -34,10 +41,7 @@ trait HasExtendedMediaActions
 
                 $this->refresh();
 
-                Notification::make()
-                    ->title(trans('filament-media::media.favorite_success'))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('favorite_success');
             });
     }
 
@@ -52,10 +56,7 @@ trait HasExtendedMediaActions
 
                 $this->refresh();
 
-                Notification::make()
-                    ->title(trans('filament-media::media.remove_favorite_success'))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('remove_favorite_success');
             });
     }
 
@@ -80,10 +81,7 @@ trait HasExtendedMediaActions
 
                 $this->refresh();
 
-                Notification::make()
-                    ->title(trans('filament-media::media.removed_from_collection'))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('removed_from_collection');
             });
     }
 
@@ -103,7 +101,7 @@ trait HasExtendedMediaActions
                 return [];
             })
             ->schema([
-                \Filament\Forms\Components\ColorPicker::make('color')
+                ColorPicker::make('color')
                     ->label(trans('filament-media::media.properties.color_label'))
                     ->required(),
             ])
@@ -115,7 +113,7 @@ trait HasExtendedMediaActions
                     }
                 }
                 $this->refresh();
-                Notification::make()->title(trans('filament-media::media.update_properties_success'))->success()->send();
+                $this->notifySuccess('update_properties_success');
             });
     }
 
@@ -147,7 +145,7 @@ trait HasExtendedMediaActions
                     }
                 }
                 $this->refresh();
-                Notification::make()->title(trans('filament-media::media.update_alt_text_success'))->success()->send();
+                $this->notifySuccess('update_alt_text_success');
             });
     }
 
@@ -194,10 +192,7 @@ trait HasExtendedMediaActions
 
                 $this->refresh();
 
-                Notification::make()
-                    ->title(trans('filament-media::media.tags_updated'))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('tags_updated');
             });
     }
 
@@ -241,10 +236,7 @@ trait HasExtendedMediaActions
                     $tagService->addToCollection($data['collection_id'], $fileIds);
                 }
 
-                Notification::make()
-                    ->title(trans('filament-media::media.added_to_collection'))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('added_to_collection');
             });
     }
 
@@ -281,10 +273,7 @@ trait HasExtendedMediaActions
 
                 $this->refresh();
 
-                Notification::make()
-                    ->title(trans('filament-media::media.version_created'))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('version_created');
             });
     }
 
@@ -323,9 +312,9 @@ trait HasExtendedMediaActions
 
                 if ($fields->isEmpty()) {
                     return [
-                        \Filament\Forms\Components\Placeholder::make('no_fields')
+                        TextEntry::make('no_fields')
                             ->label('')
-                            ->content(trans('filament-media::media.no_metadata_fields')),
+                            ->state(trans('filament-media::media.no_metadata_fields')),
                     ];
                 }
 
@@ -377,10 +366,7 @@ trait HasExtendedMediaActions
 
                 $metadataService->setMetadata($file, $fieldValues);
 
-                Notification::make()
-                    ->title(trans('filament-media::media.metadata_updated'))
-                    ->success()
-                    ->send();
+                $this->notifySuccess('metadata_updated');
             });
     }
 
@@ -406,10 +392,7 @@ trait HasExtendedMediaActions
                     ->toArray();
 
                 if (empty($fileIds)) {
-                    Notification::make()
-                        ->title(trans('filament-media::media.no_files_selected'))
-                        ->warning()
-                        ->send();
+                    $this->notifyWarning('no_files_selected');
 
                     return;
                 }
@@ -447,9 +430,9 @@ trait HasExtendedMediaActions
 
                 if (empty($items) || ($items[0]['is_folder'] ?? false)) {
                     return [
-                        \Filament\Forms\Components\Placeholder::make('no_parent')
+                        TextEntry::make('no_parent')
                             ->label('')
-                            ->content(trans('filament-media::media.not_linked')),
+                            ->state(trans('filament-media::media.not_linked')),
                     ];
                 }
 
@@ -458,9 +441,9 @@ trait HasExtendedMediaActions
 
                 if (! $info) {
                     return [
-                        \Filament\Forms\Components\Placeholder::make('no_parent')
+                        TextEntry::make('no_parent')
                             ->label('')
-                            ->content(trans('filament-media::media.not_linked')),
+                            ->state(trans('filament-media::media.not_linked')),
                     ];
                 }
 

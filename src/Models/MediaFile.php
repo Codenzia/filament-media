@@ -20,6 +20,9 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Str;
 
+/**
+ * Represents an uploaded media file with metadata, tags, versioning, and folder organization.
+ */
 class MediaFile extends Model
 {
     use HasFactory;

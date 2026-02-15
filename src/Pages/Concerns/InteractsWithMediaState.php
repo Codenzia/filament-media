@@ -6,9 +6,14 @@ use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
 use Codenzia\FilamentMedia\Models\MediaSetting;
 use Codenzia\FilamentMedia\Services\FileOperationService;
-use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Manages Livewire component state for the media manager page.
+ *
+ * Handles folder navigation, view switching, item selection, user preference
+ * persistence, filtering, sorting, drag-and-drop moves, and pagination.
+ */
 trait InteractsWithMediaState
 {
     public function mount(): void
@@ -228,10 +233,7 @@ trait InteractsWithMediaState
             $id = $item['id'];
 
             if ($isFolder && $id === $destinationFolderId) {
-                Notification::make()
-                    ->title(trans('filament-media::media.move_error'))
-                    ->danger()
-                    ->send();
+                $this->notifyError('move_error');
 
                 return;
             }
@@ -252,10 +254,7 @@ trait InteractsWithMediaState
         $this->selectedItems = [];
         $this->refresh();
 
-        Notification::make()
-            ->title(trans('filament-media::media.move_success'))
-            ->success()
-            ->send();
+        $this->notifySuccess('move_success');
     }
 
     public function refresh(): void

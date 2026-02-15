@@ -5,6 +5,10 @@ namespace Codenzia\FilamentMedia\Helpers;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Blade;
 
+/**
+ * General-purpose utility methods for file size formatting, date formatting,
+ * HTML sanitization, error logging, and safe string conversion.
+ */
 class BaseHelper
 {
     public static function humanFilesize(int|float $bytes, int $precision = 2): string

@@ -5,6 +5,10 @@ namespace Codenzia\FilamentMedia\Forms;
 use Closure;
 use Filament\Forms\Components\Field;
 
+/**
+ * Custom Filament form field that opens a media picker modal for selecting
+ * files from the media library with support for type filtering and multiple selection.
+ */
 class MediaPickerField extends Field
 {
     protected string $view = 'filament-media::forms.media-picker-field';

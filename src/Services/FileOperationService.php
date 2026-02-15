@@ -16,6 +16,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Performs file and folder operations including delete, rename, copy, and move,
+ * handling both database records and physical storage.
+ */
 class FileOperationService
 {
     public function __construct(

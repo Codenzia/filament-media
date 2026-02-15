@@ -8,6 +8,10 @@ use Codenzia\FilamentMedia\Services\MediaUrlService;
 use Illuminate\Support\Arr;
 use Livewire\Component;
 
+/**
+ * Livewire component for browsing and selecting media files with folder navigation,
+ * search, filtering, sorting, and single/multiple selection modes.
+ */
 class MediaPicker extends Component
 {
     public array $selected = [];

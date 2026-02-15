@@ -18,6 +18,10 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+/**
+ * Represents a hierarchical folder for organizing media files.
+ * Supports nested parent-child relationships, tagging, and cascading soft deletes.
+ */
 class MediaFolder extends BaseModel
 {
     use HasFactory;

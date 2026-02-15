@@ -5,6 +5,10 @@ namespace Codenzia\FilamentMedia\Services;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Resolves and configures filesystem disks for media storage,
+ * supporting local, S3, R2, DigitalOcean Spaces, Wasabi, BunnyCDN, and Backblaze.
+ */
 class StorageDriverService
 {
     public function getMediaDriver(): string

@@ -6,7 +6,7 @@ use Codenzia\FilamentMedia\Facades\FilamentMedia;
 use Codenzia\FilamentMedia\Helpers\BaseHelper;
 use Codenzia\FilamentMedia\Models\MediaSetting;
 use Codenzia\FilamentMedia\Services\OrphanScanService;
-
+use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
@@ -21,6 +21,12 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 
+/**
+ * Filament settings page for media configuration.
+ *
+ * Provides administrative controls for storage drivers, file type restrictions,
+ * thumbnail generation, watermark settings, chunk uploads, and orphan file management.
+ */
 class MediaSettings extends Page implements HasForms
 {
     use InteractsWithForms;
@@ -162,7 +168,7 @@ class MediaSettings extends Page implements HasForms
     public function form(Schema $schema): Schema
     {
         return $schema
-            ->Components([
+            ->components([
                 // Storage Configuration Section
                 Section::make(trans('filament-media::media.settings.storage'))
                     ->description(trans('filament-media::media.settings.storage_description'))
@@ -182,11 +188,9 @@ class MediaSettings extends Page implements HasForms
                             ->live()
                             ->helperText(trans('filament-media::media.settings.storage_driver_help')),
 
-                        // Cloud storage notice
                         TextEntry::make('cloud_credentials_notice')
-                            //TODO: remove this line?
-                            //->content(trans('filament-media::media.settings.cloud_credentials_notice'))
-                            ->visible(fn($get) => in_array($get('storage_driver'), ['s3', 'r2', 'do_spaces', 'wasabi', 'backblaze']))
+                            ->state(trans('filament-media::media.settings.cloud_credentials_notice'))
+                            ->visible(fn ($get) => in_array($get('storage_driver'), ['s3', 'r2', 'do_spaces', 'wasabi', 'backblaze']))
                             ->extraAttributes(['class' => 'text-warning-600 dark:text-warning-400']),
                         Grid::make(2)
                             ->schema([
@@ -371,6 +375,7 @@ class MediaSettings extends Page implements HasForms
             ->title(trans('filament-media::media.settings.saved'))
             ->success()
             ->send();
+        // Note: MediaSettings doesn't use HasMediaHelpers trait, so notifications remain direct
     }
 
     protected function saveSettings(array $data): void
@@ -551,7 +556,7 @@ class MediaSettings extends Page implements HasForms
     protected function getFormActions(): array
     {
         return [
-            \Filament\Actions\Action::make('save')
+            Action::make('save')
                 ->label(trans('filament-media::media.settings.save'))
                 ->submit('save'),
         ];

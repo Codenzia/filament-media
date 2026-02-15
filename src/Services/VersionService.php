@@ -9,6 +9,10 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Manages media file versioning, including creating snapshots,
+ * reverting to previous versions, comparing diffs, and pruning old versions.
+ */
 class VersionService
 {
     public function __construct(

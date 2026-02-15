@@ -4,6 +4,13 @@ namespace Codenzia\FilamentMedia\Pages\Concerns;
 
 use Livewire\Attributes\On;
 
+/**
+ * Handles Livewire event listeners for the media manager page.
+ *
+ * Bridges JavaScript-dispatched context menu events to their corresponding
+ * Filament modal actions, enabling seamless interaction between the frontend
+ * and server-side action handlers.
+ */
 trait InteractsWithMediaEvents
 {
     #[On('open-download-url-modal')]

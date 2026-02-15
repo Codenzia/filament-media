@@ -19,6 +19,10 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Symfony\Component\Mime\MimeTypes;
 use Throwable;
 
+/**
+ * Orchestrates file uploads from multiple sources (form input, URL, path, blob, editor),
+ * handling validation, SSRF protection, folder resolution, and storage delegation.
+ */
 class UploadService
 {
     public function __construct(

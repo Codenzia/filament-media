@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 
+/**
+ * Defines a custom metadata field that can be attached to media files.
+ */
 class MediaMetadataField extends Model
 {
     protected $table = 'media_metadata_fields';

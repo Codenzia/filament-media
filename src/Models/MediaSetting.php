@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model as BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Stores key-value configuration settings scoped to users, media files, or system-wide.
+ */
 class MediaSetting extends BaseModel
 {
     use HasFactory;
