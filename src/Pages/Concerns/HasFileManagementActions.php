@@ -13,7 +13,10 @@ use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ViewField;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Section;
 
 /**
  * Provides core file management Filament actions for the media manager.
@@ -26,12 +29,6 @@ trait HasFileManagementActions
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('create_folder_header')
-                ->label(trans('filament-media::media.create_folder'))
-                ->icon('heroicon-m-folder-plus')
-                ->color('gray')
-                ->alpineClickHandler('$wire.mountAction(\'create_folder\')'),
-
             ActionGroup::make([
                 Action::make('upload_from_local')
                     ->label(trans('filament-media::media.upload_from_local'))
@@ -74,10 +71,12 @@ trait HasFileManagementActions
                     ->maxLength(120)
                     ->autofocus()
                     ->rules([
-                        fn () => function (string $attribute, $value, \Closure $fail) {
+                        fn(Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
+                            $parentId = $get('parent_id') ?? $this->folderId ?? 0;
+
                             $exists = MediaFolder::withoutGlobalScopes()
                                 ->where('name', $value)
-                                ->where('parent_id', $this->folderId ?? 0)
+                                ->where('parent_id', $parentId)
                                 ->whereNull('deleted_at')
                                 ->exists();
 
@@ -86,9 +85,23 @@ trait HasFileManagementActions
                             }
                         },
                     ]),
+                Section::make([
+                    ViewField::make('parent_id')
+                        ->hiddenLabel()
+                        ->view('filament-media::forms.folder-location-picker')
+                        ->viewData([
+                            'folderTree' => $this->buildFolderTree(),
+                            'initialBreadcrumbs' => $this->buildBreadcrumbsForFolder($this->folderId),
+                            'initialFolderId' => $this->folderId ?? 0,
+                        ])
+                        ->default($this->folderId ?? 0),
+                ])
+                    ->label(trans('filament-media::media.new_folder_location')),
             ])
             ->action(function (array $data) {
-                FilamentMedia::createFolder($data['name'], $this->folderId);
+                $parentId = $data['parent_id'] ?? $this->folderId ?? 0;
+
+                FilamentMedia::createFolder($data['name'], $parentId);
 
                 $this->refresh();
 
@@ -149,7 +162,7 @@ trait HasFileManagementActions
             ->label(trans('filament-media::media.move'))
             ->requiresConfirmation()
             ->modalHeading(trans('filament-media::media.move_to'))
-            ->modalDescription(fn (array $arguments) => trans(
+            ->modalDescription(fn(array $arguments) => trans(
                 'filament-media::media.confirm_move_to_folder',
                 ['folder' => $arguments['folderName'] ?? '']
             ))
@@ -468,6 +481,52 @@ trait HasFileManagementActions
 
                 $this->notifySuccess('restore_success');
             });
+    }
+
+    protected function buildFolderTree(): array
+    {
+        $folders = MediaFolder::query()
+            ->whereNull('deleted_at')
+            ->orderBy('name')
+            ->get(['id', 'name', 'parent_id', 'color'])
+            ->toArray();
+
+        $tree = [];
+        $map = [];
+
+        foreach ($folders as $folder) {
+            $folder['children'] = [];
+            $map[$folder['id']] = $folder;
+        }
+
+        foreach ($map as $id => &$folder) {
+            $parentId = $folder['parent_id'] ?? 0;
+            if ($parentId && isset($map[$parentId])) {
+                $map[$parentId]['children'][] = &$folder;
+            } else {
+                $tree[] = &$folder;
+            }
+        }
+        unset($folder);
+
+        return $tree;
+    }
+
+    protected function buildBreadcrumbsForFolder(?int $folderId): array
+    {
+        $breadcrumbs = [['id' => 0, 'name' => trans('filament-media::media.all_media')]];
+
+        if ($folderId && $folderId > 0) {
+            $folder = MediaFolder::find($folderId);
+            if ($folder) {
+                foreach ($folder->parents->reverse() as $parent) {
+                    $breadcrumbs[] = ['id' => $parent->id, 'name' => $parent->name];
+                }
+                $breadcrumbs[] = ['id' => $folder->id, 'name' => $folder->name];
+            }
+        }
+
+        return $breadcrumbs;
     }
 
     public function change_visibilityAction(): Action

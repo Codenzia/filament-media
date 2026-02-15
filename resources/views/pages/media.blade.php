@@ -3,6 +3,7 @@
     shiftKey: false,
     lastSelectedIndex: null,
     contextMenu: { show: false, x: 0, y: 0, item: null },
+    bgContextMenu: { show: false, x: 0, y: 0 },
     focusedIndex: -1,
     viewIn: '{{ $viewIn }}',
 
@@ -81,6 +82,7 @@
                 // Escape: Clear selection
             case 'Escape':
                 this.contextMenu.show = false;
+                this.bgContextMenu.show = false;
                 $wire.clearSelection();
                 this.focusedIndex = -1;
                 break;
@@ -360,6 +362,44 @@
                     <span>{{ $crumb['name'] }}</span>
                 </button>
             @endforeach
+
+            <div class="flex-1"></div>
+
+            {{-- Breadcrumb actions menu (only in all_media view) --}}
+            <div class="flex-shrink-0" x-show="$wire.viewIn === 'all_media'" x-cloak
+                x-data="{ open: false, dropdownX: 0, dropdownY: 0 }"
+                x-on:click.outside="open = false">
+                <button type="button" x-ref="breadcrumbMenuBtn"
+                    x-on:click="
+                        const rect = $refs.breadcrumbMenuBtn.getBoundingClientRect();
+                        dropdownX = rect.right - 192;
+                        dropdownY = rect.bottom + 4;
+                        open = !open;
+                    "
+                    class="w-7 h-7 rounded-md flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <x-filament::icon icon="heroicon-m-ellipsis-vertical" class="w-4 h-4" />
+                </button>
+
+                <template x-teleport="body">
+                    <div x-show="open" x-cloak
+                        x-on:click.outside="open = false"
+                        x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="opacity-0 scale-95"
+                        x-transition:enter-end="opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-75"
+                        x-transition:leave-start="opacity-100 scale-100"
+                        x-transition:leave-end="opacity-0 scale-95"
+                        class="fixed w-48 rounded-lg bg-white dark:bg-gray-900 shadow-lg ring-1 ring-gray-200 dark:ring-gray-700 py-1"
+                        :style="`left: ${dropdownX}px; top: ${dropdownY}px; z-index: 200;`">
+                        <button type="button"
+                            x-on:click="open = false; $wire.mountAction('create_folder')"
+                            class="flex items-center gap-2 w-full px-3 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                            <x-filament::icon icon="heroicon-m-folder-plus" class="w-4 h-4" style="color: var(--fm-icon-color)" />
+                            {{ trans('filament-media::media.create_folder') }}
+                        </button>
+                    </div>
+                </template>
+            </div>
         </nav>
 
         {{-- Main Content Area --}}
@@ -367,7 +407,15 @@
             {{-- File Browser --}}
             <main x-data="{ isDropZone: false }" class="fm-browser flex-1 overflow-y-auto p-4 relative"
                 :class="{ 'fm-drag-over': isDropZone }" wire:loading.class="opacity-50"
-                x-on:contextmenu.prevent="if (!$event.target.closest('.fm-item')) { $wire.clearSelection() }"
+                x-on:contextmenu.prevent="
+                    if (!$event.target.closest('.fm-item')) {
+                        $wire.clearSelection();
+                        contextMenu.show = false;
+                        if ($wire.viewIn === 'all_media') {
+                            bgContextMenu = { show: true, x: $event.clientX, y: $event.clientY };
+                        }
+                    }
+                "
                 x-on:dragover="
                     if ($event.dataTransfer.types.includes('Files')) {
                         $event.preventDefault();
@@ -589,6 +637,25 @@
         x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75"
         x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
         @include('filament-media::components.context-menu')
+    </div>
+
+    {{-- Background Context Menu (right-click on empty grid space) --}}
+    <div x-show="bgContextMenu.show" x-cloak
+        class="fm-context-menu fixed min-w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-1 overflow-hidden"
+        :style="`left: ${bgContextMenu.x}px; top: ${bgContextMenu.y}px;`"
+        x-on:click.away="bgContextMenu.show = false"
+        x-transition:enter="transition ease-out duration-100"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-75"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-95">
+        <button type="button"
+            x-on:click="bgContextMenu.show = false; $wire.mountAction('create_folder')"
+            class="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+            <x-filament::icon icon="heroicon-m-folder-plus" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
+            {{ trans('filament-media::media.create_folder_here') }}
+        </button>
     </div>
 
     {{-- Loading Overlay --}}

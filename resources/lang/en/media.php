@@ -29,6 +29,8 @@ return [
     'insert' => 'Insert',
     'folder_name' => 'Folder Name',
     'folder_name_exists' => 'A folder with this name already exists.',
+    'new_folder_location' => 'Create new folder in:',
+    'create_folder_here' => 'New Folder',
     'create' => 'Create',
     'rename' => 'Rename',
     'crop' => 'Crop',

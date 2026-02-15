@@ -1,14 +1,25 @@
 {{-- Context Menu Items --}}
 <div x-show="contextMenu.item" x-cloak>
-    {{-- Open/Preview (hidden for missing files) --}}
+    {{-- Open (folders only) --}}
     <button
-        x-show="contextMenu.item && (contextMenu.item.is_folder || contextMenu.item.file_exists !== false)"
+        x-show="contextMenu.item?.is_folder"
         type="button"
         class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-        x-on:click="if(contextMenu.item) { $wire.openItem({ id: contextMenu.item.id, is_folder: contextMenu.item.is_folder }); contextMenu.show = false; }"
+        x-on:click="if(contextMenu.item) { $wire.openItem({ id: contextMenu.item.id, is_folder: true }); contextMenu.show = false; }"
+    >
+        <x-filament::icon icon="heroicon-m-folder-open" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
+        <span>{{ trans('filament-media::media.open') }}</span>
+    </button>
+
+    {{-- Preview (files only, file must exist) --}}
+    <button
+        x-show="contextMenu.item && !contextMenu.item.is_folder && contextMenu.item.file_exists !== false"
+        type="button"
+        class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        x-on:click="if(contextMenu.item) { $wire.openItem({ id: contextMenu.item.id, is_folder: false }); contextMenu.show = false; }"
     >
         <x-filament::icon icon="heroicon-m-eye" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
-        <span x-text="contextMenu.item?.is_folder ? '{{ trans('filament-media::media.open') }}' : '{{ trans('filament-media::media.preview') }}'"></span>
+        <span>{{ trans('filament-media::media.preview') }}</span>
     </button>
 
     {{-- Divider - only show if Preview is visible (folder or existing file) --}}

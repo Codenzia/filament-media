@@ -56,6 +56,20 @@ trait InteractsWithMediaState
         $this->folderId = $folderId;
         $this->currentPage = 1;
         $this->selectedItems = [];
+
+        if ($this->viewIn !== 'all_media' && $folderId > 0) {
+            $stayInView = false;
+
+            if ($this->viewIn === 'trash') {
+                $stayInView = MediaFolder::onlyTrashed()->where('id', $folderId)->exists();
+            }
+
+            if (! $stayInView) {
+                $this->viewIn = 'all_media';
+                $this->collectionId = 0;
+            }
+        }
+
         unset($this->items, $this->breadcrumbs);
     }
 

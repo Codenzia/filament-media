@@ -50,6 +50,122 @@ document.addEventListener('alpine:init', () => {
      * This component integrates with the UploadService module
      * and Livewire for state management.
      */
+    /**
+     * Folder Location Picker - Alpine.js Component
+     *
+     * Renders a hierarchical folder tree for selecting
+     * a destination folder. Used in the Create Folder modal.
+     */
+    Alpine.data('folderLocationPicker', (config) => ({
+        state: null,
+        selectedFolderId: config.initialFolderId,
+        flatFolders: [],
+        folderMap: {},
+        expandedNodes: {},
+        breadcrumbs: config.initialBreadcrumbs,
+
+        init() {
+            this.state = this.$wire.$entangle(config.statePath);
+            this.flattenTree(config.folderTree, 0);
+            this.buildFolderMap();
+            this.expandPathTo(this.selectedFolderId);
+
+            this.$watch('selectedFolderId', (value) => {
+                this.state = value;
+                this.breadcrumbs = this.computeBreadcrumbs(value);
+            });
+        },
+
+        flattenTree(nodes, depth) {
+            for (const node of nodes) {
+                this.flatFolders.push({
+                    id: node.id,
+                    name: node.name,
+                    color: node.color,
+                    parentId: node.parent_id ?? 0,
+                    depth: depth,
+                    hasChildren: node.children && node.children.length > 0,
+                });
+                if (node.children && node.children.length > 0) {
+                    this.flattenTree(node.children, depth + 1);
+                }
+            }
+        },
+
+        buildFolderMap() {
+            this.folderMap = { 0: { id: 0, name: config.initialBreadcrumbs[0]?.name || 'All Media', parentId: null } };
+            for (const folder of this.flatFolders) {
+                this.folderMap[folder.id] = folder;
+            }
+        },
+
+        expandPathTo(folderId) {
+            let currentId = folderId;
+            while (currentId && this.folderMap[currentId]) {
+                const folder = this.folderMap[currentId];
+                if (folder.parentId !== null && folder.parentId !== undefined) {
+                    this.expandedNodes[folder.parentId] = true;
+                }
+                currentId = folder.parentId;
+            }
+        },
+
+        computeBreadcrumbs(folderId) {
+            const crumbs = [];
+            let currentId = folderId;
+
+            while (currentId !== null && currentId !== undefined && this.folderMap[currentId]) {
+                crumbs.unshift({
+                    id: this.folderMap[currentId].id,
+                    name: this.folderMap[currentId].name,
+                });
+                currentId = this.folderMap[currentId].parentId;
+            }
+
+            if (crumbs.length === 0 || crumbs[0].id !== 0) {
+                crumbs.unshift({
+                    id: 0,
+                    name: config.initialBreadcrumbs[0]?.name || 'All Media',
+                });
+            }
+
+            return crumbs;
+        },
+
+        selectFolder(id) {
+            this.selectedFolderId = id;
+            this.expandPathTo(id);
+        },
+
+        toggleExpand(id) {
+            this.expandedNodes[id] = !this.expandedNodes[id];
+        },
+
+        isVisible(folder) {
+            let currentId = folder.parentId;
+            while (currentId !== null && currentId !== undefined && currentId !== 0) {
+                if (!this.expandedNodes[currentId]) {
+                    return false;
+                }
+                const parent = this.folderMap[currentId];
+                if (!parent) return false;
+                currentId = parent.parentId;
+            }
+            // Root-level items (parentId = 0) are always visible
+            if (folder.parentId === 0 || folder.parentId === null) {
+                return true;
+            }
+            // Direct children of root need root to be "expanded" (always true)
+            return !!this.expandedNodes[folder.parentId];
+        },
+    }));
+
+    /**
+     * FilamentMedia Uploader - Alpine.js Component
+     *
+     * This component integrates with the UploadService module
+     * and Livewire for state management.
+     */
     Alpine.data('filamentMediaUploader', (config) => ({
         open: false,
         isDragging: false,

@@ -27,6 +27,8 @@ return [
     'nothing_is_selected' => 'لم يتم تحديد أي شيء',
     'insert' => 'إدراج',
     'folder_name' => 'إسم الملف',
+    'new_folder_location' => 'اختر اين تريد ان تنشئ ملف جديد',
+    'create_folder_here' => 'مجلد جديد',
     'create' => 'يخلق',
     'rename' => 'إعادة تسمية',
     'crop' => 'اقتصاص',

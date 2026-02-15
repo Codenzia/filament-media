@@ -52,6 +52,7 @@
     x-on:dblclick="$wire.openItem({{ json_encode($itemData) }})"
     x-on:contextmenu.prevent="
         $wire.selectItem({{ json_encode($itemData) }});
+        bgContextMenu.show = false;
         contextMenu = { show: true, x: $event.clientX, y: $event.clientY, item: {{ Js::from($item) }} };
     "
     role="button" tabindex="0" aria-label="{{ $item['name'] }}"
