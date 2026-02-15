@@ -70,7 +70,7 @@
                         <button
                             type="button"
                             class="p-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
-                            x-on:click="navigator.clipboard.writeText('{{ $fullUrl }}'); $dispatch('notify', { status: 'success', message: '{{ trans('filament-media::media.link_copied') }}' })"
+                            x-on:click="window.FilamentMedia.download.copyToClipboard('{{ $fullUrl }}').then(() => { $dispatch('notify', { status: 'success', message: '{{ trans('filament-media::media.link_copied') }}' }) })"
                             title="{{ trans('filament-media::media.copy_link') }}"
                         >
                             <x-filament::icon icon="heroicon-m-link" class="w-5 h-5" />

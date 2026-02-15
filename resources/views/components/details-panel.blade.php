@@ -63,7 +63,7 @@
                     </x-filament::button>
 
                     <x-filament::button size="sm" color="gray" icon="heroicon-m-link"
-                        x-on:click="navigator.clipboard.writeText('{{ $details['url'] }}'); $dispatch('notify', { status: 'success', message: '{{ trans('filament-media::media.link_copied') }}' })">
+                        x-on:click="window.FilamentMedia.download.copyToClipboard('{{ $details['url'] }}').then(() => { $dispatch('notify', { status: 'success', message: '{{ trans('filament-media::media.link_copied') }}' }) })">
                         {{ trans('filament-media::media.copy_link') }}
                     </x-filament::button>
                 @else

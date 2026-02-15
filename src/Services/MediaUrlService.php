@@ -39,7 +39,7 @@ class MediaUrlService
             }
 
             return $this->normalizeUrl(
-                str_replace('.digitaloceanspaces.com', '.cdn.digitaloceanspaces.com', Storage::url($path))
+                str_replace('.digitaloceanspaces.com', '.cdn.digitaloceanspaces.com', Storage::disk($driver)->url($path))
             );
         }
 
@@ -51,10 +51,10 @@ class MediaUrlService
                 return $this->normalizeUrl(rtrim($customDomain, '/') . '/' . ltrim($path, '/'));
             }
 
-            return $this->normalizeUrl(str_replace($currentEndpoint, $customDomain, Storage::url($path)));
+            return $this->normalizeUrl(str_replace($currentEndpoint, $customDomain, Storage::disk($driver)->url($path)));
         }
 
-        return $this->normalizeUrl(Storage::url($path));
+        return $this->normalizeUrl(Storage::disk($driver)->url($path));
     }
 
     public function getRealPath(?string $url): ?string
