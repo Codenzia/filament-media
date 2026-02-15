@@ -238,11 +238,11 @@ class MediaFolder extends BaseModel
             return $path;
         }
 
-        // Reverse to get root-first order
-        $builtPath = implode(DIRECTORY_SEPARATOR, array_reverse($pathParts));
+        // Reverse to get root-first order (always use forward slashes for Storage compatibility)
+        $builtPath = implode('/', array_reverse($pathParts));
 
         if ($path) {
-            return rtrim($builtPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
+            return rtrim($builtPath, '/') . '/' . ltrim($path, '/');
         }
 
         return $builtPath;

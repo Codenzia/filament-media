@@ -368,17 +368,18 @@
             <main x-data="{ isDropZone: false }" class="fm-browser flex-1 overflow-y-auto p-4 relative"
                 :class="{ 'fm-drag-over': isDropZone }" wire:loading.class="opacity-50"
                 x-on:contextmenu.prevent="if (!$event.target.closest('.fm-item')) { $wire.clearSelection() }"
-                x-on:dragover.prevent="
+                x-on:dragover="
                     if ($event.dataTransfer.types.includes('Files')) {
+                        $event.preventDefault();
                         isDropZone = true;
                         $event.dataTransfer.dropEffect = 'copy';
                     }
                 "
-                x-on:dragleave.prevent="isDropZone = false"
+                x-on:dragleave="isDropZone = false"
                 x-on:drop.prevent="
                     isDropZone = false;
                     if ($event.dataTransfer.files.length > 0) {
-                        $dispatch('open-upload-modal', { folderId: {{ $folderId }} });
+                        $dispatch('upload-dropped-files', { folderId: {{ $folderId }}, files: $event.dataTransfer.files });
                     }
                 ">
                 {{-- Drop Overlay --}}

@@ -28,6 +28,11 @@ class FileOperationService
         protected ImageService $imageService
     ) {}
 
+    protected function storage(): \Illuminate\Contracts\Filesystem\Filesystem
+    {
+        return Storage::disk($this->storageDriver->getMediaDriver());
+    }
+
     public function deleteFile(MediaFile $file): bool
     {
         $this->deleteThumbnails($file);
@@ -62,7 +67,7 @@ class FileOperationService
         }
 
         try {
-            return Storage::delete($files);
+            return $this->storage()->delete($files);
         } catch (\Throwable) {
             return true;
         }
@@ -187,12 +192,21 @@ class FileOperationService
         $newSlug = MediaFile::createSlug($file->name, $extension, $folderPath ?: '');
         $newUrl = $folderPath ? $folderPath . '/' . $newSlug : $newSlug;
 
+        $disk = $this->storage();
+
         try {
-            Storage::move($file->url, $newUrl);
+            $disk->move($file->url, $newUrl);
             $this->deleteThumbnails($file);
             $file->url = $newUrl;
         } catch (\Throwable $e) {
-            logger()->warning('Failed to move file on disk', ['file' => $file->url, 'error' => $e->getMessage()]);
+            logger()->warning('Failed to move file on disk', [
+                'file' => $file->url,
+                'destination' => $newUrl,
+                'disk' => $this->storageDriver->getMediaDriver(),
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
         }
 
         $file->folder_id = $newFolderId;

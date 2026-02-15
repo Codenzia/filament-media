@@ -220,6 +220,18 @@ trait InteractsWithMediaState
         ]);
     }
 
+    public function confirmMoveToFolder(array $items, int $destinationFolderId): void
+    {
+        $folder = MediaFolder::find($destinationFolderId);
+        $folderName = $folder?->name ?? '';
+
+        $this->mountAction('move_to_folder', [
+            'items' => $items,
+            'destinationFolderId' => $destinationFolderId,
+            'folderName' => $folderName,
+        ]);
+    }
+
     public function moveItemsToFolder(array $items, int $destinationFolderId): void
     {
         if (empty($items)) {
@@ -246,7 +258,13 @@ trait InteractsWithMediaState
             } else {
                 $file = MediaFile::find($id);
                 if ($file) {
-                    $fileOps->moveFile($file, $destinationFolderId);
+                    try {
+                        $fileOps->moveFile($file, $destinationFolderId);
+                    } catch (\Throwable $e) {
+                        $this->notifyError('move_error');
+
+                        return;
+                    }
                 }
             }
         }

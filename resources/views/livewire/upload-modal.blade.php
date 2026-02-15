@@ -15,6 +15,11 @@
         x-model="$wire.isOpen"
         x-show="open"
         x-cloak
+        x-on:upload-dropped-files.window="
+            $wire.open($event.detail.folderId).then(() => {
+                handleFiles($event.detail.files);
+            });
+        "
         class="fixed inset-0 z-50 overflow-y-auto"
         aria-labelledby="upload-modal-title"
         role="dialog"

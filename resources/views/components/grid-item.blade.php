@@ -27,14 +27,14 @@
         $event.dataTransfer.setData('text/plain', '{{ $item['name'] }}');
     "
     x-on:dragend="isDragging = false"
-    @if ($isFolder) x-on:dragover.prevent="isDragOver = true; $event.dataTransfer.dropEffect = 'move'"
-    x-on:dragleave.prevent="isDragOver = false"
-    x-on:drop.prevent="
+    @if ($isFolder) x-on:dragover.stop.prevent="isDragOver = true; $event.dataTransfer.dropEffect = 'move'"
+    x-on:dragleave.stop.prevent="isDragOver = false"
+    x-on:drop.stop.prevent="
         isDragOver = false;
         try {
             const data = JSON.parse($event.dataTransfer.getData('application/json'));
             if (data && data.id !== {{ $item['id'] }}) {
-                $wire.moveItemsToFolder([data], {{ $item['id'] }});
+                $wire.confirmMoveToFolder([data], {{ $item['id'] }});
             }
         } catch (e) {
             console.error('Drop failed:', e);

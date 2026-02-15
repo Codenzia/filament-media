@@ -143,6 +143,28 @@ trait HasFileManagementActions
             });
     }
 
+    public function move_to_folderAction(): Action
+    {
+        return Action::make('move_to_folder')
+            ->label(trans('filament-media::media.move'))
+            ->requiresConfirmation()
+            ->modalHeading(trans('filament-media::media.move_to'))
+            ->modalDescription(fn (array $arguments) => trans(
+                'filament-media::media.confirm_move_to_folder',
+                ['folder' => $arguments['folderName'] ?? '']
+            ))
+            ->action(function (array $arguments) {
+                $items = $arguments['items'] ?? [];
+                $destinationFolderId = $arguments['destinationFolderId'] ?? null;
+
+                if (empty($items) || $destinationFolderId === null) {
+                    return;
+                }
+
+                $this->moveItemsToFolder($items, (int) $destinationFolderId);
+            });
+    }
+
     public function trashAction(): Action
     {
         return Action::make('trash')

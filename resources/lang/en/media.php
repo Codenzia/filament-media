@@ -52,6 +52,7 @@ return [
     'trash_success' => 'Selected item(s) moved to the trash successfully.',
     'move_error' => 'An error occurred while moving the selected item(s).',
     'move_success' => 'Selected item(s) moved successfully.',
+    'confirm_move_to_folder' => 'Are you sure you want to move the selected item(s) to ":folder"?',
     'selected_items_move_success' => 'Selected item(s) moved to :name successfully.',
     'selected_items_move_error' => 'An error occurred while moving the selected item(s) to :name.',
     'destination' => 'Destination',
