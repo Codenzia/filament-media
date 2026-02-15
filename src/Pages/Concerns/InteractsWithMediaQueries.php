@@ -112,13 +112,13 @@ trait InteractsWithMediaQueries
 
     protected function getFolderDetails(int $id): ?array
     {
-        $folder = MediaFolder::find($id);
+        $folder = MediaFolder::withTrashed()->find($id);
         if (! $folder) {
             return null;
         }
 
-        $fileCount = MediaFile::where('folder_id', $folder->id)->count();
-        $folderCount = MediaFolder::where('parent_id', $folder->id)->count();
+        $fileCount = MediaFile::withTrashed()->where('folder_id', $folder->id)->count();
+        $folderCount = MediaFolder::withTrashed()->where('parent_id', $folder->id)->count();
 
         return [
             'type' => 'folder',
@@ -135,7 +135,7 @@ trait InteractsWithMediaQueries
 
     protected function getFileDetails(int $id): ?array
     {
-        $file = MediaFile::find($id);
+        $file = MediaFile::withTrashed()->find($id);
         if (! $file) {
             return null;
         }

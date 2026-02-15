@@ -87,7 +87,7 @@ class PreviewModal extends Component
 
     protected function loadFile(int $fileId): void
     {
-        $file = MediaFile::find($fileId);
+        $file = MediaFile::withTrashed()->find($fileId);
 
         if (! $file) {
             $this->close();
@@ -160,7 +160,7 @@ class PreviewModal extends Component
 
         $urlService = app(MediaUrlService::class);
         $thumbnails = [];
-        $files = MediaFile::whereIn('id', $this->fileIds)->get()->keyBy('id');
+        $files = MediaFile::withTrashed()->whereIn('id', $this->fileIds)->get()->keyBy('id');
 
         foreach ($this->fileIds as $index => $fileId) {
             $file = $files->get($fileId);

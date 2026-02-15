@@ -8,15 +8,10 @@
         x-data="{
             open: @entangle('isOpen'),
             showVersions: false,
-            closing: false,
             closeModal() {
-                if (this.closing) return;
-                this.closing = true;
                 this.open = false;
-                setTimeout(() => {
-                    $wire.close();
-                    this.closing = false;
-                }, 250);
+                this.showVersions = false;
+                $wire.close();
             },
             handleKeydown(e) {
                 if (!this.open) return;
@@ -37,13 +32,14 @@
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
         x-on:keydown.window="handleKeydown($event)"
-        class="fm-preview-modal fixed inset-0 overflow-hidden z-50"
+        class="fm-preview-modal fixed inset-0 overflow-hidden"
+        style="z-index: 300;"
         aria-labelledby="preview-modal-title"
         role="dialog"
         aria-modal="true"
     >
         {{-- Backdrop --}}
-        <div class="fixed inset-0 bg-black" x-on:click="closeModal()"></div>
+        <div class="fixed inset-0 bg-black/90" x-on:click="closeModal()"></div>
 
         {{-- Modal Content --}}
         <div class="relative w-full h-full flex flex-col">
