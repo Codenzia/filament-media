@@ -12,7 +12,7 @@
     <div class="flex-shrink-0 flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
         {{-- Search --}}
         <div class="flex-1 relative">
-            <x-filament::icon icon="heroicon-m-magnifying-glass" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <x-filament::icon icon="heroicon-m-magnifying-glass" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-900 dark:text-gray-400" />
             <input
                 type="text"
                 wire:model.live.debounce.300ms="search"
@@ -57,7 +57,7 @@
     <div class="flex-shrink-0 flex items-center gap-1 px-4 py-2 text-sm border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 overflow-x-auto">
         @foreach($breadcrumbs as $i => $crumb)
             @if($i > 0)
-                <x-filament::icon icon="heroicon-m-chevron-right" class="w-3 h-3 text-gray-400 flex-shrink-0" />
+                <x-filament::icon icon="heroicon-m-chevron-right" class="w-3 h-3 text-gray-900 dark:text-gray-400 flex-shrink-0" />
             @endif
             <button
                 type="button"
@@ -72,7 +72,7 @@
     {{-- Content Area --}}
     <div class="flex-1 overflow-y-auto p-4">
         @if($folders->isEmpty() && $files->isEmpty())
-            <div class="flex flex-col items-center justify-center h-full text-gray-400">
+            <div class="flex flex-col items-center justify-center h-full text-gray-900 dark:text-gray-400">
                 <x-filament::icon icon="heroicon-o-folder-open" class="w-12 h-12 mb-2" />
                 <p class="text-sm">{{ trans('filament-media::media.no_search_results') }}</p>
             </div>
@@ -124,7 +124,7 @@
                                         default => 'heroicon-o-document',
                                     };
                                 @endphp
-                                <x-filament::icon :icon="$icon" class="w-8 h-8 text-gray-400" />
+                                <x-filament::icon :icon="$icon" class="w-8 h-8 text-gray-900 dark:text-gray-400" />
                             @endif
                         </div>
                         <span class="text-xs text-gray-700 dark:text-gray-300 truncate w-full text-center">{{ $file->name }}</span>
@@ -173,7 +173,7 @@
                                 default => 'heroicon-o-document',
                             };
                         @endphp
-                        <x-filament::icon :icon="$icon" class="w-5 h-5 text-gray-400 flex-shrink-0" />
+                        <x-filament::icon :icon="$icon" class="w-5 h-5 text-gray-900 dark:text-gray-400 flex-shrink-0" />
 
                         <span class="text-sm text-gray-700 dark:text-gray-300 truncate flex-1 text-left">{{ $file->name }}</span>
                         <span class="text-xs text-gray-400 flex-shrink-0">{{ $file->human_size }}</span>

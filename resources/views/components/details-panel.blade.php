@@ -26,7 +26,7 @@
                         'video' => 'text-purple-500',
                         'audio' => 'text-pink-500',
                         'document' => 'text-red-500',
-                        default => 'text-gray-400',
+                        default => 'text-gray-900 dark:text-gray-400',
                     };
                     $icon = match ($details['file_type'] ?? 'document') {
                         'image' => 'heroicon-o-photo',
@@ -44,9 +44,25 @@
     {{-- Details Content --}}
     <div class="flex-1 overflow-y-auto p-4">
         {{-- Name --}}
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white break-words mb-4">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white break-words mb-2">
             {{ $details['name'] }}
         </h3>
+
+        @if ($details['type'] === 'file' && isset($details['visibility']))
+            <div class="mb-4 flex items-center gap-2">
+                @if (($details['visibility'] ?? 'public') === 'private')
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                        <x-filament::icon icon="heroicon-m-lock-closed" class="w-3 h-3" />
+                        {{ trans('filament-media::media.visibility_private') }}
+                    </span>
+                @else
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                        <x-filament::icon icon="heroicon-m-globe-alt" class="w-3 h-3" />
+                        {{ trans('filament-media::media.visibility_public') }}
+                    </span>
+                @endif
+            </div>
+        @endif
 
         {{-- Quick Actions --}}
         <div class="flex flex-wrap gap-2 mb-6">

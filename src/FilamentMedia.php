@@ -2,6 +2,7 @@
 
 namespace Codenzia\FilamentMedia;
 
+use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
 use Codenzia\FilamentMedia\Services\ImageService;
 use Codenzia\FilamentMedia\Services\MediaUrlService;
@@ -20,6 +21,10 @@ use Illuminate\Support\Facades\Auth;
 class FilamentMedia
 {
     protected array $permissions = [];
+
+    protected ?\Closure $fileAccessCallback = null;
+
+    protected ?\Closure $mediaQueryScopeCallback = null;
 
     protected array $defaultPermissions = [
         'folders.create',
@@ -116,6 +121,42 @@ class FilamentMedia
     public function removePermission(string $permission): void
     {
         Arr::forget($this->permissions, $permission);
+    }
+
+    // ──────────────────────────────────────────────────
+    // File access authorization
+    // ──────────────────────────────────────────────────
+
+    public function authorizeFileAccessUsing(\Closure $callback): void
+    {
+        $this->fileAccessCallback = $callback;
+    }
+
+    public function canAccessFile(MediaFile $file, $user = null): bool
+    {
+        if ($file->visibility === 'public') {
+            return true;
+        }
+
+        if ($this->fileAccessCallback) {
+            return call_user_func($this->fileAccessCallback, $file, $user);
+        }
+
+        return $user !== null;
+    }
+
+    // ──────────────────────────────────────────────────
+    // Media query scoping
+    // ──────────────────────────────────────────────────
+
+    public function scopeMediaQueryUsing(\Closure $callback): void
+    {
+        $this->mediaQueryScopeCallback = $callback;
+    }
+
+    public function getMediaQueryScope(): ?\Closure
+    {
+        return $this->mediaQueryScopeCallback;
     }
 
     // ──────────────────────────────────────────────────

@@ -69,8 +69,22 @@ class MediaFolder extends BaseModel
         });
 
         static::addGlobalScope('ownMedia', function (Builder $query): void {
+            $user = auth()->user();
+
+            if (! $user) {
+                return;
+            }
+
+            $scopeCallback = app(\Codenzia\FilamentMedia\FilamentMedia::class)->getMediaQueryScope();
+
+            if ($scopeCallback) {
+                call_user_func($scopeCallback, $query, $user);
+
+                return;
+            }
+
             if (RvMedia::canOnlyViewOwnMedia()) {
-                $query->where('media_folders.user_id', auth()->id());
+                $query->where('media_folders.user_id', $user->getAuthIdentifier());
             }
         });
     }

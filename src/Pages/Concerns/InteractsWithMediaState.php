@@ -52,6 +52,7 @@ trait InteractsWithMediaState
 
     public function navigateToFolder(int $folderId): void
     {
+        $this->search = '';
         $this->folderId = $folderId;
         $this->currentPage = 1;
         $this->selectedItems = [];
@@ -60,6 +61,7 @@ trait InteractsWithMediaState
 
     public function setViewIn(string $viewIn): void
     {
+        $this->search = '';
         $this->viewIn = $viewIn;
         $this->folderId = 0;
         $this->collectionId = 0;
@@ -70,6 +72,7 @@ trait InteractsWithMediaState
 
     public function setCollection(int $collectionId): void
     {
+        $this->search = '';
         $this->viewIn = 'collections';
         $this->collectionId = $collectionId;
         $this->folderId = 0;

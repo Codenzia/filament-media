@@ -219,4 +219,75 @@ class FileOperationService
 
         return $file;
     }
+
+    public function changeVisibility(MediaFile $file, string $newVisibility): void
+    {
+        $oldVisibility = $file->visibility;
+
+        if ($oldVisibility === $newVisibility) {
+            return;
+        }
+
+        if (! $this->storageDriver->isUsingCloud()) {
+            $this->moveFileBetweenDisks($file, $oldVisibility, $newVisibility);
+        } else {
+            $disk = $this->storageDriver->getMediaDriver();
+
+            try {
+                Storage::disk($disk)->setVisibility($file->url, $newVisibility);
+            } catch (\Throwable $e) {
+                logger()->warning('Failed to set cloud visibility', [
+                    'file' => $file->url,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $file->visibility = $newVisibility;
+        $file->save();
+    }
+
+    protected function moveFileBetweenDisks(MediaFile $file, string $fromVisibility, string $toVisibility): void
+    {
+        $privateDisk = \Codenzia\FilamentMedia\FilamentMedia::getConfig('private_files.private_disk') ?? 'local';
+        $publicDisk = $this->storageDriver->getMediaDriver();
+
+        $sourceDisk = $fromVisibility === 'private' ? $privateDisk : $publicDisk;
+        $targetDisk = $toVisibility === 'private' ? $privateDisk : $publicDisk;
+
+        if ($sourceDisk === $targetDisk) {
+            return;
+        }
+
+        $content = Storage::disk($sourceDisk)->get($file->url);
+
+        if ($content === null) {
+            throw new \RuntimeException("Cannot read file from source disk: {$file->url}");
+        }
+
+        Storage::disk($targetDisk)->put($file->url, $content);
+
+        $this->moveThumbnailsBetweenDisks($file, $sourceDisk, $targetDisk);
+
+        Storage::disk($sourceDisk)->delete($file->url);
+    }
+
+    protected function moveThumbnailsBetweenDisks(MediaFile $file, string $sourceDisk, string $targetDisk): void
+    {
+        if (! $file->canGenerateThumbnails()) {
+            return;
+        }
+
+        $filename = pathinfo($file->url, PATHINFO_FILENAME);
+
+        foreach ($this->imageService->getSizes() as $size) {
+            $thumbUrl = str_replace($filename, $filename . '-' . $size, $file->url);
+
+            if (Storage::disk($sourceDisk)->exists($thumbUrl)) {
+                $content = Storage::disk($sourceDisk)->get($thumbUrl);
+                Storage::disk($targetDisk)->put($thumbUrl, $content);
+                Storage::disk($sourceDisk)->delete($thumbUrl);
+            }
+        }
+    }
 }

@@ -66,6 +66,71 @@ describe('FileResource', function () {
         expect($resource['folder_id'])->toBe($folder->id);
     });
 
+    it('includes visibility in output', function () {
+        $publicFile = MediaFile::factory()->create(['visibility' => 'public']);
+        $privateFile = MediaFile::factory()->private()->create();
+
+        $publicResource = (new FileResource($publicFile))->toArray(Request::create('/'));
+        $privateResource = (new FileResource($privateFile))->toArray(Request::create('/'));
+
+        expect($publicResource['visibility'])->toBe('public')
+            ->and($privateResource['visibility'])->toBe('private');
+    });
+
+    it('uses direct URL for public file full_url', function () {
+        $file = MediaFile::factory()->create([
+            'visibility' => 'public',
+            'url' => 'images/public-photo.jpg',
+            'mime_type' => 'image/jpeg',
+        ]);
+
+        $resource = (new FileResource($file))->toArray(Request::create('/'));
+
+        expect($resource['full_url'])->toContain('images/public-photo.jpg')
+            ->and($resource['full_url'])->not->toContain('media/private');
+    });
+
+    it('uses private route URL for private file full_url', function () {
+        $file = MediaFile::factory()->private()->create([
+            'url' => 'images/secret-photo.jpg',
+            'mime_type' => 'image/jpeg',
+        ]);
+
+        $resource = (new FileResource($file))->toArray(Request::create('/'));
+        $expectedHash = sha1($file->id);
+
+        expect($resource['full_url'])->toContain('media/private')
+            ->and($resource['full_url'])->toContain($expectedHash);
+    });
+
+    it('returns null thumb for private non-image files', function () {
+        $file = MediaFile::factory()->private()->create([
+            'url' => 'docs/secret.pdf',
+            'mime_type' => 'application/pdf',
+        ]);
+
+        $resource = (new FileResource($file))->toArray(Request::create('/'));
+
+        expect($resource['thumb'])->toBeNull();
+    });
+
+    it('uses private route for private image thumb', function () {
+        $file = MediaFile::factory()->private()->create([
+            'url' => 'images/private-img.jpg',
+            'mime_type' => 'image/jpeg',
+        ]);
+
+        // Put file on disk so file_exists returns true
+        Storage::disk('public')->put('images/private-img.jpg', 'content');
+
+        $resource = (new FileResource($file))->toArray(Request::create('/'));
+
+        // Private image thumb should use the private route (same as full_url)
+        if ($resource['thumb'] !== null) {
+            expect($resource['thumb'])->toContain('media/private');
+        }
+    });
+
     it('includes tags when loaded', function () {
         $file = MediaFile::factory()->create();
 

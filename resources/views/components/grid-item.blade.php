@@ -96,7 +96,7 @@
                     'video' => 'text-purple-500',
                     'audio' => 'text-pink-500',
                     'document' => 'text-red-500',
-                    default => 'text-gray-400',
+                    default => 'text-gray-900 dark:text-gray-400',
                 };
                 $icon = match ($item['type'] ?? 'document') {
                     'image' => 'heroicon-o-photo',

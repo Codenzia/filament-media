@@ -64,8 +64,22 @@ class MediaFile extends Model
     protected static function booted(): void
     {
         static::addGlobalScope('ownMedia', function (Builder $query): void {
+            $user = auth()->user();
+
+            if (! $user) {
+                return;
+            }
+
+            $scopeCallback = app(\Codenzia\FilamentMedia\FilamentMedia::class)->getMediaQueryScope();
+
+            if ($scopeCallback) {
+                call_user_func($scopeCallback, $query, $user);
+
+                return;
+            }
+
             if (FilamentMedia::canOnlyViewOwnMedia()) {
-                $query->where('media_files.user_id', auth()->id());
+                $query->where('media_files.user_id', $user->getAuthIdentifier());
             }
         });
     }
@@ -290,22 +304,25 @@ class MediaFile extends Model
     protected function previewUrl(): Attribute
     {
         return Attribute::get(function (): ?string {
-            if (str_starts_with($this->mime_type, 'image/') && $this->visibility === 'public') {
-                return FilamentMedia::url($this->url);
+            $isPrivate = $this->visibility === 'private';
+            $privateUrl = $isPrivate ? $this->privateRouteUrl() : null;
+
+            if (str_starts_with($this->mime_type, 'image/')) {
+                return $isPrivate ? $privateUrl : FilamentMedia::url($this->url);
             }
 
             if (str_starts_with($this->mime_type, 'video/') || str_starts_with($this->mime_type, 'audio/')) {
-                return FilamentMedia::url($this->url);
+                return $isPrivate ? $privateUrl : FilamentMedia::url($this->url);
             }
 
-            if ($this->mime_type === 'application/pdf' && $this->visibility === 'public') {
-                return FilamentMedia::url($this->url);
+            if ($this->mime_type === 'application/pdf') {
+                return $isPrivate ? $privateUrl : FilamentMedia::url($this->url);
             }
 
-            // Office document preview via external provider
+            // Office document preview via external provider (public only — external providers cannot access private files)
             $config = config('media.preview.document', []);
             if (
-                $this->visibility === 'public'
+                ! $isPrivate
                 && Arr::get($config, 'enabled')
                 && Request::ip() !== '127.0.0.1'
                 && in_array($this->mime_type, Arr::get($config, 'mime_types', []))
@@ -320,6 +337,14 @@ class MediaFile extends Model
         });
     }
 
+    protected function privateRouteUrl(): string
+    {
+        $id = $this->getKey();
+        $hash = sha1($id);
+
+        return route('media.private.url', compact('hash', 'id'));
+    }
+
     protected function previewType(): Attribute
     {
         return Attribute::get(fn () => Arr::get(config('media.preview', []), "$this->type.type"));
@@ -330,6 +355,10 @@ class MediaFile extends Model
         return Attribute::get(function () {
             $id = $this->getKey() ?: dechex((int) $this->getKey());
             $hash = sha1($id);
+
+            if ($this->visibility === 'private') {
+                return route('media.private.url', compact('hash', 'id'));
+            }
 
             return route('media.indirect.url', compact('hash', 'id'));
         })->shouldCache();
@@ -389,8 +418,7 @@ class MediaFile extends Model
 
     public function canGenerateThumbnails(): bool
     {
-        return (! $this->visibility || $this->visibility === 'public')
-            && FilamentMedia::canGenerateThumbnails($this->mime_type);
+        return FilamentMedia::canGenerateThumbnails($this->mime_type);
     }
 
     /**

@@ -85,7 +85,7 @@
 
                         <div class="pointer-events-none">
                             <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                                <x-filament::icon icon="heroicon-o-cloud-arrow-up" class="w-6 h-6 text-gray-400" />
+                                <x-filament::icon icon="heroicon-o-cloud-arrow-up" class="w-6 h-6 text-gray-900 dark:text-gray-400" />
                             </div>
                             <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
                                 {{ trans('filament-media::media.drop_files_to_upload') }}
@@ -123,7 +123,7 @@
                                             @elseif($item['status'] === 'uploading')
                                                 <x-filament::loading-indicator class="w-5 h-5" />
                                             @else
-                                                <x-filament::icon icon="heroicon-o-document" class="w-5 h-5 text-gray-400" />
+                                                <x-filament::icon icon="heroicon-o-document" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
                                             @endif
                                         </div>
 

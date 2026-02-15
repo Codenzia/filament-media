@@ -59,7 +59,7 @@
                                     };
                                 @endphp
                                 <div class="w-8 h-8 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                                    <x-filament::icon :icon="$icon" class="w-4 h-4 text-gray-400" />
+                                    <x-filament::icon :icon="$icon" class="w-4 h-4 text-gray-900 dark:text-gray-400" />
                                 </div>
                             @endif
 

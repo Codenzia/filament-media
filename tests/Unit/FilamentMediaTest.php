@@ -232,14 +232,50 @@ describe('FilamentMedia View Own Media', function () {
     it('returns false by default for canOnlyViewOwnMedia', function () {
         expect(FilamentMediaFacade::canOnlyViewOwnMedia())->toBeFalse();
     });
+});
 
-    // Note: onlyViewOwnMedia() method does not exist in the current implementation
-    // The canOnlyViewOwnMedia() always returns false - this is by design
-    // If the feature is needed, it should be added to FilamentMedia.php
+describe('FilamentMedia Query Scoping', function () {
+    it('stores and retrieves a media query scope callback', function () {
+        $media = app(FilamentMedia::class);
+
+        $callback = function ($query, $user) {
+            $query->where('media_files.user_id', $user->id);
+        };
+
+        $media->scopeMediaQueryUsing($callback);
+
+        expect($media->getMediaQueryScope())->toBeInstanceOf(Closure::class);
+    });
+
+    it('returns null when no scope callback is set', function () {
+        $media = app(FilamentMedia::class);
+
+        expect($media->getMediaQueryScope())->toBeNull();
+    });
 });
 
 describe('FilamentMedia URL Translation', function () {
     it('returns false by default for turnOffAutomaticUrlTranslationIntoLatin', function () {
         expect(FilamentMediaFacade::turnOffAutomaticUrlTranslationIntoLatin())->toBeFalse();
+    });
+});
+
+describe('FilamentMedia Private Files Config', function () {
+    it('returns private_files config values', function () {
+        $enabled = FilamentMedia::getConfig('private_files.enabled');
+        $expiry = FilamentMedia::getConfig('private_files.signed_url_expiry');
+        $disk = FilamentMedia::getConfig('private_files.private_disk');
+
+        expect($enabled)->toBeTrue()
+            ->and($expiry)->toBe(30)
+            ->and($disk)->toBe('local');
+    });
+
+    it('allows overriding private_files config', function () {
+        config(['media.private_files.signed_url_expiry' => 60]);
+        config(['media.private_files.private_disk' => 's3']);
+
+        expect(FilamentMedia::getConfig('private_files.signed_url_expiry'))->toBe(60)
+            ->and(FilamentMedia::getConfig('private_files.private_disk'))->toBe('s3');
     });
 });

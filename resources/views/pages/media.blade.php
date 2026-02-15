@@ -349,7 +349,7 @@
             class="fm-breadcrumbs flex-shrink-0 flex items-center gap-2 px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm overflow-x-auto">
             @foreach ($this->breadcrumbs as $index => $crumb)
                 @if ($index > 0)
-                    <x-filament::icon icon="heroicon-m-chevron-right" class="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    <x-filament::icon icon="heroicon-m-chevron-right" class="w-4 h-4 text-gray-900 dark:text-gray-400 flex-shrink-0" />
                 @endif
 
                 <button type="button" wire:click="navigateToFolder({{ $crumb['id'] }})"
@@ -447,7 +447,7 @@
                                 flex items-center justify-center shadow-lg shadow-primary-500/20">
                                 @if ($viewIn === 'trash')
                                     <x-filament::icon icon="heroicon-o-trash"
-                                        class="w-10 h-10 text-gray-400 dark:text-gray-500" />
+                                        class="w-10 h-10 text-gray-900 dark:text-gray-400" />
                                 @elseif($viewIn === 'favorites')
                                     <x-filament::icon icon="heroicon-o-star" class="w-10 h-10 text-amber-400" />
                                 @elseif($viewIn === 'collections')
@@ -455,7 +455,7 @@
                                         class="w-10 h-10 text-purple-400" />
                                 @else
                                     <x-filament::icon icon="heroicon-o-cloud-arrow-up"
-                                        class="w-10 h-10 text-primary-500 dark:text-primary-400" />
+                                        class="w-10 h-10 text-gray-900 dark:text-primary-400" />
                                 @endif
                             </div>
                         </div>
@@ -565,7 +565,7 @@
                         <div class="flex flex-col items-center justify-center h-full p-6 text-center">
                             <div
                                 class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-                                <x-filament::icon icon="heroicon-o-cursor-arrow-rays" class="w-8 h-8 text-gray-400" />
+                                <x-filament::icon icon="heroicon-o-cursor-arrow-rays" class="w-8 h-8 text-gray-900 dark:text-gray-400" />
                             </div>
                             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">
                                 {{ trans('filament-media::media.nothing_is_selected') }}

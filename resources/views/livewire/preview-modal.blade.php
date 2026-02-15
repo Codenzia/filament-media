@@ -39,7 +39,7 @@
         aria-modal="true"
     >
         {{-- Backdrop --}}
-        <div class="fixed inset-0 bg-black/90" x-on:click="closeModal()"></div>
+        <div class="fixed inset-0 bg-black" x-on:click="closeModal()"></div>
 
         {{-- Modal Content --}}
         <div class="relative w-full h-full flex flex-col">

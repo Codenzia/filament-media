@@ -7,7 +7,7 @@
         class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         x-on:click="if(contextMenu.item) { $wire.openItem({ id: contextMenu.item.id, is_folder: contextMenu.item.is_folder }); contextMenu.show = false; }"
     >
-        <x-filament::icon icon="heroicon-m-eye" class="w-5 h-5 text-gray-400" />
+        <x-filament::icon icon="heroicon-m-eye" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
         <span x-text="contextMenu.item?.is_folder ? '{{ trans('filament-media::media.open') }}' : '{{ trans('filament-media::media.preview') }}'"></span>
     </button>
 
@@ -25,7 +25,7 @@
         class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         x-on:click="contextMenu.show = false"
     >
-        <x-filament::icon icon="heroicon-m-arrow-down-tray" class="w-5 h-5 text-gray-400" />
+        <x-filament::icon icon="heroicon-m-arrow-down-tray" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
         <span>{{ trans('filament-media::media.download') }}</span>
     </a>
 
@@ -36,7 +36,7 @@
         class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         x-on:click="if(contextMenu.item) { window.FilamentMedia.download.copyToClipboard(contextMenu.item.full_url || contextMenu.item.url).then(() => { $dispatch('notify', { status: 'success', message: '{{ trans('filament-media::media.link_copied') }}' }) }); } contextMenu.show = false;"
     >
-        <x-filament::icon icon="heroicon-m-link" class="w-5 h-5 text-gray-400" />
+        <x-filament::icon icon="heroicon-m-link" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
         <span>{{ trans('filament-media::media.copy_link') }}</span>
     </button>
 
@@ -47,7 +47,7 @@
         class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         x-on:click="if(contextMenu.item) { $wire.openParentDetailsModal([{ id: contextMenu.item.id, is_folder: false }]); contextMenu.show = false; }"
     >
-        <x-filament::icon icon="heroicon-m-link" class="w-5 h-5 text-gray-400" />
+        <x-filament::icon icon="heroicon-m-link" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
         <span>{{ trans('filament-media::media.view_parent_details') }}</span>
     </button>
 
@@ -63,7 +63,7 @@
         class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         x-on:click="if(contextMenu.item) { $wire.openRenameModal([{ id: contextMenu.item.id, is_folder: contextMenu.item.is_folder }]); contextMenu.show = false; }"
     >
-        <x-filament::icon icon="heroicon-m-pencil" class="w-5 h-5 text-gray-400" />
+        <x-filament::icon icon="heroicon-m-pencil" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
         <span>{{ trans('filament-media::media.rename') }}</span>
         <span class="ml-auto text-xs text-gray-400">F2</span>
     </button>
@@ -74,7 +74,7 @@
         class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         x-on:click="if(contextMenu.item) { $wire.openMoveModal([{ id: contextMenu.item.id, is_folder: contextMenu.item.is_folder }]); contextMenu.show = false; }"
     >
-        <x-filament::icon icon="heroicon-m-arrow-right" class="w-5 h-5 text-gray-400" />
+        <x-filament::icon icon="heroicon-m-arrow-right" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
         <span>{{ trans('filament-media::media.move_to') }}</span>
     </button>
 
@@ -85,7 +85,7 @@
         class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         x-on:click="if(contextMenu.item) { $wire.openPropertiesModal([{ id: contextMenu.item.id, is_folder: true }]); contextMenu.show = false; }"
     >
-        <x-filament::icon icon="heroicon-m-swatch" class="w-5 h-5 text-gray-400" />
+        <x-filament::icon icon="heroicon-m-swatch" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
         <span>{{ trans('filament-media::media.properties.name') }}</span>
     </button>
 
@@ -96,7 +96,7 @@
         class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         x-on:click="if(contextMenu.item) { $wire.openAltTextModal([{ id: contextMenu.item.id, is_folder: false }]); contextMenu.show = false; }"
     >
-        <x-filament::icon icon="heroicon-m-chat-bubble-left" class="w-5 h-5 text-gray-400" />
+        <x-filament::icon icon="heroicon-m-chat-bubble-left" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
         <span>{{ trans('filament-media::media.alt_text') }}</span>
     </button>
 
@@ -110,7 +110,7 @@
             class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             x-on:click="if(contextMenu.item) { $wire.openTagModal([{ id: contextMenu.item.id, is_folder: contextMenu.item.is_folder }]); contextMenu.show = false; }"
         >
-            <x-filament::icon icon="heroicon-m-tag" class="w-5 h-5 text-gray-400" />
+            <x-filament::icon icon="heroicon-m-tag" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
             <span>{{ trans('filament-media::media.manage_tags') }}</span>
         </button>
     @endif
@@ -123,18 +123,18 @@
             class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             x-on:click="if(contextMenu.item) { $wire.openCollectionModal([{ id: contextMenu.item.id, is_folder: false }]); contextMenu.show = false; }"
         >
-            <x-filament::icon icon="heroicon-m-rectangle-stack" class="w-5 h-5 text-gray-400" />
+            <x-filament::icon icon="heroicon-m-rectangle-stack" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
             <span>{{ trans('filament-media::media.add_to_collection') }}</span>
         </button>
 
         {{-- Remove from Collection (when browsing a collection) --}}
         <button
-            x-show="contextMenu.item && !contextMenu.item.is_folder && viewIn === 'collections'"
+            x-show="contextMenu.item && !contextMenu.item.is_folder && $wire.viewIn === 'collections'"
             type="button"
             class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             x-on:click="if(contextMenu.item) { $wire.openRemoveFromCollectionModal([{ id: contextMenu.item.id, is_folder: false }]); contextMenu.show = false; }"
         >
-            <x-filament::icon icon="heroicon-m-minus-circle" class="w-5 h-5 text-gray-400" />
+            <x-filament::icon icon="heroicon-m-minus-circle" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
             <span>{{ trans('filament-media::media.remove_from_collection') }}</span>
         </button>
     @endif
@@ -147,7 +147,7 @@
             class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             x-on:click="if(contextMenu.item) { $wire.openVersionModal([{ id: contextMenu.item.id, is_folder: false }]); contextMenu.show = false; }"
         >
-            <x-filament::icon icon="heroicon-m-arrow-path" class="w-5 h-5 text-gray-400" />
+            <x-filament::icon icon="heroicon-m-arrow-path" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
             <span>{{ trans('filament-media::media.upload_new_version') }}</span>
         </button>
     @endif
@@ -160,7 +160,7 @@
             class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             x-on:click="if(contextMenu.item) { $wire.openMetadataModal([{ id: contextMenu.item.id, is_folder: false }]); contextMenu.show = false; }"
         >
-            <x-filament::icon icon="heroicon-m-document-text" class="w-5 h-5 text-gray-400" />
+            <x-filament::icon icon="heroicon-m-document-text" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
             <span>{{ trans('filament-media::media.edit_metadata') }}</span>
         </button>
     @endif
@@ -173,28 +173,39 @@
             class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             x-on:click="if(contextMenu.item) { $wire.openExportModal([{ id: contextMenu.item.id, is_folder: false }]); contextMenu.show = false; }"
         >
-            <x-filament::icon icon="heroicon-m-arrow-up-on-square" class="w-5 h-5 text-gray-400" />
+            <x-filament::icon icon="heroicon-m-arrow-up-on-square" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
             <span>{{ trans('filament-media::media.export') }}</span>
         </button>
     @endif
 
+    {{-- Change Visibility (files only) --}}
+    <button
+        x-show="contextMenu.item && !contextMenu.item.is_folder"
+        type="button"
+        class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        x-on:click="if(contextMenu.item) { $wire.mountAction('change_visibility', { items: [{ id: contextMenu.item.id, is_folder: false }] }); contextMenu.show = false; }"
+    >
+        <x-filament::icon icon="heroicon-m-eye" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
+        <span>{{ trans('filament-media::media.change_visibility') }}</span>
+    </button>
+
     {{-- Divider --}}
     <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
 
-    {{-- Add to Favorites (when NOT in favorites view) --}}
+    {{-- Add to Favorites (when item is NOT favorited) --}}
     <button
-        x-show="viewIn !== 'favorites'"
+        x-show="contextMenu.item && !contextMenu.item.is_favorited"
         type="button"
         class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         x-on:click="if(contextMenu.item) { $wire.openFavoriteModal([{ id: contextMenu.item.id, is_folder: contextMenu.item.is_folder }]); contextMenu.show = false; }"
     >
-        <x-filament::icon icon="heroicon-m-star" class="w-5 h-5 text-gray-400" />
+        <x-filament::icon icon="heroicon-m-star" class="w-5 h-5 text-gray-900 dark:text-gray-400" />
         <span>{{ trans('filament-media::media.add_to_favorites') }}</span>
     </button>
 
-    {{-- Remove from Favorites (when in favorites view) --}}
+    {{-- Remove from Favorites (when item IS favorited) --}}
     <button
-        x-show="viewIn === 'favorites'"
+        x-show="contextMenu.item && contextMenu.item.is_favorited"
         type="button"
         class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         x-on:click="if(contextMenu.item) { $wire.openRemoveFavoriteModal([{ id: contextMenu.item.id, is_folder: contextMenu.item.is_folder }]); contextMenu.show = false; }"
@@ -204,10 +215,11 @@
     </button>
 
     {{-- Divider --}}
-    <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+    <div x-show="$wire.viewIn !== 'trash'" class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
 
     {{-- Move to Trash --}}
     <button
+        x-show="$wire.viewIn !== 'trash'"
         type="button"
         class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
         x-on:click="if(contextMenu.item) { $wire.openTrashModal([{ id: contextMenu.item.id, is_folder: contextMenu.item.is_folder }]); contextMenu.show = false; }"

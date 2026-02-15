@@ -357,4 +357,19 @@ return [
         'enabled' => true,
         'access' => 'all',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Private Files
+    |--------------------------------------------------------------------------
+    |
+    | Configure how private files are stored and served. Private files are
+    | served through an authenticated controller instead of direct URLs.
+    |
+    */
+    'private_files' => [
+        'enabled' => true,
+        'signed_url_expiry' => 30, // minutes for cloud temporary URLs
+        'private_disk' => 'local',
+    ],
 ];

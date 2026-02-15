@@ -2,6 +2,7 @@
 
 namespace Codenzia\FilamentMedia\Services;
 
+use Codenzia\FilamentMedia\FilamentMedia;
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
@@ -29,8 +30,12 @@ class ImageService
             return false;
         }
 
-        if (! $this->storageDriver->isUsingCloud() && ! File::exists($this->urlService->getRealPath($file->url))) {
-            return false;
+        if (! $this->storageDriver->isUsingCloud()) {
+            $disk = $this->resolveDiskForFile($file);
+            $realPath = Storage::disk($disk)->path($file->url);
+            if (! File::exists($realPath)) {
+                return false;
+            }
         }
 
         $this->applyWatermarkIfNeeded($file);
@@ -211,15 +216,17 @@ class ImageService
     protected function generateSingleThumbnail(MediaFile $file, string $size, mixed $fileUpload): void
     {
         $readableSize = explode('x', $size);
+        $disk = $this->resolveDiskForFile($file);
 
         if (! $fileUpload || $this->isChunkUploadEnabled()) {
-            $fileUpload = $this->urlService->getRealPath($file->url);
-
             if ($this->storageDriver->isUsingCloud()) {
+                $fileUpload = $this->urlService->getRealPath($file->url);
                 $fileUpload = @file_get_contents($fileUpload);
                 if (! $fileUpload) {
                     return;
                 }
+            } else {
+                $fileUpload = Storage::disk($disk)->path($file->url);
             }
         }
 
@@ -227,14 +234,13 @@ class ImageService
         $dirName = File::dirname($file->url);
         $thumbnailPath = ($dirName === '.' || ! $dirName) ? $thumbnailFileName : $dirName . '/' . $thumbnailFileName;
 
-        if (! $this->storageDriver->isUsingCloud() && Storage::exists($thumbnailPath)) {
+        if (! $this->storageDriver->isUsingCloud() && Storage::disk($disk)->exists($thumbnailPath)) {
             return;
         }
 
         if ($this->storageDriver->isUsingCloud()) {
             $destinationPath = ($dirName === '.' || ! $dirName) ? '' : $dirName;
         } else {
-            $disk = $this->storageDriver->getMediaDriver();
             $storagePath = Storage::disk($disk)->path('');
             $destinationPath = ($dirName === '.' || ! $dirName)
                 ? rtrim($storagePath, '/\\')
@@ -247,6 +253,15 @@ class ImageService
             ->setDestinationPath($destinationPath)
             ->setFileName($thumbnailFileName)
             ->save();
+    }
+
+    protected function resolveDiskForFile(MediaFile $file): string
+    {
+        if ($file->visibility === 'private' && ! $this->storageDriver->isUsingCloud()) {
+            return FilamentMedia::getConfig('private_files.private_disk') ?? 'local';
+        }
+
+        return $this->storageDriver->getMediaDriver();
     }
 
     protected function isChunkUploadEnabled(): bool

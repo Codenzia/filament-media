@@ -143,20 +143,21 @@ trait InteractsWithMediaQueries
         $urlService = app(MediaUrlService::class);
         $fileExists = $urlService->fileExists($file->url);
 
-        $fullUrl = $urlService->url($file->url);
+        $fullUrl = $urlService->visibilityAwareUrl($file);
 
         return [
             'type' => 'file',
             'id' => $file->id,
             'name' => $file->name,
             'url' => $fullUrl,
+            'visibility' => $file->visibility,
             'mime_type' => $file->mime_type,
             'size' => BaseHelper::humanFilesize($file->size),
             'size_raw' => $file->size,
             'created_at' => $file->created_at?->format('M d, Y H:i'),
             'updated_at' => $file->updated_at?->format('M d, Y H:i'),
             'alt' => $file->alt ?? '',
-            'thumbnail' => $fileExists && $file->canGenerateThumbnails() ? $fullUrl : null,
+            'thumbnail' => $this->resolveDetailsThumbnail($file, $fileExists, $fullUrl, $urlService),
             'file_type' => $file->type,
             'file_exists' => $fileExists,
             'linked_model' => $file->getLinkedModelInfo(),
@@ -174,6 +175,23 @@ trait InteractsWithMediaQueries
                 ])
                 : null,
         ];
+    }
+
+    protected function resolveDetailsThumbnail(MediaFile $file, bool $fileExists, string $fullUrl, MediaUrlService $urlService): ?string
+    {
+        if (! $fileExists) {
+            return null;
+        }
+
+        if ($file->canGenerateThumbnails()) {
+            return $urlService->url($file->url);
+        }
+
+        if ($file->visibility === 'private' && str_starts_with($file->mime_type ?? '', 'image/')) {
+            return $fullUrl;
+        }
+
+        return null;
     }
 
     protected function queryAllMedia(): Collection
@@ -322,7 +340,22 @@ trait InteractsWithMediaQueries
             ? FileResource::collection($files)->resolve()
             : [];
 
-        return collect(array_merge($folderResources, $fileResources));
+        $merged = collect(array_merge($folderResources, $fileResources));
+
+        $userId = Auth::guard()->id();
+        if ($userId) {
+            $favorites = collect(app(FavoriteService::class)->getFavorites($userId));
+            $merged = $merged->map(function ($item) use ($favorites) {
+                $item['is_favorited'] = $favorites->contains(
+                    fn ($fav) => $fav['id'] === $item['id']
+                        && ($fav['is_folder'] ?? false) === ($item['is_folder'] ?? false)
+                );
+
+                return $item;
+            });
+        }
+
+        return $merged;
     }
 
     protected function getViewInLabel(): string

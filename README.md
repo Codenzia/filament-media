@@ -81,6 +81,15 @@ A powerful Digital Asset Management plugin for Filament v4. Service-based archit
 - Drag & drop to move items between folders
 - Selection with Ctrl/Cmd and Shift keys
 
+### File Visibility & Access Control
+- Per-file visibility (public or private)
+- Public files served directly via storage URL (fast, CDN-friendly)
+- Private files served through authenticated controller with hash verification
+- Custom authorization callback for fine-grained access control
+- Automatic file movement between public and private storage disks
+- Thumbnail support for both public and private files
+- Change visibility from the context menu or details panel
+
 ### Storage & Cloud Support
 - Local storage (public disk)
 - Amazon S3
@@ -308,6 +317,21 @@ Customize the UI for both light and dark mode. Colors are injected as CSS custom
 ],
 ```
 
+### Private Files
+
+Configure how private files are stored and served:
+
+```php
+'private_files' => [
+    'enabled' => true,
+    'signed_url_expiry' => 30, // minutes for cloud temporary URLs
+    'private_disk' => 'local', // disk for private file storage
+],
+```
+
+- `private_disk` — The Laravel filesystem disk used to store private files. Defaults to `local` (the `storage/app` directory, not publicly accessible).
+- `signed_url_expiry` — When using cloud storage (S3, R2, etc.), private files are served via temporary signed URLs that expire after this many minutes.
+
 ## Usage
 
 ### Media Manager Page
@@ -336,6 +360,131 @@ $copy = app(FileOperationService::class)->copyFile($file, $targetFolderId);
 // Tag a file
 app(TagService::class)->attachTags($file, ['nature', 'landscape']);
 ```
+
+### File Visibility & Access Control
+
+Files have a `visibility` attribute — either `public` (default) or `private`. Public files are served directly via storage URL. Private files are served through an authenticated controller that validates access before streaming the file.
+
+#### Changing Visibility
+
+From the UI, right-click any file and select **Change Visibility**, or use the details panel. Programmatically:
+
+```php
+use Codenzia\FilamentMedia\Services\FileOperationService;
+
+$fileOps = app(FileOperationService::class);
+
+// Make a file private (moves it from public to private disk)
+$fileOps->changeVisibility($file, 'private');
+
+// Make a file public again (moves it back to public disk)
+$fileOps->changeVisibility($file, 'public');
+```
+
+When changing visibility on local storage, the file (and its thumbnails) are physically moved between the public and private disks.
+
+#### How Private File URLs Work
+
+Public files get direct storage URLs (e.g. `/storage/photos/image.jpg`). Private files get routed through an authenticated controller:
+
+```
+/media/private/{hash}/{id}
+```
+
+The hash is a SHA-1 of the file ID, providing a layer of URL obfuscation. The controller verifies authentication and authorization before streaming the file.
+
+To force a download instead of inline display, append `?download=1` to the URL.
+
+#### Custom Authorization
+
+By default, any authenticated user can access private files. To customize this, register an authorization callback in a service provider:
+
+```php
+use Codenzia\FilamentMedia\FilamentMedia;
+use Codenzia\FilamentMedia\Models\MediaFile;
+
+// In a service provider's boot() method:
+app(FilamentMedia::class)->authorizeFileAccessUsing(function (MediaFile $file, $user) {
+    // Only the file owner can access it
+    return $user && $file->user_id === $user->id;
+});
+```
+
+The callback receives the `MediaFile` model and the authenticated user (or `null` for guests). Return `true` to allow access or `false` to deny. Public files always bypass the callback.
+
+```php
+// Role-based access example
+app(FilamentMedia::class)->authorizeFileAccessUsing(function (MediaFile $file, $user) {
+    if (! $user) {
+        return false;
+    }
+
+    // Admins can access everything
+    if ($user->hasRole('admin')) {
+        return true;
+    }
+
+    // Regular users can only access files in their folder
+    return $file->folder?->user_id === $user->id;
+});
+```
+
+#### Checking Access Programmatically
+
+```php
+$media = app(FilamentMedia::class);
+
+// Check if a user can access a file
+$canAccess = $media->canAccessFile($file, $user);
+
+// Check without a user (guest access)
+$canAccess = $media->canAccessFile($file);
+```
+
+#### Query-Level Filtering (Per-User Media Scoping)
+
+By default, the Media page shows all files to every user. To filter which files each user can see, register a query scope callback. This applies a global scope on `MediaFile` and `MediaFolder` queries, so the Media page (and all views: all media, trash, recent, favorites, collections) only returns files the user is authorized to see.
+
+```php
+use Codenzia\FilamentMedia\FilamentMedia;
+
+// In a service provider's boot() method:
+app(FilamentMedia::class)->scopeMediaQueryUsing(function ($query, $user) {
+    // Only show files the user uploaded
+    $query->where('media_files.created_by_user_id', $user->id);
+});
+```
+
+The callback receives an Eloquent `Builder` instance and the authenticated user. Modify the query to constrain results. When no user is authenticated, the callback is not invoked. If no callback is registered, the default behavior applies (all files visible, or filtered by `user_id` if `canOnlyViewOwnMedia()` returns `true`).
+
+The callback is also invoked for `MediaFolder` queries. You can differentiate between files and folders by checking the query's table:
+
+```php
+app(FilamentMedia::class)->scopeMediaQueryUsing(function ($query, $user) {
+    $table = $query->getModel()->getTable();
+
+    if ($table === 'media_folders') {
+        // Folders: only show folders the user created
+        $query->where('media_folders.user_id', $user->id);
+        return;
+    }
+
+    // Files: complex relationship-based filtering
+    $query->where(function ($q) use ($user) {
+        $q->where('media_files.created_by_user_id', $user->id)
+          ->orWhere(function ($sub) use ($user) {
+              $sub->where('media_files.fileable_type', 'App\\Models\\Project')
+                  ->whereIn('media_files.fileable_id', function ($projectQuery) use ($user) {
+                      $projectQuery->select('id')
+                          ->from('projects')
+                          ->where('owner_id', $user->id);
+                  });
+          });
+    });
+});
+```
+
+> **Note:** `scopeMediaQueryUsing()` controls which files appear in the Media page (query-level filtering), while `authorizeFileAccessUsing()` controls who can download/view a specific private file (file-level authorization). For complete access control, use both together.
 
 ### Artisan Commands
 
@@ -852,12 +1001,15 @@ $media->addPermission('files.export');
 ## Security
 
 - **Authorization Checks** - All actions verify user permissions
+- **Private File Access Control** - Private files served through authenticated controller with customizable authorization callback
+- **URL Obfuscation** - Private file URLs use SHA-1 hash verification
 - **XSS Prevention** - User content is properly escaped via `SafeContentService`
 - **File Validation** - Uploads validated for MIME type and size
 - **SSRF Protection** - URL downloads validated against internal network ranges
 - **Upload Limits** - Maximum 50 files per upload session
 - **CSRF Protection** - All Livewire actions protected
 - **URL Download Security** - Configurable domain allowlist
+- **Rate Limiting** - Private file routes throttled to prevent abuse
 
 ## Architecture
 

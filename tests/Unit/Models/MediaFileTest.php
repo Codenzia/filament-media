@@ -1,7 +1,9 @@
 <?php
 
+use Codenzia\FilamentMedia\FilamentMedia;
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -93,11 +95,121 @@ describe('MediaFile Model', function () {
         expect($newName)->toBe('unique-file');
     });
 
-    it('has indirect url attribute', function () {
-        $file = MediaFile::factory()->create();
+    it('has indirect url attribute for public file', function () {
+        $file = MediaFile::factory()->create(['visibility' => 'public']);
 
         expect($file->indirect_url)->toBeString()
             ->and($file->indirect_url)->toContain('media/files');
+    });
+
+    it('has indirect url pointing to private route for private file', function () {
+        $file = MediaFile::factory()->private()->create();
+
+        expect($file->indirect_url)->toBeString()
+            ->and($file->indirect_url)->toContain('media/private')
+            ->and($file->indirect_url)->toContain(sha1($file->id));
+    });
+
+    it('returns preview_url with storage URL for public image', function () {
+        $file = MediaFile::factory()->create([
+            'visibility' => 'public',
+            'url' => 'photos/sunset.jpg',
+            'mime_type' => 'image/jpeg',
+        ]);
+
+        expect($file->preview_url)->toBeString()
+            ->and($file->preview_url)->toContain('photos/sunset.jpg')
+            ->and($file->preview_url)->not->toContain('media/private');
+    });
+
+    it('returns preview_url with private route for private image', function () {
+        $file = MediaFile::factory()->private()->create([
+            'url' => 'photos/secret.jpg',
+            'mime_type' => 'image/jpeg',
+        ]);
+
+        expect($file->preview_url)->toBeString()
+            ->and($file->preview_url)->toContain('media/private')
+            ->and($file->preview_url)->toContain(sha1($file->id));
+    });
+
+    it('returns preview_url with private route for private video', function () {
+        $file = MediaFile::factory()->private()->create([
+            'url' => 'videos/clip.mp4',
+            'mime_type' => 'video/mp4',
+        ]);
+
+        expect($file->preview_url)->toBeString()
+            ->and($file->preview_url)->toContain('media/private');
+    });
+
+    it('returns preview_url with private route for private PDF', function () {
+        $file = MediaFile::factory()->private()->create([
+            'url' => 'docs/report.pdf',
+            'mime_type' => 'application/pdf',
+        ]);
+
+        expect($file->preview_url)->toBeString()
+            ->and($file->preview_url)->toContain('media/private');
+    });
+
+    it('returns null preview_url for private office documents', function () {
+        $file = MediaFile::factory()->private()->create([
+            'url' => 'docs/spreadsheet.xlsx',
+            'mime_type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+
+        expect($file->preview_url)->toBeNull();
+    });
+
+    it('returns null preview_url for non-previewable public files', function () {
+        $file = MediaFile::factory()->create([
+            'visibility' => 'public',
+            'url' => 'archive.zip',
+            'mime_type' => 'application/zip',
+        ]);
+
+        expect($file->preview_url)->toBeNull();
+    });
+
+    it('generates privateRouteUrl with correct hash', function () {
+        $file = MediaFile::factory()->private()->create();
+
+        $indirectUrl = $file->indirect_url;
+        $expectedHash = sha1($file->id);
+
+        expect($indirectUrl)->toContain($expectedHash)
+            ->and($indirectUrl)->toContain((string) $file->id);
+    });
+
+    it('canGenerateThumbnails returns true for jpeg regardless of visibility', function () {
+        $publicFile = MediaFile::factory()->create([
+            'visibility' => 'public',
+            'mime_type' => 'image/jpeg',
+        ]);
+
+        $privateFile = MediaFile::factory()->private()->create([
+            'mime_type' => 'image/jpeg',
+        ]);
+
+        expect($publicFile->canGenerateThumbnails())->toBeTrue()
+            ->and($privateFile->canGenerateThumbnails())->toBeTrue();
+    });
+
+    it('canGenerateThumbnails returns false for non-image files', function () {
+        $file = MediaFile::factory()->create([
+            'mime_type' => 'application/pdf',
+        ]);
+
+        expect($file->canGenerateThumbnails())->toBeFalse();
+    });
+
+    it('canGenerateThumbnails returns false for SVG', function () {
+        $file = MediaFile::factory()->create([
+            'mime_type' => 'image/svg+xml',
+        ]);
+
+        expect($file->canGenerateThumbnails())->toBeFalse();
     });
 
     it('casts options to json', function () {
@@ -141,5 +253,71 @@ describe('MediaFile Factory States', function () {
         $file = MediaFile::factory()->inFolder($folder)->create();
 
         expect($file->folder_id)->toBe($folder->id);
+    });
+});
+
+describe('MediaFile Global Scope with Custom Callback', function () {
+    function createScopeTestUser(int $id = 1): object
+    {
+        $user = new class extends Authenticatable
+        {
+            protected $table = 'users';
+
+            public $timestamps = false;
+        };
+        $user->id = $id;
+
+        return $user;
+    }
+
+    it('applies custom scope callback when registered', function () {
+        $user = createScopeTestUser(5);
+        $this->actingAs($user);
+
+        // Create files without global scopes
+        MediaFile::factory()->create(['created_by_user_id' => 5]);
+        MediaFile::factory()->create(['created_by_user_id' => 99]);
+
+        $media = app(FilamentMedia::class);
+        $media->scopeMediaQueryUsing(function ($query, $authUser) {
+            $query->where('media_files.created_by_user_id', $authUser->id);
+        });
+
+        // Re-enable global scopes for this query
+        $results = MediaFile::withGlobalScope('ownMedia', function ($query) use ($media) {
+            $user = auth()->user();
+            $scopeCallback = $media->getMediaQueryScope();
+            if ($scopeCallback && $user) {
+                call_user_func($scopeCallback, $query, $user);
+            }
+        })->get();
+
+        expect($results)->toHaveCount(1)
+            ->and($results->first()->created_by_user_id)->toBe(5);
+    });
+
+    it('does not filter when no user is authenticated', function () {
+        MediaFile::factory()->create(['created_by_user_id' => 1]);
+        MediaFile::factory()->create(['created_by_user_id' => 2]);
+
+        $media = app(FilamentMedia::class);
+        $media->scopeMediaQueryUsing(function ($query, $authUser) {
+            $query->where('media_files.created_by_user_id', $authUser->id);
+        });
+
+        // No user authenticated — scope should not apply
+        $results = MediaFile::withoutGlobalScopes()->get();
+
+        expect($results)->toHaveCount(2);
+    });
+
+    it('falls back to default behavior when no custom callback set', function () {
+        MediaFile::factory()->create();
+        MediaFile::factory()->create();
+
+        // No scope callback registered, canOnlyViewOwnMedia returns false
+        $results = MediaFile::withoutGlobalScopes()->get();
+
+        expect($results)->toHaveCount(2);
     });
 });

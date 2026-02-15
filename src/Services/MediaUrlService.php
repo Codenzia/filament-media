@@ -3,6 +3,7 @@
 namespace Codenzia\FilamentMedia\Services;
 
 use Codenzia\FilamentMedia\Helpers\BaseHelper;
+use Codenzia\FilamentMedia\Models\MediaFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -55,6 +56,18 @@ class MediaUrlService
         }
 
         return $this->normalizeUrl(Storage::disk($driver)->url($path));
+    }
+
+    public function visibilityAwareUrl(MediaFile $file): string
+    {
+        if ($file->visibility !== 'private') {
+            return $this->url($file->url);
+        }
+
+        $id = $file->getKey();
+        $hash = sha1($id);
+
+        return route('media.private.url', compact('hash', 'id'));
     }
 
     public function getRealPath(?string $url): ?string

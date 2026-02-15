@@ -358,6 +358,15 @@ return [
     'remove_file' => 'Remove',
     'no_file_selected' => 'No file selected',
 
+    // Visibility
+    'visibility' => 'Visibility',
+    'visibility_public' => 'Public',
+    'visibility_private' => 'Private',
+    'change_visibility' => 'Change Visibility',
+    'visibility_changed' => 'Visibility changed successfully.',
+    'visibility_change_error' => 'An error occurred while changing visibility.',
+    'access_denied' => 'You do not have permission to access this file.',
+
     'settings' => [
         'title' => 'Media Settings',
         'saved' => 'Settings saved successfully.',

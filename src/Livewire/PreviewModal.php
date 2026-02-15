@@ -100,7 +100,7 @@ class PreviewModal extends Component
         $this->currentFileId = $file->id;
         $this->name = e($file->name ?? '');
         $this->url = $file->url ?? '';
-        $this->fullUrl = $urlService->url($file->url);
+        $this->fullUrl = $urlService->visibilityAwareUrl($file);
         $this->mimeType = $file->mime_type ?? '';
         $this->size = $file->human_size ?? '';
         $this->alt = e($file->alt ?? '');
@@ -168,9 +168,7 @@ class PreviewModal extends Component
                 $thumbnails[] = [
                     'id' => $file->id,
                     'name' => e($file->name ?? ''),
-                    'thumbnail' => $file->canGenerateThumbnails()
-                        ? $urlService->url($file->url)
-                        : null,
+                    'thumbnail' => $this->resolveThumbUrl($file, $urlService),
                     'mime_type' => $file->mime_type,
                     'is_current' => $index === $this->currentIndex,
                 ];
@@ -178,6 +176,19 @@ class PreviewModal extends Component
         }
 
         return $thumbnails;
+    }
+
+    protected function resolveThumbUrl(MediaFile $file, MediaUrlService $urlService): ?string
+    {
+        if ($file->canGenerateThumbnails()) {
+            return $urlService->url($file->url);
+        }
+
+        if ($file->visibility === 'private' && str_starts_with($file->mime_type ?? '', 'image/')) {
+            return $urlService->visibilityAwareUrl($file);
+        }
+
+        return null;
     }
 
     public function goToIndex(int $index): void

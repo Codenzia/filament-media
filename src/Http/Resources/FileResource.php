@@ -21,6 +21,7 @@ class FileResource extends JsonResource
         $urlService = app(MediaUrlService::class);
         $fileExists = $urlService->fileExists($this->url);
         $linkedModel = $this->getLinkedModelInfo();
+        $displayUrl = $urlService->visibilityAwareUrl($this->resource);
 
         return [
             'id' => $this->getKey(),
@@ -28,10 +29,10 @@ class FileResource extends JsonResource
             'name' => $this->name,
             'basename' => File::basename($this->url),
             'url' => $this->url,
-            'full_url' => $urlService->url($this->url),
+            'full_url' => $displayUrl,
             'type' => $this->type,
             'icon' => $this->icon,
-            'thumb' => $fileExists && $this->canGenerateThumbnails() ? $urlService->url($this->url) : null,
+            'thumb' => $this->resolveThumbUrl($fileExists, $urlService, $displayUrl),
             'size' => $this->human_size,
             'mime_type' => $this->mime_type,
             'created_at' => BaseHelper::formatDate($this->created_at, 'Y-m-d H:i:s'),
@@ -43,9 +44,27 @@ class FileResource extends JsonResource
             'indirect_url' => $this->indirect_url,
             'alt' => $this->alt,
             'file_exists' => $fileExists,
+            'visibility' => $this->visibility,
             'linked_model_url' => $linkedModel['url'] ?? null,
             'linked_model_label' => $linkedModel['label'] ?? null,
             'tags' => $this->whenLoaded('tags', fn () => $this->tags->pluck('name')->toArray(), []),
         ];
+    }
+
+    protected function resolveThumbUrl(bool $fileExists, MediaUrlService $urlService, string $displayUrl): ?string
+    {
+        if (! $fileExists) {
+            return null;
+        }
+
+        if ($this->visibility !== 'private' && $this->canGenerateThumbnails()) {
+            return $urlService->url($this->url);
+        }
+
+        if ($this->visibility === 'private' && str_starts_with($this->mime_type ?? '', 'image/')) {
+            return $displayUrl;
+        }
+
+        return null;
     }
 }

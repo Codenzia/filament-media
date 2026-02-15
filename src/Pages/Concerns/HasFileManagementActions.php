@@ -469,4 +469,50 @@ trait HasFileManagementActions
                 $this->notifySuccess('restore_success');
             });
     }
+
+    public function change_visibilityAction(): Action
+    {
+        return Action::make('change_visibility')
+            ->label(trans('filament-media::media.change_visibility'))
+            ->icon('heroicon-m-eye')
+            ->fillForm(function (array $arguments): array {
+                $items = $arguments['items'] ?? [];
+                $file = MediaFile::find($items[0]['id'] ?? null);
+
+                return ['visibility' => $file?->visibility ?? 'public'];
+            })
+            ->schema([
+                Select::make('visibility')
+                    ->label(trans('filament-media::media.visibility'))
+                    ->options([
+                        'public' => trans('filament-media::media.visibility_public'),
+                        'private' => trans('filament-media::media.visibility_private'),
+                    ])
+                    ->required(),
+            ])
+            ->action(function (array $data, array $arguments) {
+                $items = $arguments['items'] ?? [];
+                $fileOps = app(FileOperationService::class);
+
+                foreach ($items as $item) {
+                    if (! ($item['is_folder'] ?? false)) {
+                        $file = MediaFile::find($item['id']);
+                        if ($file) {
+                            try {
+                                $fileOps->changeVisibility($file, $data['visibility']);
+                            } catch (\Throwable $e) {
+                                $this->notifyError('visibility_change_error');
+
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                $this->selectedItems = [];
+                $this->refresh();
+
+                $this->notifySuccess('visibility_changed');
+            });
+    }
 }
