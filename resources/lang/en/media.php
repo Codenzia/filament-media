@@ -295,6 +295,66 @@ return [
     'orphaned' => 'Orphaned',
     'file_missing_description' => 'This file no longer exists on disk. You can delete this entry to clean it up.',
 
+    // Linked Model
+    'linked_to' => 'Linked To',
+    'not_linked' => 'Not linked to any model',
+    'view_parent_details' => 'View Parent Details',
+    'parent_details' => 'Parent Details',
+    'parent_model_type' => 'Model Type',
+    'parent_model_id' => 'Model ID',
+
+    // Tags & Collections
+    'tags' => 'Tags',
+    'manage_tags' => 'Manage Tags',
+    'tags_updated' => 'Tags updated successfully.',
+    'no_tags' => 'No tags',
+    'add_to_collection' => 'Add to Collection',
+    'collection' => 'Collection',
+    'collections' => 'Collections',
+    'collection_name' => 'Collection Name',
+    'added_to_collection' => 'Added to collection successfully.',
+    'removed_from_collection' => 'Removed from collection successfully.',
+    'remove_from_collection' => 'Remove from Collection',
+    'remove_from_collection_confirm' => 'Are you sure you want to remove the selected files from this collection?',
+    'no_collections' => 'Not in any collection',
+    'no_collections_yet' => 'No collections yet',
+    'no_collections_yet_description' => 'Create a collection by adding files to one using the context menu or details panel.',
+    'collection_empty' => 'This collection is empty',
+    'collection_empty_description' => 'Add files to this collection using the context menu or details panel.',
+    'collection_file_count' => ':count file(s)',
+
+    // Versioning
+    'upload_new_version' => 'Upload New Version',
+    'new_version_file' => 'New Version File',
+    'version_changelog' => 'Changelog',
+    'version_created' => 'New version created successfully.',
+    'version_history' => 'Version History',
+    'versions' => 'Versions',
+    'version_count' => ':count version(s)',
+    'no_versions' => 'No versions',
+    'upload_new' => 'Upload New',
+    'current' => 'Current',
+
+    // Metadata
+    'edit_metadata' => 'Edit Metadata',
+    'metadata_updated' => 'Metadata updated successfully.',
+    'no_metadata_fields' => 'No metadata fields have been defined yet. Create metadata fields in the Media Settings to start adding custom metadata to your files.',
+
+    // Export
+    'export' => 'Export',
+    'export_description' => 'Are you sure you want to export the selected files?',
+    'include_metadata' => 'Include Metadata',
+    'no_files_selected' => 'No files selected.',
+
+    // General
+    'edit' => 'Edit',
+    'add' => 'Add',
+    'copy_success' => ':count file(s) copied successfully.',
+    'browse_media' => 'Browse Media',
+    'cancel' => 'Cancel',
+    'remove_file' => 'Remove',
+    'no_file_selected' => 'No file selected',
+
     'settings' => [
         'title' => 'Media Settings',
         'saved' => 'Settings saved successfully.',
@@ -354,5 +414,20 @@ return [
         'enable_chunk_upload' => 'Enable Chunk Upload',
         'chunk_size' => 'Chunk Size',
         'chunk_size_help' => 'Size of each upload chunk. Larger chunks are faster but use more memory.',
+
+        'scan_title' => 'Storage Scanner',
+        'scan_description' => 'Discover files on disk that are not tracked in the media library. You can import them into the library or delete them.',
+        'scan_button' => 'Scan Storage',
+        'scan_scanning' => 'Scanning...',
+        'scan_no_orphans' => 'All files on disk are tracked in the media library.',
+        'scan_found' => ':count untracked file(s) found',
+        'scan_select_files' => 'Please select at least one file.',
+        'scan_import_selected' => 'Import :count',
+        'scan_delete_selected' => 'Delete :count',
+        'scan_import_all' => 'Import All',
+        'scan_delete_all' => 'Delete All',
+        'scan_delete_confirm' => 'Are you sure you want to permanently delete these files from disk? This cannot be undone.',
+        'scan_imported' => ':count file(s) imported into the media library.',
+        'scan_deleted' => ':count file(s) deleted from disk.',
     ],
 ];

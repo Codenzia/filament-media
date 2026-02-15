@@ -7,10 +7,12 @@
     <div
         x-data="{
             open: @entangle('isOpen'),
+            showVersions: false,
             handleKeydown(e) {
                 if (!this.open) return;
 
                 if (e.key === 'Escape') {
+                    if (this.showVersions) { this.showVersions = false; return; }
                     $wire.close();
                 } else if (e.key === 'ArrowRight') {
                     $wire.next();
@@ -76,6 +78,19 @@
                         </button>
                     @endif
 
+                    {{-- Version History Toggle --}}
+                    @if(config('media.features.versioning', true) && !empty($versions))
+                        <button
+                            type="button"
+                            class="p-2 rounded-lg transition-colors"
+                            :class="showVersions ? 'text-primary-400 bg-white/10' : 'text-gray-300 hover:text-white hover:bg-white/10'"
+                            x-on:click="showVersions = !showVersions"
+                            title="{{ trans('filament-media::media.version_history') }}"
+                        >
+                            <x-filament::icon icon="heroicon-m-clock" class="w-5 h-5" />
+                        </button>
+                    @endif
+
                     {{-- Close --}}
                     <button
                         type="button"
@@ -90,6 +105,67 @@
 
             {{-- Main Preview Area --}}
             <main class="flex-1 relative flex items-center justify-center p-4 overflow-hidden">
+                {{-- Version History Slide-out Panel --}}
+                @if(config('media.features.versioning', true) && !empty($versions))
+                    <div
+                        x-show="showVersions"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="translate-x-full opacity-0"
+                        x-transition:enter-end="translate-x-0 opacity-100"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="translate-x-0 opacity-100"
+                        x-transition:leave-end="translate-x-full opacity-0"
+                        x-cloak
+                        class="absolute right-0 top-0 bottom-0 w-80 z-20 bg-gray-900/95 backdrop-blur-sm border-l border-white/10 flex flex-col"
+                    >
+                        {{-- Panel Header --}}
+                        <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                            <h3 class="text-sm font-semibold text-white">
+                                {{ trans('filament-media::media.version_history') }}
+                            </h3>
+                            <button
+                                type="button"
+                                class="p-1 rounded text-gray-400 hover:text-white transition-colors"
+                                x-on:click="showVersions = false"
+                            >
+                                <x-filament::icon icon="heroicon-m-x-mark" class="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        {{-- Current File --}}
+                        <div class="px-4 py-3 border-b border-white/10 bg-primary-900/20">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-primary-600 text-white">
+                                    {{ trans('filament-media::media.current') }}
+                                </span>
+                                <span class="text-xs text-gray-400">{{ $size }}</span>
+                            </div>
+                            <p class="text-sm text-white truncate">{{ $name }}</p>
+                            <p class="text-xs text-gray-400 mt-0.5">{{ $createdAt }}</p>
+                        </div>
+
+                        {{-- Version List --}}
+                        <div class="flex-1 overflow-y-auto">
+                            @foreach($versions as $version)
+                                <div class="px-4 py-3 border-b border-white/5 hover:bg-white/5 transition-colors">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-sm font-medium text-white">
+                                            v{{ $version['version_number'] }}
+                                        </span>
+                                        <span class="text-xs text-gray-500">
+                                            {{ \Codenzia\FilamentMedia\Helpers\BaseHelper::humanFilesize($version['size'] ?? 0) }}
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-gray-400">{{ $version['created_at'] }}</p>
+                                    <p class="text-xs text-gray-500 mt-0.5">{{ $version['user'] }}</p>
+                                    @if(!empty($version['changelog']))
+                                        <p class="text-xs text-gray-400 mt-1 italic">{{ $version['changelog'] }}</p>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
                 {{-- Previous Button --}}
                 @if($this->hasPrevious())
                     <button

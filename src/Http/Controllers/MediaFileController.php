@@ -3,6 +3,8 @@
 namespace Codenzia\FilamentMedia\Http\Controllers;
 
 use Codenzia\FilamentMedia\Facades\FilamentMedia;
+use Codenzia\FilamentMedia\Services\MediaUrlService;
+use Codenzia\FilamentMedia\Services\UploadService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -14,25 +16,22 @@ use Throwable;
 
 class MediaFileController extends Controller
 {
-    /**
-     * Handle file upload (supports both regular and chunked uploads).
-     */
     public function postUpload(Request $request): JsonResponse
     {
         try {
-            // Check if this is a chunked upload
+            $uploadService = app(UploadService::class);
+
             if ($this->isChunkedUpload($request)) {
-                return $this->handleChunkedUpload($request);
+                return $this->handleChunkedUpload($request, $uploadService);
             }
 
-            // Regular upload
             $file = Arr::first($request->file('file'));
 
-            if (!$file) {
+            if (! $file) {
                 return FilamentMedia::responseError(__('filament-media::media.no_file_uploaded'));
             }
 
-            $result = FilamentMedia::handleUpload($file, $request->input('folder_id', 0));
+            $result = $uploadService->handleUpload($file, $request->input('folder_id', 0));
 
             return $this->handleUploadResponse($result);
         } catch (Throwable $exception) {
@@ -40,28 +39,20 @@ class MediaFileController extends Controller
         }
     }
 
-    /**
-     * Check if the current request is a chunked upload.
-     */
     protected function isChunkedUpload(Request $request): bool
     {
-        if (!FilamentMedia::isChunkUploadEnabled()) {
+        if (! app(UploadService::class)->isChunkUploadEnabled()) {
             return false;
         }
 
-        // Dropzone sends these headers for chunked uploads
-        return $request->hasHeader('X-Chunk-Index') ||
-               $request->has('dzchunkindex') ||
-               $request->has('_chunkNumber');
+        return $request->hasHeader('X-Chunk-Index')
+            || $request->has('dzchunkindex')
+            || $request->has('_chunkNumber');
     }
 
-    /**
-     * Handle chunked file upload.
-     */
-    protected function handleChunkedUpload(Request $request): JsonResponse
+    protected function handleChunkedUpload(Request $request, UploadService $uploadService): JsonResponse
     {
         try {
-            // Get chunk information from Dropzone
             $chunkIndex = $request->input('dzchunkindex', $request->header('X-Chunk-Index', 0));
             $totalChunks = $request->input('dztotalchunkcount', $request->header('X-Total-Chunks', 1));
             $uuid = $request->input('dzuuid', $request->header('X-Upload-Id', Str::uuid()->toString()));
@@ -69,40 +60,34 @@ class MediaFileController extends Controller
 
             $file = Arr::first($request->file('file'));
 
-            if (!$file) {
+            if (! $file) {
                 return FilamentMedia::responseError(__('filament-media::media.no_file_uploaded'));
             }
 
-            // Store the chunk temporarily
             $chunkDir = 'chunks/' . $uuid;
             $chunkPath = $chunkDir . '/' . $chunkIndex;
 
             Storage::disk('local')->put($chunkPath, file_get_contents($file->getRealPath()));
 
-            // Check if all chunks have been uploaded
             $uploadedChunks = count(Storage::disk('local')->files($chunkDir));
 
             if ($uploadedChunks < (int) $totalChunks) {
-                // Not all chunks uploaded yet
                 return response()->json([
                     'done' => round(($uploadedChunks / (int) $totalChunks) * 100),
                     'status' => true,
                 ]);
             }
 
-            // All chunks uploaded, merge them
             $mergedFile = $this->mergeChunks($chunkDir, $fileName, (int) $totalChunks);
 
-            if (!$mergedFile) {
+            if (! $mergedFile) {
                 return FilamentMedia::responseError(__('filament-media::media.failed_to_merge_chunks'));
             }
 
-            // Detect MIME type using finfo (more reliable than deprecated mime_content_type)
             $finfo = new \finfo(FILEINFO_MIME_TYPE);
             $mimeType = $finfo->file($mergedFile) ?: 'application/octet-stream';
 
-            // Process the merged file
-            $result = FilamentMedia::handleUpload(
+            $result = $uploadService->handleUpload(
                 new \Illuminate\Http\UploadedFile(
                     $mergedFile,
                     $fileName,
@@ -113,7 +98,6 @@ class MediaFileController extends Controller
                 $request->input('folder_id', 0)
             );
 
-            // Clean up
             Storage::disk('local')->deleteDirectory($chunkDir);
             @unlink($mergedFile);
 
@@ -123,31 +107,30 @@ class MediaFileController extends Controller
         }
     }
 
-    /**
-     * Merge uploaded chunks into a single file.
-     */
     protected function mergeChunks(string $chunkDir, string $fileName, int $totalChunks): ?string
     {
         $tempFile = storage_path('app/' . $chunkDir . '/' . $fileName);
 
         $out = fopen($tempFile, 'wb');
 
-        if (!$out) {
+        if (! $out) {
             return null;
         }
 
         for ($i = 0; $i < $totalChunks; $i++) {
             $chunkPath = storage_path('app/' . $chunkDir . '/' . $i);
 
-            if (!file_exists($chunkPath)) {
+            if (! file_exists($chunkPath)) {
                 fclose($out);
+
                 return null;
             }
 
             $in = fopen($chunkPath, 'rb');
 
-            if (!$in) {
+            if (! $in) {
                 fclose($out);
+
                 return null;
             }
 
@@ -163,32 +146,25 @@ class MediaFileController extends Controller
         return $tempFile;
     }
 
-    /**
-     * Handle the upload response.
-     */
     protected function handleUploadResponse(array $result): JsonResponse
     {
-        if (!$result['error']) {
+        if (! $result['error']) {
+            $urlService = app(MediaUrlService::class);
+
             return FilamentMedia::responseSuccess([
                 'id' => $result['data']->id,
-                'src' => FilamentMedia::url($result['data']->url),
+                'src' => $urlService->url($result['data']->url),
             ]);
         }
 
         return FilamentMedia::responseError($result['message']);
     }
 
-    /**
-     * Handle upload from editor (CKEditor, etc.).
-     */
     public function postUploadFromEditor(Request $request): JsonResponse
     {
-        return FilamentMedia::uploadFromEditor($request);
+        return app(UploadService::class)->uploadFromEditor($request);
     }
 
-    /**
-     * Handle download from URL.
-     */
     public function postDownloadUrl(Request $request): JsonResponse
     {
         $validator = Validator::make($request->input(), [
@@ -200,9 +176,12 @@ class MediaFileController extends Controller
             return FilamentMedia::responseError($validator->messages()->first());
         }
 
-        $result = FilamentMedia::uploadFromUrl($request->input('url'), $request->input('folderId', 0));
+        $uploadService = app(UploadService::class);
+        $result = $uploadService->uploadFromUrl($request->input('url'), $request->input('folderId', 0));
 
-        if (!$result['error']) {
+        if (! $result['error']) {
+            $urlService = app(MediaUrlService::class);
+
             return FilamentMedia::responseSuccess([
                 'id' => $result['data']->id,
                 'src' => Storage::url($result['data']->url),

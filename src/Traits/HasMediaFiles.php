@@ -4,66 +4,111 @@ namespace Codenzia\FilamentMedia\Traits;
 
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
+use Codenzia\FilamentMedia\Services\UploadService;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Http\UploadedFile;
 
 trait HasMediaFiles
 {
-    /**
-     * Get all media files associated with this model.
-     */
     public function files(): MorphMany
     {
         return $this->morphMany(MediaFile::class, 'fileable');
     }
 
-    /**
-     * Get all media folders associated with this model.
-     */
     public function folders(): MorphMany
     {
         return $this->morphMany(MediaFolder::class, 'fileable');
     }
 
-    /**
-     * Get all image files.
-     */
     public function images(): MorphMany
     {
         return $this->files()->where('mime_type', 'like', 'image/%');
     }
 
-    /**
-     * Get all video files.
-     */
     public function videos(): MorphMany
     {
         return $this->files()->where('mime_type', 'like', 'video/%');
     }
 
-    /**
-     * Get all document files (PDFs, Office documents, text files).
-     */
     public function documents(): MorphMany
     {
         return $this->files()->where(function ($query) {
             $query->where('mime_type', 'like', 'application/pdf')
-                  ->orWhere('mime_type', 'like', 'application/msword')
-                  ->orWhere('mime_type', 'like', 'application/vnd.%')
-                  ->orWhere('mime_type', 'like', 'text/%');
+                ->orWhere('mime_type', 'like', 'application/msword')
+                ->orWhere('mime_type', 'like', 'application/vnd.%')
+                ->orWhere('mime_type', 'like', 'text/%');
         });
     }
 
-    /**
-     * Get all audio files.
-     */
     public function audio(): MorphMany
     {
         return $this->files()->where('mime_type', 'like', 'audio/%');
     }
 
-    /**
-     * Attach a media file to this model.
-     */
+    // ──────────────────────────────────────────────────
+    // Collection & Tag scoped access
+    // ──────────────────────────────────────────────────
+
+    public function mediaByCollection(string $collectionName): MorphMany
+    {
+        return $this->files()->whereHas('collections', function ($q) use ($collectionName) {
+            $q->where('name', $collectionName);
+        });
+    }
+
+    public function mediaByTag(string $tagName): MorphMany
+    {
+        return $this->files()->whereHas('tags', function ($q) use ($tagName) {
+            $q->where('name', $tagName);
+        });
+    }
+
+    // ──────────────────────────────────────────────────
+    // Upload convenience
+    // ──────────────────────────────────────────────────
+
+    public function addMedia(UploadedFile $file, ?string $collection = null): MediaFile
+    {
+        $result = app(UploadService::class)->handleUpload($file);
+
+        if ($result['error']) {
+            throw new \RuntimeException($result['message']);
+        }
+
+        $mediaFile = MediaFile::find($result['data']->id);
+        $this->attachMediaFile($mediaFile);
+
+        if ($collection) {
+            $tag = \Codenzia\FilamentMedia\Models\MediaTag::findOrCreateByName($collection, 'collection');
+            $mediaFile->tags()->syncWithoutDetaching([$tag->id]);
+        }
+
+        return $mediaFile;
+    }
+
+    public function addMediaFromUrl(string $url, ?string $collection = null): MediaFile
+    {
+        $result = app(UploadService::class)->uploadFromUrl($url);
+
+        if ($result['error']) {
+            throw new \RuntimeException($result['message']);
+        }
+
+        $mediaFile = MediaFile::find($result['data']->id);
+        $this->attachMediaFile($mediaFile);
+
+        if ($collection) {
+            $tag = \Codenzia\FilamentMedia\Models\MediaTag::findOrCreateByName($collection, 'collection');
+            $mediaFile->tags()->syncWithoutDetaching([$tag->id]);
+        }
+
+        return $mediaFile;
+    }
+
+    // ──────────────────────────────────────────────────
+    // Attach / Detach / Sync
+    // ──────────────────────────────────────────────────
+
     public function attachMediaFile(MediaFile $file): MediaFile
     {
         $file->fileable()->associate($this);
@@ -72,11 +117,6 @@ trait HasMediaFiles
         return $file;
     }
 
-    /**
-     * Attach multiple media files to this model.
-     *
-     * @param array<MediaFile>|Collection $files
-     */
     public function attachMediaFiles($files): void
     {
         foreach ($files as $file) {
@@ -84,9 +124,18 @@ trait HasMediaFiles
         }
     }
 
-    /**
-     * Detach a media file from this model.
-     */
+    public function attachMediaWithMeta(MediaFile $file, array $metadata = []): MediaFile
+    {
+        $this->attachMediaFile($file);
+
+        if (! empty($metadata)) {
+            app(\Codenzia\FilamentMedia\Services\MetadataService::class)
+                ->setMetadata($file, $metadata);
+        }
+
+        return $file;
+    }
+
     public function detachMediaFile(MediaFile $file): MediaFile
     {
         $file->fileable()->dissociate();
@@ -95,9 +144,6 @@ trait HasMediaFiles
         return $file;
     }
 
-    /**
-     * Detach all media files from this model.
-     */
     public function detachAllMediaFiles(): void
     {
         $this->files()->update([
@@ -106,66 +152,62 @@ trait HasMediaFiles
         ]);
     }
 
-    /**
-     * Get the first media file.
-     */
+    public function syncMediaFiles($files): void
+    {
+        $this->detachAllMediaFiles();
+        $this->attachMediaFiles($files);
+    }
+
+    // ──────────────────────────────────────────────────
+    // Queries
+    // ──────────────────────────────────────────────────
+
     public function getFirstMediaFile(): ?MediaFile
     {
         return $this->files()->first();
     }
 
-    /**
-     * Get the first image.
-     */
     public function getFirstImage(): ?MediaFile
     {
         return $this->images()->first();
     }
 
-    /**
-     * Get the URL of the first media file.
-     */
     public function getFirstMediaUrl(): ?string
     {
-        $file = $this->getFirstMediaFile();
-
-        return $file?->url;
+        return $this->getFirstMediaFile()?->url;
     }
 
-    /**
-     * Get the URL of the first image.
-     */
     public function getFirstImageUrl(): ?string
     {
-        $file = $this->getFirstImage();
-
-        return $file?->url;
+        return $this->getFirstImage()?->url;
     }
 
-    /**
-     * Check if the model has any media files.
-     */
+    public function getMediaUrls(?string $collection = null): array
+    {
+        $query = $collection ? $this->mediaByCollection($collection) : $this->files();
+
+        return $query->pluck('url')->toArray();
+    }
+
+    public function clearMedia(?string $collection = null): void
+    {
+        if ($collection) {
+            $this->mediaByCollection($collection)->update([
+                'fileable_type' => null,
+                'fileable_id' => null,
+            ]);
+        } else {
+            $this->detachAllMediaFiles();
+        }
+    }
+
     public function hasMediaFiles(): bool
     {
         return $this->files()->exists();
     }
 
-    /**
-     * Check if the model has any images.
-     */
     public function hasImages(): bool
     {
         return $this->images()->exists();
-    }
-
-    /**
-     * Sync media files - detach all current and attach new ones.
-     *
-     * @param array<MediaFile>|Collection $files
-     */
-    public function syncMediaFiles($files): void
-    {
-        $this->detachAllMediaFiles();
-        $this->attachMediaFiles($files);
     }
 }

@@ -1,13 +1,29 @@
 <?php
 
 return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Feature Flags
+    |--------------------------------------------------------------------------
+    |
+    | Enable or disable features. Disabled features won't load their UI
+    | components or register their routes.
+    |
+    */
+    'features' => [
+        'tags' => true,
+        'collections' => true,
+        'metadata' => true,
+        'versioning' => true,
+        'search' => true,
+        'export_import' => true,
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Pagination
     |--------------------------------------------------------------------------
-    |
-    | Configure pagination settings for the media manager.
-    |
     */
     'pagination' => [
         'per_page' => 30,
@@ -18,13 +34,19 @@ return [
     | Thumbnail Sizes
     |--------------------------------------------------------------------------
     |
-    | Define thumbnail sizes that will be generated for uploaded images.
+    | Define thumbnail sizes generated for uploaded images.
     | Format: 'name' => 'WIDTHxHEIGHT'
     |
     */
     'sizes' => [
         'thumb' => '150x150',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Permissions
+    |--------------------------------------------------------------------------
+    */
     'permissions' => [
         'folders.create',
         'folders.edit',
@@ -39,7 +61,19 @@ return [
         'files.favorite',
         'settings.access',
     ],
-    'allowed_mime_types' =>'jpg,jpeg,png,gif,txt,docx,zip,mp3,bmp,csv,xls,xlsx,ppt,pptx,pdf,mp4,m4v,doc,mpga,wav,webp,webm,mov,jfif,avif,rar,x-rar',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Allowed File Extensions
+    |--------------------------------------------------------------------------
+    */
+    'allowed_mime_types' => 'jpg,jpeg,png,gif,txt,docx,zip,mp3,bmp,csv,xls,xlsx,ppt,pptx,pdf,mp4,m4v,doc,mpga,wav,webp,webm,mov,jfif,avif,rar,x-rar',
+
+    /*
+    |--------------------------------------------------------------------------
+    | MIME Type Groups
+    |--------------------------------------------------------------------------
+    */
     'mime_types' => [
         'image' => [
             'image/png',
@@ -82,16 +116,21 @@ return [
             'audio/wav',
         ],
     ],
+
     /*
     |--------------------------------------------------------------------------
     | Default Placeholder Image
     |--------------------------------------------------------------------------
-    |
-    | The default image to show when a file has no thumbnail or preview.
-    |
     */
-    'default_image' => null, // Set to a path like '/images/placeholder.png' or leave null
-    'sidebar_display' => 'horizontal', // Use "vertical" or "horizontal"
+    'default_image' => null,
+
+    'sidebar_display' => 'horizontal',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Watermark
+    |--------------------------------------------------------------------------
+    */
     'watermark' => [
         'enabled' => 0,
         'source' => null,
@@ -104,42 +143,41 @@ return [
 
     'custom_s3_path' => '',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Chunk Upload
+    |--------------------------------------------------------------------------
+    */
     'chunk' => [
         'enabled' => false,
-        'chunk_size' => 1024 * 1024, // Bytes
-        'max_file_size' => 1024 * 1024, // MB
-
-        /*
-         * The storage config
-         */
+        'chunk_size' => 1024 * 1024,
+        'max_file_size' => 1024 * 1024,
         'storage' => [
-            /*
-             * Returns the folder name of the chunks. The location is in storage/app/{folder_name}
-             */
             'chunks' => 'chunks',
             'disk' => 'local',
         ],
         'clear' => [
-            /*
-             * How old chunks we should delete
-             */
             'timestamp' => '-3 HOURS',
             'schedule' => [
                 'enabled' => true,
-                'cron' => '25 * * * *', // run every hour on the 25th minute
+                'cron' => '25 * * * *',
             ],
         ],
         'chunk' => [
-            // setup for the chunk naming setup to ensure same name upload at same time
             'name' => [
                 'use' => [
-                    'session' => true, // should the chunk name use the session id? The uploader must send cookie!,
-                    'browser' => false, // instead of session we can use the ip and browser?
+                    'session' => true,
+                    'browser' => false,
                 ],
             ],
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Document Preview
+    |--------------------------------------------------------------------------
+    */
     'preview' => [
         'document' => [
             'enabled' => true,
@@ -148,7 +186,7 @@ return [
                 'microsoft' => 'https://view.officeapps.live.com/op/view.aspx?src={url}',
             ],
             'default' => 'microsoft',
-            'type' => 'iframe',          // use iframe or popup
+            'type' => 'iframe',
             'mime_types' => [
                 'application/pdf',
                 'application/vnd.ms-excel',
@@ -163,38 +201,23 @@ return [
             ],
         ],
     ],
+
     'default_upload_folder' => '',
     'default_upload_url' => '',
     'generate_thumbnails_enabled' => true,
     'generate_thumbnails_chunk_limit' => 50,
+
     'folder_colors' => [
-        '#3498db',
-        '#2ecc71',
-        '#e74c3c',
-        '#f39c12',
-        '#9b59b6',
-        '#1abc9c',
-        '#34495e',
-        '#e67e22',
-        '#27ae60',
-        '#c0392b',
-    ],
-    'navigation' => [
-        'icon' => 'heroicon-o-photo',
-        'label' => null,
-        'group' => null,
+        '#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6',
+        '#1abc9c', '#34495e', '#e67e22', '#27ae60', '#c0392b',
     ],
 
     'use_storage_symlink' => false,
 
     /*
     |--------------------------------------------------------------------------
-    | Max File Size
+    | Max File Size (bytes)
     |--------------------------------------------------------------------------
-    |
-    | Maximum file size allowed for uploads (in bytes).
-    | Default: 10MB (10 * 1024 * 1024)
-    |
     */
     'max_file_size' => 10 * 1024 * 1024,
 
@@ -203,8 +226,7 @@ return [
     | Storage Driver
     |--------------------------------------------------------------------------
     |
-    | The storage disk to use for media files.
-    | Options: 'public', 's3', or any configured disk in filesystems.php
+    | Options: 'public', 's3', 'r2', 'do_spaces', 'wasabi', 'bunnycdn', 'backblaze'
     |
     */
     'driver' => 'public',
@@ -214,30 +236,125 @@ return [
     | Allowed Download Domains
     |--------------------------------------------------------------------------
     |
-    | List of domains allowed for URL downloads. If empty, all external domains
-    | are allowed (except internal/private networks which are always blocked).
-    | Include subdomains by adding the parent domain (e.g., 'example.com'
-    | will also allow 'cdn.example.com').
+    | Restrict URL downloads to these domains. Empty = all external domains allowed.
     |
     */
-    'allowed_download_domains' => [
-        // 'example.com',
-        // 'cdn.example.com',
+    'allowed_download_domains' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Search
+    |--------------------------------------------------------------------------
+    */
+    'search' => [
+        'driver' => 'database', // 'database' or 'scout'
+        'min_query_length' => 2,
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Settings Page Configuration
+    | File Versioning
+    |--------------------------------------------------------------------------
+    */
+    'versioning' => [
+        'max_versions' => 10,
+        'auto_prune' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Metadata
+    |--------------------------------------------------------------------------
+    */
+    'metadata' => [
+        'auto_extract' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | File Picker
+    |--------------------------------------------------------------------------
+    */
+    'picker' => [
+        'default_view' => 'grid',
+        'show_upload' => true,
+        'show_folders' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Filament Sidebar Navigation
     |--------------------------------------------------------------------------
     |
-    | Configure the Media Settings admin page.
+    | Configure how the media pages appear in the Filament sidebar.
+    | Set 'shared_group' to group all media pages under one heading.
     |
     */
-    'settings' => [
-        // Enable/disable the settings page
-        'enabled' => true,
+    'navigation' => [
+        'media' => [
+            'label' => null,
+            'icon' => 'heroicon-o-photo',
+            'group' => null,
+            'sort' => 1,
+            'visible' => true,
+        ],
+        'settings' => [
+            'label' => null,
+            'icon' => 'heroicon-o-cog-6-tooth',
+            'group' => null,
+            'sort' => 2,
+            'visible' => true,
+        ],
+        'shared_group' => null,
+    ],
 
-        // Access control: 'all', 'super_admin', or a custom permission name
+    /*
+    |--------------------------------------------------------------------------
+    | Color Theme
+    |--------------------------------------------------------------------------
+    |
+    | Customize the media library colors for light and dark mode.
+    | These are injected as CSS custom properties (--fm-*).
+    |
+    */
+    'theme' => [
+        'light' => [
+            'primary' => '#6366f1',
+            'primary_hover' => '#4f46e5',
+            'primary_light' => '#eef2ff',
+            'success' => '#22c55e',
+            'danger' => '#ef4444',
+            'warning' => '#f59e0b',
+            'info' => '#3b82f6',
+            'surface' => '#ffffff',
+            'surface_alt' => '#f9fafb',
+            'border' => '#e5e7eb',
+            'text' => '#111827',
+            'text_muted' => '#6b7280',
+        ],
+        'dark' => [
+            'primary' => '#818cf8',
+            'primary_hover' => '#6366f1',
+            'primary_light' => '#1e1b4b',
+            'success' => '#4ade80',
+            'danger' => '#f87171',
+            'warning' => '#fbbf24',
+            'info' => '#60a5fa',
+            'surface' => '#111827',
+            'surface_alt' => '#1f2937',
+            'border' => '#374151',
+            'text' => '#f9fafb',
+            'text_muted' => '#9ca3af',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Settings Page
+    |--------------------------------------------------------------------------
+    */
+    'settings' => [
+        'enabled' => true,
         'access' => 'all',
     ],
 ];

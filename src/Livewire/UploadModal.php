@@ -2,12 +2,14 @@
 
 namespace Codenzia\FilamentMedia\Livewire;
 
-use Illuminate\Contracts\View\View;
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Filament\Notifications\Notification;
 use Codenzia\FilamentMedia\Facades\FilamentMedia;
+use Codenzia\FilamentMedia\Helpers\BaseHelper;
 use Codenzia\FilamentMedia\Models\MediaFolder;
+use Codenzia\FilamentMedia\Services\UploadService;
+use Filament\Notifications\Notification;
+use Illuminate\Contracts\View\View;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class UploadModal extends Component
 {
@@ -20,7 +22,6 @@ class UploadModal extends Component
     public int $completedCount = 0;
     public int $failedCount = 0;
 
-    /** Maximum files allowed per upload session */
     protected int $maxFilesPerUpload = 50;
 
     public function mount(): void
@@ -31,23 +32,23 @@ class UploadModal extends Component
     #[On('open-upload-modal')]
     public function open(int $folderId = 0): void
     {
-        // Verify user has permission to upload
-        if (!FilamentMedia::hasPermission('files.create')) {
+        if (! FilamentMedia::hasPermission('files.create')) {
             Notification::make()
                 ->title(trans('filament-media::media.permission_denied'))
                 ->danger()
                 ->send();
+
             return;
         }
 
-        // Verify folder exists and user can access it
         if ($folderId > 0) {
             $folder = MediaFolder::find($folderId);
-            if (!$folder) {
+            if (! $folder) {
                 Notification::make()
                     ->title(trans('filament-media::media.folder_not_found'))
                     ->danger()
                     ->send();
+
                 return;
             }
         }
@@ -63,17 +64,14 @@ class UploadModal extends Component
         $this->reset(['uploadQueue', 'completedCount', 'failedCount']);
     }
 
-    /**
-     * Called from JS when a file is selected for upload.
-     */
     public function addToQueue(string $key, string $name, int $size): void
     {
-        // Limit number of files to prevent DOS
         if (count($this->uploadQueue) >= $this->maxFilesPerUpload) {
             Notification::make()
                 ->title(trans('filament-media::media.too_many_files', ['max' => $this->maxFilesPerUpload]))
                 ->danger()
                 ->send();
+
             return;
         }
 
@@ -86,9 +84,6 @@ class UploadModal extends Component
         ];
     }
 
-    /**
-     * Called from JS to update upload progress.
-     */
     public function updateProgress(string $key, int $progress): void
     {
         if (isset($this->uploadQueue[$key])) {
@@ -96,9 +91,6 @@ class UploadModal extends Component
         }
     }
 
-    /**
-     * Called from JS when upload completes successfully.
-     */
     public function markComplete(string $key): void
     {
         if (isset($this->uploadQueue[$key])) {
@@ -109,9 +101,6 @@ class UploadModal extends Component
         }
     }
 
-    /**
-     * Called from JS when upload fails.
-     */
     public function markFailed(string $key, string $error): void
     {
         if (isset($this->uploadQueue[$key])) {
@@ -122,16 +111,12 @@ class UploadModal extends Component
         }
     }
 
-    /**
-     * Remove a file from the queue (for completed/failed items).
-     */
     public function removeFromQueue(string $key): void
     {
         if (isset($this->uploadQueue[$key])) {
             $status = $this->uploadQueue[$key]['status'];
             unset($this->uploadQueue[$key]);
 
-            // Adjust counts
             if ($status === 'completed') {
                 $this->completedCount = max(0, $this->completedCount - 1);
             } elseif ($status === 'failed') {
@@ -140,9 +125,6 @@ class UploadModal extends Component
         }
     }
 
-    /**
-     * Check if all uploads are complete and handle notifications.
-     */
     protected function checkAllComplete(): void
     {
         $allComplete = true;
@@ -154,7 +136,6 @@ class UploadModal extends Component
         }
 
         if ($allComplete && count($this->uploadQueue) > 0) {
-            // Notify parent to refresh - dispatch as browser event for cross-component communication
             $this->dispatch('media-files-uploaded');
             $this->dispatch('media-folder-created');
 
@@ -166,40 +147,24 @@ class UploadModal extends Component
             }
 
             if ($this->failedCount === 0) {
-                // Auto-close if all succeeded
                 $this->close();
             }
         }
     }
 
-    /**
-     * Format file size for display.
-     */
     public function formatSize(int $bytes): string
     {
-        $units = ['B', 'KB', 'MB', 'GB'];
-        $bytes = max($bytes, 0);
-        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-        $pow = min($pow, count($units) - 1);
-        $bytes /= (1 << (10 * $pow));
-
-        return round($bytes, 2) . ' ' . $units[$pow];
+        return BaseHelper::humanFilesize($bytes);
     }
 
-    /**
-     * Get the upload URL for JS.
-     */
     public function getUploadUrl(): string
     {
         return route('media.files.upload');
     }
 
-    /**
-     * Get max file size in bytes for JS validation.
-     */
     public function getMaxSize(): int
     {
-        return FilamentMedia::getMaxSize();
+        return app(UploadService::class)->getMaxSize();
     }
 
     public function render(): View

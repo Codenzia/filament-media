@@ -2,13 +2,14 @@
 
 namespace Codenzia\FilamentMedia\Livewire;
 
-use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Storage;
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Facades\FilamentMedia;
+use Codenzia\FilamentMedia\Models\MediaFile;
+use Codenzia\FilamentMedia\Services\MediaUrlService;
+use Codenzia\FilamentMedia\Services\VersionService;
 use Filament\Notifications\Notification;
+use Illuminate\Contracts\View\View;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class PreviewModal extends Component
 {
@@ -19,7 +20,6 @@ class PreviewModal extends Component
     public array $fileIds = [];
     public int $currentIndex = 0;
 
-    // Current file details (escaped for XSS prevention)
     public string $name = '';
     public string $url = '';
     public string $fullUrl = '';
@@ -27,22 +27,22 @@ class PreviewModal extends Component
     public string $size = '';
     public string $alt = '';
     public string $createdAt = '';
-    public string $fileType = 'document'; // image, video, audio, document
+    public string $fileType = 'document';
     public bool $fileExists = true;
+    public array $versions = [];
 
     #[On('open-preview-modal')]
     public function open(int $fileId, array $fileIds = []): void
     {
-        // Verify user has permission to view files
-        if (!FilamentMedia::hasPermission('files.read')) {
+        if (! FilamentMedia::hasPermission('files.read')) {
             Notification::make()
                 ->title(trans('filament-media::media.permission_denied'))
                 ->danger()
                 ->send();
+
             return;
         }
 
-        // Validate and sanitize file IDs (ensure all are integers)
         $this->fileIds = array_map('intval', array_filter($fileIds, 'is_numeric'));
         $this->currentIndex = array_search($fileId, $this->fileIds);
 
@@ -58,7 +58,11 @@ class PreviewModal extends Component
     public function close(): void
     {
         $this->isOpen = false;
-        $this->reset(['currentFileId', 'fileIds', 'currentIndex', 'name', 'url', 'fullUrl', 'mimeType', 'size', 'alt', 'createdAt', 'fileType', 'fileExists']);
+        $this->reset([
+            'currentFileId', 'fileIds', 'currentIndex',
+            'name', 'url', 'fullUrl', 'mimeType', 'size',
+            'alt', 'createdAt', 'fileType', 'fileExists', 'versions',
+        ]);
     }
 
     public function next(): void
@@ -81,42 +85,39 @@ class PreviewModal extends Component
     {
         $file = MediaFile::find($fileId);
 
-        if (!$file) {
+        if (! $file) {
             $this->close();
+
             return;
         }
 
+        $urlService = app(MediaUrlService::class);
+
         $this->currentFileId = $file->id;
-        // Escape user-provided content to prevent XSS
         $this->name = e($file->name ?? '');
         $this->url = $file->url ?? '';
-        $this->fullUrl = FilamentMedia::url($file->url);
+        $this->fullUrl = $urlService->url($file->url);
         $this->mimeType = $file->mime_type ?? '';
         $this->size = $file->human_size ?? '';
         $this->alt = e($file->alt ?? '');
         $this->createdAt = $file->created_at?->format('M j, Y') ?? '';
         $this->fileType = $this->determineFileType($this->mimeType);
-        $this->fileExists = $this->checkFileExists($file->url);
-    }
+        $this->fileExists = $urlService->fileExists($file->url);
 
-    /**
-     * Check if the file exists on disk.
-     */
-    protected function checkFileExists(?string $url): bool
-    {
-        if (empty($url)) {
-            return false;
-        }
-
-        try {
-            // For cloud storage, trust it exists (checking would be slow)
-            if (FilamentMedia::isUsingCloud()) {
-                return true;
-            }
-
-            return Storage::disk(FilamentMedia::getConfig('driver', 'public'))->exists($url);
-        } catch (\Throwable $e) {
-            return false;
+        // Load version history if versioning is enabled
+        $this->versions = [];
+        if (config('media.features.versioning', true)) {
+            $this->versions = app(VersionService::class)
+                ->getVersions($file)
+                ->map(fn ($v) => [
+                    'id' => $v->id,
+                    'version_number' => $v->version_number,
+                    'size' => $v->size,
+                    'created_at' => $v->created_at?->format('M j, Y H:i'),
+                    'changelog' => $v->changelog,
+                    'user' => $v->user?->name ?? 'System',
+                ])
+                ->toArray();
         }
     }
 
@@ -153,6 +154,7 @@ class PreviewModal extends Component
             return [];
         }
 
+        $urlService = app(MediaUrlService::class);
         $thumbnails = [];
         $files = MediaFile::whereIn('id', $this->fileIds)->get()->keyBy('id');
 
@@ -161,9 +163,9 @@ class PreviewModal extends Component
             if ($file) {
                 $thumbnails[] = [
                     'id' => $file->id,
-                    'name' => e($file->name ?? ''), // Escape for XSS prevention
+                    'name' => e($file->name ?? ''),
                     'thumbnail' => $file->canGenerateThumbnails()
-                        ? FilamentMedia::url($file->url)
+                        ? $urlService->url($file->url)
                         : null,
                     'mime_type' => $file->mime_type,
                     'is_current' => $index === $this->currentIndex,

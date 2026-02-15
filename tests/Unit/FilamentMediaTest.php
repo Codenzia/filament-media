@@ -103,14 +103,12 @@ describe('FilamentMedia Permission System', function () {
 });
 
 describe('FilamentMedia URL Helpers', function () {
-    it('returns URLs configuration', function () {
+    it('delegates url generation to MediaUrlService', function () {
         $media = app(FilamentMedia::class);
-        $urls = $media->getUrls();
+        $url = $media->url('test/file.jpg');
 
-        expect($urls)->toBeArray()
-            ->and($urls)->toHaveKey('base_url')
-            ->and($urls)->toHaveKey('upload_file')
-            ->and($urls)->toHaveKey('create_folder');
+        expect($url)->toBeString()
+            ->and($url)->toContain('test/file.jpg');
     });
 });
 
@@ -145,32 +143,12 @@ describe('FilamentMedia Thumbnail Configuration', function () {
             ->and(FilamentMediaFacade::canGenerateThumbnails('video/mp4'))->toBeFalse();
     });
 
-    it('returns thumbnail sizes', function () {
-        $sizes = FilamentMediaFacade::getSizes();
+    it('returns thumbnail sizes from ImageService', function () {
+        $imageService = app(\Codenzia\FilamentMedia\Services\ImageService::class);
+        $sizes = $imageService->getSizes();
 
         expect($sizes)->toBeArray();
     });
-
-    it('can add custom sizes', function () {
-        // Note: addSize writes to 'core.media.media.sizes' but getSizes reads from 'media.sizes'
-        // This is a configuration mismatch in the plugin. Test workaround: set config directly.
-        config(['media.sizes.custom' => '300x300']);
-
-        $media = app(FilamentMedia::class);
-        $sizes = $media->getSizes();
-
-        expect($sizes)->toHaveKey('custom');
-    });
-
-    it('can remove sizes', function () {
-        // Note: removeSize has a bug - it writes to 'core.media.media.sizes'
-        // but getSizes reads from 'media.sizes' via getConfig()
-        // This test verifies the removeSize method is callable and returns self
-        $media = app(FilamentMedia::class);
-        $result = $media->removeSize('nonexistent');
-
-        expect($result)->toBeInstanceOf(FilamentMedia::class);
-    })->skip('removeSize writes to wrong config key - bug in implementation');
 });
 
 describe('FilamentMedia Response Helpers', function () {

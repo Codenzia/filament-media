@@ -137,14 +137,129 @@
                         </dd>
                     </div>
                 @endif
+
+                @php
+                    $itemData = [['id' => $details['id'], 'is_folder' => $details['type'] === 'folder']];
+                @endphp
+
+                @if ($details['type'] === 'file')
+                    {{-- Linked Model --}}
+                    <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <dt class="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                            {{ trans('filament-media::media.linked_to') }}
+                        </dt>
+                        <dd class="text-sm text-gray-900 dark:text-white">
+                            @if ($details['linked_model'] ?? null)
+                                <button
+                                    type="button"
+                                    class="text-primary-600 dark:text-primary-400 hover:underline inline-flex items-center gap-1"
+                                    wire:click="openParentDetailsModal({{ Js::from($itemData) }})"
+                                >
+                                    {{ $details['linked_model']['label'] }}
+                                    <x-filament::icon icon="heroicon-m-information-circle" class="w-3.5 h-3.5" />
+                                </button>
+                            @else
+                                <span class="text-gray-400 italic">{{ trans('filament-media::media.not_linked') }}</span>
+                            @endif
+                        </dd>
+                    </div>
+                @endif
+
+                @if ($details['type'] === 'file')
+                    {{-- Tags --}}
+                    @if(config('media.features.tags', true))
+                        <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between mb-1">
+                                <dt class="text-sm text-gray-500 dark:text-gray-400">
+                                    {{ trans('filament-media::media.tags') }}
+                                </dt>
+                                <button
+                                    type="button"
+                                    class="text-xs text-primary-600 dark:text-primary-400 hover:underline"
+                                    wire:click="openTagModal({{ Js::from($itemData) }})"
+                                >
+                                    {{ trans('filament-media::media.edit') }}
+                                </button>
+                            </div>
+                            <dd class="flex flex-wrap gap-1">
+                                @if (!empty($details['tags']))
+                                    @foreach ($details['tags'] as $tag)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
+                                            {{ $tag }}
+                                        </span>
+                                    @endforeach
+                                @else
+                                    <span class="text-sm text-gray-400 italic">{{ trans('filament-media::media.no_tags') }}</span>
+                                @endif
+                            </dd>
+                        </div>
+                    @endif
+
+                    {{-- Collections --}}
+                    @if(config('media.features.collections', true))
+                        <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between mb-1">
+                                <dt class="text-sm text-gray-500 dark:text-gray-400">
+                                    {{ trans('filament-media::media.collections') }}
+                                </dt>
+                                <button
+                                    type="button"
+                                    class="text-xs text-primary-600 dark:text-primary-400 hover:underline"
+                                    wire:click="openCollectionModal({{ Js::from($itemData) }})"
+                                >
+                                    {{ trans('filament-media::media.add') }}
+                                </button>
+                            </div>
+                            <dd class="flex flex-wrap gap-1">
+                                @if (!empty($details['collections']))
+                                    @foreach ($details['collections'] as $collection)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                            {{ $collection }}
+                                        </span>
+                                    @endforeach
+                                @else
+                                    <span class="text-sm text-gray-400 italic">{{ trans('filament-media::media.no_collections') }}</span>
+                                @endif
+                            </dd>
+                        </div>
+                    @endif
+
+                    {{-- Version Info --}}
+                    @if(config('media.features.versioning', true))
+                        <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between mb-1">
+                                <dt class="text-sm text-gray-500 dark:text-gray-400">
+                                    {{ trans('filament-media::media.versions') }}
+                                </dt>
+                                <button
+                                    type="button"
+                                    class="text-xs text-primary-600 dark:text-primary-400 hover:underline"
+                                    wire:click="openVersionModal({{ Js::from($itemData) }})"
+                                >
+                                    {{ trans('filament-media::media.upload_new') }}
+                                </button>
+                            </div>
+                            <dd class="text-sm text-gray-900 dark:text-white">
+                                @if (($details['version_count'] ?? 0) > 0)
+                                    {{ trans('filament-media::media.version_count', ['count' => $details['version_count']]) }}
+                                    @if ($details['latest_version'] ?? null)
+                                        <span class="text-gray-400">
+                                            &middot; v{{ $details['latest_version']['version_number'] }}
+                                            ({{ $details['latest_version']['created_at'] }})
+                                        </span>
+                                    @endif
+                                @else
+                                    <span class="text-gray-400 italic">{{ trans('filament-media::media.no_versions') }}</span>
+                                @endif
+                            </dd>
+                        </div>
+                    @endif
+                @endif
             </dl>
         </div>
     </div>
 
     {{-- Actions Footer --}}
-    @php
-        $itemData = [['id' => $details['id'], 'is_folder' => $details['type'] === 'folder']];
-    @endphp
     <div class="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
         <div class="flex flex-wrap gap-2">
             <x-filament::button size="sm" color="gray" icon="heroicon-m-pencil"
@@ -162,6 +277,20 @@
                     wire:click="openAltTextModal({{ Js::from($itemData) }})">
                     {{ trans('filament-media::media.alt_text') }}
                 </x-filament::button>
+
+                @if(config('media.features.tags', true))
+                    <x-filament::button size="sm" color="gray" icon="heroicon-m-tag"
+                        wire:click="openTagModal({{ Js::from($itemData) }})">
+                        {{ trans('filament-media::media.tags') }}
+                    </x-filament::button>
+                @endif
+
+                @if(config('media.features.metadata', true))
+                    <x-filament::button size="sm" color="gray" icon="heroicon-m-document-text"
+                        wire:click="openMetadataModal({{ Js::from($itemData) }})">
+                        {{ trans('filament-media::media.edit_metadata') }}
+                    </x-filament::button>
+                @endif
             @endif
 
             <x-filament::button size="sm" color="danger" icon="heroicon-m-trash"

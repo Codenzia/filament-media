@@ -14,22 +14,21 @@ class FilamentMediaPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        $pages = [
-            Pages\Media::class,
-        ];
+        $pages = [];
+        $nav = config('media.navigation', []);
 
-        // Register settings page if enabled in config
-        if (config('media.settings.enabled', true)) {
+        if ($nav['media']['visible'] ?? true) {
+            $pages[] = Pages\Media::class;
+        }
+
+        if (($nav['settings']['visible'] ?? true) && config('media.settings.enabled', true)) {
             $pages[] = Pages\MediaSettings::class;
         }
 
         $panel->pages($pages);
     }
 
-    public function boot(Panel $panel): void
-    {
-        //
-    }
+    public function boot(Panel $panel): void {}
 
     public static function make(): static
     {

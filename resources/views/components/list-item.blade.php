@@ -7,8 +7,7 @@
     $fileExists = $item['file_exists'] ?? true; // Default to true for folders
 @endphp
 
-<div class="fm-item grid grid-cols-12 gap-4 px-4 py-3 items-center transition-colors cursor-pointer
-        hover:bg-gray-50 dark:hover:bg-gray-800/50
+<div class="fm-item grid grid-cols-12 gap-4 px-4 py-3 items-center transition-all cursor-pointer
         {{ $isSelected ? 'bg-primary-50 dark:bg-primary-900/20' : '' }}"
     wire:key="list-item-{{ $item['id'] }}-{{ $isFolder ? 'folder' : 'file' }}" data-item-index="{{ $index }}"
     x-on:click="

@@ -3,7 +3,9 @@
 namespace Codenzia\FilamentMedia\Pages;
 
 use Codenzia\FilamentMedia\Facades\FilamentMedia;
+use Codenzia\FilamentMedia\Helpers\BaseHelper;
 use Codenzia\FilamentMedia\Models\MediaSetting;
+use Codenzia\FilamentMedia\Services\OrphanScanService;
 
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -31,14 +33,40 @@ class MediaSettings extends Page implements HasForms
 
     public ?array $data = [];
 
+    public array $orphanedFiles = [];
+
+    public array $selectedOrphans = [];
+
+    public bool $scanComplete = false;
+
+    public bool $scanning = false;
+
+    public static function getNavigationIcon(): string|\BackedEnum|null
+    {
+        return config('media.navigation.settings.icon', 'heroicon-o-cog-6-tooth');
+    }
+
     public static function getNavigationLabel(): string
     {
-        return trans('filament-media::media.settings.title');
+        $label = config('media.navigation.settings.label');
+
+        return $label ?: trans('filament-media::media.settings.title');
     }
 
     public static function getNavigationGroup(): ?string
     {
-        return FilamentMedia::getConfig('navigation.group', null);
+        return config('media.navigation.shared_group')
+            ?? config('media.navigation.settings.group');
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return config('media.navigation.settings.sort', 2);
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return config('media.navigation.settings.visible', true);
     }
 
     public function getTitle(): string
@@ -389,6 +417,135 @@ class MediaSettings extends Page implements HasForms
         // Chunk upload settings
         MediaSetting::setSystemSetting('media_chunk_enabled', $data['chunk_enabled'] ?? false);
         MediaSetting::setSystemSetting('media_chunk_size', ($data['chunk_size'] ?? 1) * 1024 * 1024);
+    }
+
+    // ──────────────────────────────────────────────────
+    // Orphan Scan
+    // ──────────────────────────────────────────────────
+
+    public function scanStorage(): void
+    {
+        $this->scanning = true;
+        $this->orphanedFiles = [];
+        $this->selectedOrphans = [];
+        $this->scanComplete = false;
+
+        $service = app(OrphanScanService::class);
+        $results = $service->scan();
+
+        $this->orphanedFiles = $results->map(fn (array $file) => [
+            'path' => $file['path'],
+            'name' => $file['name'],
+            'size' => BaseHelper::humanFilesize($file['size']),
+            'size_raw' => $file['size'],
+            'mime_type' => $file['mime_type'],
+        ])->toArray();
+
+        $this->scanning = false;
+        $this->scanComplete = true;
+
+        if (empty($this->orphanedFiles)) {
+            Notification::make()
+                ->title(trans('filament-media::media.settings.scan_no_orphans'))
+                ->success()
+                ->send();
+        }
+    }
+
+    public function importOrphans(): void
+    {
+        if (empty($this->selectedOrphans)) {
+            Notification::make()
+                ->title(trans('filament-media::media.settings.scan_select_files'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $service = app(OrphanScanService::class);
+        $imported = $service->import($this->selectedOrphans, 0, auth()->id());
+
+        Notification::make()
+            ->title(trans('filament-media::media.settings.scan_imported', ['count' => $imported]))
+            ->success()
+            ->send();
+
+        // Re-scan to refresh the list
+        $this->scanStorage();
+    }
+
+    public function deleteOrphans(): void
+    {
+        if (empty($this->selectedOrphans)) {
+            Notification::make()
+                ->title(trans('filament-media::media.settings.scan_select_files'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $service = app(OrphanScanService::class);
+        $deleted = $service->delete($this->selectedOrphans);
+
+        Notification::make()
+            ->title(trans('filament-media::media.settings.scan_deleted', ['count' => $deleted]))
+            ->success()
+            ->send();
+
+        // Re-scan to refresh the list
+        $this->scanStorage();
+    }
+
+    public function importAllOrphans(): void
+    {
+        $paths = array_column($this->orphanedFiles, 'path');
+
+        $service = app(OrphanScanService::class);
+        $imported = $service->import($paths, 0, auth()->id());
+
+        Notification::make()
+            ->title(trans('filament-media::media.settings.scan_imported', ['count' => $imported]))
+            ->success()
+            ->send();
+
+        $this->scanStorage();
+    }
+
+    public function deleteAllOrphans(): void
+    {
+        $paths = array_column($this->orphanedFiles, 'path');
+
+        $service = app(OrphanScanService::class);
+        $deleted = $service->delete($paths);
+
+        Notification::make()
+            ->title(trans('filament-media::media.settings.scan_deleted', ['count' => $deleted]))
+            ->success()
+            ->send();
+
+        $this->scanStorage();
+    }
+
+    public function toggleOrphanSelection(string $path): void
+    {
+        if (in_array($path, $this->selectedOrphans)) {
+            $this->selectedOrphans = array_values(array_diff($this->selectedOrphans, [$path]));
+        } else {
+            $this->selectedOrphans[] = $path;
+        }
+    }
+
+    public function toggleAllOrphans(): void
+    {
+        $allPaths = array_column($this->orphanedFiles, 'path');
+
+        if (count($this->selectedOrphans) === count($allPaths)) {
+            $this->selectedOrphans = [];
+        } else {
+            $this->selectedOrphans = $allPaths;
+        }
     }
 
     protected function getFormActions(): array

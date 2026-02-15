@@ -12,7 +12,6 @@
     isDragging: false,
 }"
     class="fm-item group relative rounded-lg overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-150 cursor-pointer
-        hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md
         {{ $isSelected ? 'ring-2 ring-primary-500 ring-offset-2 dark:ring-offset-gray-900 border-primary-500' : '' }}"
     :class="{
         'opacity-50': isDragging,

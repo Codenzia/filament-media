@@ -1,8 +1,5 @@
 /**
- * Filament Media Manager - Modern CSS
- *
- * This stylesheet provides modern, clean styling for the media manager.
- * Uses CSS custom properties for theming and Tailwind utility classes where possible.
+ * Filament Media Manager CSS
  */
 
 /* ===========================
@@ -10,36 +7,23 @@
    =========================== */
 
 :root {
-    /* Background colors */
     --fm-bg-primary: #ffffff;
     --fm-bg-secondary: #f9fafb;
     --fm-bg-tertiary: #f3f4f6;
-
-    /* Text colors */
     --fm-text-primary: #111827;
     --fm-text-secondary: #6b7280;
     --fm-text-muted: #9ca3af;
-
-    /* Border colors */
     --fm-border-color: #e5e7eb;
     --fm-border-focus: rgb(var(--primary-500));
-
-    /* Item colors */
     --fm-item-bg: #ffffff;
     --fm-item-hover-bg: #f9fafb;
     --fm-item-selected-bg: rgba(var(--primary-500), 0.1);
-
-    /* Shadows */
     --fm-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --fm-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --fm-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-
-    /* Transitions */
     --fm-transition-fast: 150ms;
     --fm-transition-normal: 200ms;
     --fm-transition-slow: 300ms;
-
-    /* Border radius */
     --fm-radius-sm: 0.375rem;
     --fm-radius-md: 0.5rem;
     --fm-radius-lg: 0.75rem;
@@ -47,63 +31,40 @@
 }
 
 .dark {
-    /* Backgrounds - enhanced contrast */
     --fm-bg-primary: #0f172a;
     --fm-bg-secondary: #1e293b;
     --fm-bg-tertiary: #334155;
-
-    /* Text - better readability */
     --fm-text-primary: #f8fafc;
     --fm-text-secondary: #e2e8f0;
     --fm-text-muted: #94a3b8;
-
-    /* Borders - more visible */
     --fm-border-color: #475569;
-
-    /* Items - distinct hover states */
     --fm-item-bg: #1e293b;
     --fm-item-hover-bg: #334155;
     --fm-item-selected-bg: rgba(var(--primary-500), 0.2);
-
-    /* Shadows - subtle glow effect */
     --fm-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.3);
     --fm-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
     --fm-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
 }
 
 /* ===========================
-   Base Container Styles
+   Base Layout
    =========================== */
 
 .fm-container {
     font-family: inherit;
     font-size: 0.875rem;
     line-height: 1.5;
-    /* Container doesn't need z-index - modals use portals with their own z-index (9999) */
     position: relative;
     z-index: 1;
 }
 
-/* ===========================
-   Toolbar Styles
-   =========================== */
-
 .fm-toolbar {
-    /* Note: backdrop-filter removed - it creates a stacking context that traps modals */
     position: relative;
-    /* Toolbar needs z-index to ensure dropdowns appear above the browser content */
-    z-index: 50;
-    /* Allow dropdown panels to overflow */
-    overflow: visible !important;
-}
-
-/* Ensure toolbar children don't clip dropdowns */
-.fm-toolbar > div {
-    overflow: visible;
+    z-index: 200;
 }
 
 /* ===========================
-   Breadcrumbs
+   Scrollbars
    =========================== */
 
 .fm-breadcrumbs {
@@ -123,10 +84,6 @@
     background-color: var(--fm-border-color);
     border-radius: 2px;
 }
-
-/* ===========================
-   File Browser
-   =========================== */
 
 .fm-browser {
     scrollbar-width: thin;
@@ -150,60 +107,6 @@
     background-color: var(--fm-text-muted);
 }
 
-/* ===========================
-   Grid Item Styles
-   =========================== */
-
-.fm-item {
-    transition: all var(--fm-transition-fast) ease-in-out;
-}
-
-.fm-item:focus-visible {
-    outline: 2px solid rgb(var(--primary-500));
-    outline-offset: 2px;
-}
-
-/* Selection ring animation */
-.fm-item.ring-2 {
-    animation: fm-select-pulse 0.3s ease-out;
-}
-
-@keyframes fm-select-pulse {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.02);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-/* Image thumbnail lazy load fade in */
-.fm-item img {
-    opacity: 0;
-    transition: opacity var(--fm-transition-normal) ease-in-out;
-}
-
-.fm-item img.loaded,
-.fm-item img[src] {
-    opacity: 1;
-}
-
-/* ===========================
-   List View Styles
-   =========================== */
-
-.fm-list-view {
-    border-radius: var(--fm-radius-lg);
-    overflow: hidden;
-}
-
-/* ===========================
-   Details Panel Styles
-   =========================== */
-
 .fm-details {
     scrollbar-width: thin;
     scrollbar-color: var(--fm-border-color) transparent;
@@ -223,221 +126,52 @@
 }
 
 /* ===========================
-   Bulk Actions Bar
+   Grid & List Items
    =========================== */
 
-.fm-bulk-actions {
-    animation: fm-slide-up var(--fm-transition-normal) ease-out;
+.fm-item {
+    transition: all var(--fm-transition-fast) ease-in-out;
 }
 
-@keyframes fm-slide-up {
-    from {
-        opacity: 0;
-        transform: translate(-50%, 100%);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
+.fm-item:hover {
+    filter: brightness(0.90);
 }
 
-/* ===========================
-   Context Menu Styles
-   =========================== */
-
-[x-cloak] {
-    display: none !important;
+.dark .fm-item:hover {
+    filter: brightness(1.20);
 }
 
-/* ===========================
-   Upload Progress Panel
-   =========================== */
-
-.fm-upload-progress {
-    transition: all var(--fm-transition-normal) ease-in-out;
-    max-width: 400px;
-}
-
-.fm-upload-progress.hide-the-pane {
+.fm-item img {
     opacity: 0;
-    transform: translateX(100%);
-    pointer-events: none;
+    transition: opacity var(--fm-transition-normal) ease-in-out;
 }
 
-/* ===========================
-   Loading States
-   =========================== */
-
-.fm-loading {
-    position: relative;
+.fm-item img.loaded,
+.fm-item img[src] {
+    opacity: 1;
 }
 
-.fm-loading::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--fm-bg-primary);
-    opacity: 0.5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.fm-item.ring-2 {
+    animation: fm-select-glow 0.3s ease-out;
 }
 
-/* Skeleton loading animation */
-.fm-skeleton {
-    background: linear-gradient(
-        90deg,
-        var(--fm-bg-secondary) 0%,
-        var(--fm-bg-tertiary) 50%,
-        var(--fm-bg-secondary) 100%
-    );
-    background-size: 200% 100%;
-    animation: fm-skeleton-loading 1.5s infinite;
-    border-radius: var(--fm-radius-md);
+@keyframes fm-select-glow {
+    0% { box-shadow: 0 0 0 0 rgba(var(--primary-500), 0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(var(--primary-500), 0); }
+    100% { box-shadow: 0 0 0 0 rgba(var(--primary-500), 0); }
 }
 
-@keyframes fm-skeleton-loading {
-    0% {
-        background-position: 200% 0;
-    }
-    100% {
-        background-position: -200% 0;
-    }
-}
-
-/* ===========================
-   Drag and Drop
-   =========================== */
-
-.fm-drag-over {
-    outline: 2px dashed rgb(var(--primary-500));
-    outline-offset: -2px;
-    background-color: var(--fm-item-selected-bg);
-}
-
-.fm-dragging {
-    opacity: 0.5;
-    cursor: grabbing;
-}
-
-/* ===========================
-   Empty State Animations
-   =========================== */
-
-.fm-browser .flex.flex-col.items-center {
-    animation: fm-fade-in var(--fm-transition-slow) ease-out;
-}
-
-@keyframes fm-fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ===========================
-   Responsive Adjustments
-   =========================== */
-
-@media (max-width: 640px) {
-    .fm-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .fm-toolbar > div {
-        justify-content: center;
-    }
-}
-
-/* ===========================
-   Print Styles
-   =========================== */
-
-@media print {
-    .fm-container {
-        display: none;
-    }
-}
-
-/* ===========================
-   Accessibility
-   =========================== */
-
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-/* Focus visible styles for keyboard navigation */
-.fm-item:focus-visible,
-button:focus-visible,
-a:focus-visible {
-    outline: 2px solid rgb(var(--primary-500));
-    outline-offset: 2px;
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-    .fm-item {
-        border-width: 2px;
-    }
-
-    .fm-item.ring-2 {
-        ring-width: 3px;
-    }
-}
-
-/* ===========================
-   Legacy Support (keep for backward compatibility)
-   =========================== */
-
-/* Upload progress pane - used by existing JS */
-.fm-upload-progress-table {
-    width: 100%;
-}
-
-.fm-upload-progress-table .file-name {
-    max-width: 200px;
+.fm-list-view {
+    border-radius: var(--fm-radius-lg);
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* Config include - keep this for the config view */
-#media-content {
-    /* For backward compatibility with wire:ignore sections */
-}
-
-/* Old media grid fallback - in case JavaScript loads */
-.fm-media-grid,
-.fm-media-list {
-    /* These are kept for backward compatibility */
-}
-
-.fm-media-grid ul,
-.fm-media-list ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
 }
 
 /* ===========================
-   Toolbar Dropdown Component
+   Toolbar Dropdown
    =========================== */
 
 .fm-toolbar-dropdown {
-    position: relative;
-    z-index: 100 !important;
+    position: relative;    
 }
 
 .fm-dropdown-trigger {
@@ -468,19 +202,18 @@ a:focus-visible {
     border-color: #4b5563;
 }
 
-.fm-dropdown-icon {
+.fm-dropdown-icon,
+.fm-dropdown-chevron {
     width: 1rem;
     height: 1rem;
+    color: #9ca3af;
+}
+
+.fm-dropdown-icon {
     color: #6b7280;
 }
 
 .dark .fm-dropdown-icon {
-    color: #9ca3af;
-}
-
-.fm-dropdown-chevron {
-    width: 1rem;
-    height: 1rem;
     color: #9ca3af;
 }
 
@@ -499,69 +232,8 @@ a:focus-visible {
     font-weight: 600;
 }
 
-/* Dropdown panel z-index - single rule for all toolbar dropdowns */
-.fm-toolbar-dropdown .fi-dropdown-panel {
-    z-index: 9999 !important;
-}
-
 /* ===========================
-   Enhanced Empty State
-   =========================== */
-
-.fm-empty-state {
-    animation: fm-fade-in 0.4s ease-out;
-}
-
-.fm-empty-icon {
-    animation: fm-float 3s ease-in-out infinite;
-}
-
-@keyframes fm-float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-}
-
-/* ===========================
-   Enhanced Hover Effects
-   =========================== */
-
-.fm-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-/* Selection glow animation */
-@keyframes fm-select-glow {
-    0% { box-shadow: 0 0 0 0 rgba(var(--primary-500), 0.4); }
-    70% { box-shadow: 0 0 0 8px rgba(var(--primary-500), 0); }
-    100% { box-shadow: 0 0 0 0 rgba(var(--primary-500), 0); }
-}
-
-.fm-item.ring-2 {
-    animation: fm-select-glow 0.3s ease-out;
-}
-
-/* ===========================
-   Upload Button Enhancement
-   =========================== */
-
-.fm-upload-btn {
-    background: linear-gradient(135deg, rgb(var(--primary-500)) 0%, rgb(var(--primary-600)) 100%);
-    box-shadow: 0 4px 14px 0 rgba(var(--primary-500), 0.3);
-    transition: all 0.2s ease-out;
-}
-
-.fm-upload-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px 0 rgba(var(--primary-500), 0.4);
-}
-
-.fm-upload-btn:active {
-    transform: translateY(0);
-}
-
-/* ===========================
-   View Toggle Enhancement
+   View Toggle
    =========================== */
 
 .fm-view-toggle {
@@ -584,15 +256,134 @@ a:focus-visible {
 }
 
 /* ===========================
-   Z-Index Stacking (Simplified)
+   Upload Button
    =========================== */
 
-/* Context menu */
+.fm-upload-btn {
+    background: linear-gradient(135deg, rgb(var(--primary-500)) 0%, rgb(var(--primary-600)) 100%);
+    box-shadow: 0 4px 14px 0 rgba(var(--primary-500), 0.3);
+    transition: all 0.2s ease-out;
+}
+
+.fm-upload-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px 0 rgba(var(--primary-500), 0.4);
+}
+
+.fm-upload-btn:active {
+    transform: translateY(0);
+}
+
+/* ===========================
+   Empty State
+   =========================== */
+
+.fm-empty-state {
+    animation: fm-fade-in 0.4s ease-out;
+}
+
+.fm-empty-icon {
+    animation: fm-float 3s ease-in-out infinite;
+}
+
+@keyframes fm-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes fm-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===========================
+   Drag and Drop
+   =========================== */
+
+.fm-drag-over {
+    outline: 2px dashed rgb(var(--primary-500));
+    outline-offset: -2px;
+    background-color: var(--fm-item-selected-bg);
+}
+
+/* ===========================
+   Z-Index Stacking
+   =========================== */
+
+.fm-sort-panel {
+    z-index: 50;
+}
+
 .fm-context-menu {
     z-index: 200 !important;
 }
 
-/* Preview modal */
 .fm-preview-modal {
     z-index: 300 !important;
+}
+
+/* ===========================
+   Utilities
+   =========================== */
+
+[x-cloak] {
+    display: none !important;
+}
+
+/* ===========================
+   Responsive
+   =========================== */
+
+@media (max-width: 640px) {
+    .fm-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .fm-toolbar > div {
+        justify-content: center;
+    }
+}
+
+@media print {
+    .fm-container {
+        display: none;
+    }
+}
+
+/* ===========================
+   Accessibility
+   =========================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+.fm-item:focus-visible,
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid rgb(var(--primary-500));
+    outline-offset: 2px;
+}
+
+@media (prefers-contrast: high) {
+    .fm-item {
+        border-width: 2px;
+    }
+
+    .fm-item.ring-2 {
+        ring-width: 3px;
+    }
 }

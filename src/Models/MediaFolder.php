@@ -4,18 +4,19 @@ namespace Codenzia\FilamentMedia\Models;
 
 use Codenzia\FilamentMedia\Database\Factories\MediaFolderFactory;
 use Codenzia\FilamentMedia\Facades\FilamentMedia as RvMedia;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model as BaseModel;
+use Codenzia\FilamentMedia\Services\SafeContentService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model as BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Codenzia\FilamentMedia\Services\SafeContentService;
 
 class MediaFolder extends BaseModel
 {
@@ -76,50 +77,93 @@ class MediaFolder extends BaseModel
         return $this->belongsTo(MediaFolder::class, 'parent_id')->withDefault();
     }
 
-    /**
-     * Get the user who owns this folder.
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model', 'App\\Models\\User'), 'user_id');
     }
 
-    /**
-     * Get the user who created this folder.
-     */
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model', 'App\\Models\\User'), 'created_by_user_id');
     }
 
-    /**
-     * Get the user who last updated this folder.
-     */
     public function updatedBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model', 'App\\Models\\User'), 'updated_by_user_id');
     }
 
-    /**
-     * Get the parent model that this folder is attached to.
-     */
     public function fileable(): MorphTo
     {
         return $this->morphTo();
     }
 
-    /**
-     * Get child folders.
-     */
     public function children(): HasMany
     {
         return $this->hasMany(MediaFolder::class, 'parent_id');
     }
 
-    /**
-     * Get all parent folders.
-     * Optimized to fetch all folders once and traverse in memory.
-     */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(MediaTag::class, 'media_folder_tag');
+    }
+
+    public function collections(): BelongsToMany
+    {
+        return $this->belongsToMany(MediaTag::class, 'media_folder_tag')
+            ->where('media_tags.type', 'collection');
+    }
+
+    // ──────────────────────────────────────────────────
+    // Query Scopes
+    // ──────────────────────────────────────────────────
+
+    public function scopeInParent(Builder $query, int|string|null $parentId): Builder
+    {
+        return $query->where('media_folders.parent_id', $parentId ?? 0);
+    }
+
+    public function scopeSorted(Builder $query, string $sortBy = 'name-asc'): Builder
+    {
+        $parts = explode('-', $sortBy, 2);
+        $column = $parts[0] ?? 'name';
+        $direction = $parts[1] ?? 'asc';
+
+        if (! in_array(strtolower($direction), ['asc', 'desc'])) {
+            $direction = 'asc';
+        }
+
+        return $query->orderBy($column, $direction);
+    }
+
+    public function scopeSearch(Builder $query, ?string $search): Builder
+    {
+        if (empty($search)) {
+            return $query;
+        }
+
+        $term = '%' . $search . '%';
+
+        return $query->where('media_folders.name', 'LIKE', $term);
+    }
+
+    public function scopeTagged(Builder $query, array $tagIds): Builder
+    {
+        return $query->whereHas('tags', function (Builder $q) use ($tagIds): void {
+            $q->whereIn('media_tags.id', $tagIds);
+        });
+    }
+
+    public function scopeInCollection(Builder $query, int $collectionId): Builder
+    {
+        return $query->whereHas('collections', function (Builder $q) use ($collectionId): void {
+            $q->where('media_tags.id', $collectionId);
+        });
+    }
+
+    // ──────────────────────────────────────────────────
+    // Accessors
+    // ──────────────────────────────────────────────────
+
     protected function parents(): Attribute
     {
         return Attribute::get(function (): Collection {
@@ -153,10 +197,6 @@ class MediaFolder extends BaseModel
         });
     }
 
-    /**
-     * Get the full path for a folder.
-     * Optimized to fetch all folders once and build path in memory.
-     */
     public static function getFullPath(int|string|null $folderId, ?string $path = ''): ?string
     {
         if (!$folderId) {
@@ -200,10 +240,10 @@ class MediaFolder extends BaseModel
         return $builtPath;
     }
 
-    /**
-     * Create a unique slug for a folder.
-     * Optimized to use a single query to find all existing slugs.
-     */
+    // ──────────────────────────────────────────────────
+    // Helpers
+    // ──────────────────────────────────────────────────
+
     public static function createSlug(string $name, int|string|null $parentId): string
     {
         $slug = Str::slug($name, '-', !RvMedia::turnOffAutomaticUrlTranslationIntoLatin() ? 'en' : false);
@@ -238,10 +278,6 @@ class MediaFolder extends BaseModel
         return $baseSlug . '-' . ($maxSuffix + 1);
     }
 
-    /**
-     * Create a unique name for a folder.
-     * Optimized to use a single query to find all existing names.
-     */
     public static function createName(string $name, int|string|null $parentId): string
     {
         $baseName = $name;
