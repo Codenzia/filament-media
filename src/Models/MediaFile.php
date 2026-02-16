@@ -416,6 +416,51 @@ class MediaFile extends Model
         ];
     }
 
+    /**
+     * Delete the physical file from storage and soft-delete the database record.
+     * Optionally sends a Filament notification on success or failure.
+     */
+    public function deleteWithFile(?string $successMessage = null, ?string $failedMessage = null): bool
+    {
+        try {
+            $storageService = app(\Codenzia\FilamentMedia\Services\StorageDriverService::class);
+
+            // Private files on local storage live on the private disk, not the media disk
+            if ($this->visibility === 'private' && ! $storageService->isUsingCloud()) {
+                $diskName = FilamentMedia::getConfig('private_files.private_disk') ?? 'local';
+                $disk = \Illuminate\Support\Facades\Storage::disk($diskName);
+            } else {
+                $disk = $storageService->getMediaDisk();
+            }
+
+            if ($this->url && $disk->exists($this->url)) {
+                $disk->delete($this->url);
+            }
+
+            $result = $this->delete();
+
+            if ($successMessage) {
+                \Filament\Notifications\Notification::make()
+                    ->title($successMessage)
+                    ->success()
+                    ->send();
+            }
+
+            return $result;
+        } catch (\Throwable $e) {
+            if ($failedMessage) {
+                \Filament\Notifications\Notification::make()
+                    ->title($failedMessage)
+                    ->danger()
+                    ->send();
+            }
+
+            report($e);
+
+            return false;
+        }
+    }
+
     public function canGenerateThumbnails(): bool
     {
         return FilamentMedia::canGenerateThumbnails($this->mime_type);

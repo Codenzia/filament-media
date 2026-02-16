@@ -5,14 +5,13 @@ namespace Codenzia\FilamentMedia\Http\Controllers;
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Services\MediaUrlService;
 use Codenzia\FilamentMedia\Services\StorageDriverService;
-use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class PublicMediaController extends Controller
 {
-    public function show(string $hash, string $id): Response|StreamedResponse
+    public function show(string $hash, string $id): Response
     {
         $expectedHash = sha1($id);
 

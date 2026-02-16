@@ -148,6 +148,26 @@ trait HasMediaFiles
         return $file;
     }
 
+    /**
+     * Find a media file by ID, verify it belongs to this model, and delete it with its physical file.
+     */
+    public function deleteMediaFile(int $fileId, ?string $successMessage = null, ?string $failedMessage = null): bool
+    {
+        $file = $this->files()->find($fileId);
+
+        if (! $file) {
+            return false;
+        }
+
+        $result = $file->deleteWithFile($successMessage, $failedMessage);
+
+        if ($result) {
+            $this->refresh();
+        }
+
+        return $result;
+    }
+
     public function detachAllMediaFiles(): void
     {
         $this->files()->update([

@@ -102,7 +102,10 @@ A powerful Digital Asset Management plugin for Filament v4. Service-based archit
 ### Developer Features
 - Service-based architecture with dependency injection
 - 16 Laravel Events for all file lifecycle operations
+- `MediaFileUpload` pre-configured FileUpload component for Filament forms
 - `MediaPickerField` form component for Filament forms
+- `MediaFileGrid` Livewire component for displaying file grids with full context menu
+- `FilesUploadWidget` Filament widget for file uploads linked to any model
 - `HasMediaFiles` trait for attaching media to any model
 - Query scopes for filtering (tags, collections, metadata, type)
 - Fully configurable sidebar navigation, icons, and groups
@@ -497,6 +500,27 @@ php artisan media:cleanup --force    # Skip confirmation prompt
 
 To import untracked files from storage into the database, use the **Orphan File Scanner** in the Media Settings page (see [Orphan File Management](#orphan-file-management)).
 
+## File Upload Form Field
+
+Use `MediaFileUpload` in any Filament form to get a pre-configured `FileUpload` component that automatically reads allowed file types, max upload size, and storage disk from the plugin configuration:
+
+```php
+use Codenzia\FilamentMedia\Forms\MediaFileUpload;
+
+// Basic usage — inherits all settings from config/media.php
+MediaFileUpload::make(),
+
+// Upload to a specific directory
+MediaFileUpload::make('avatars'),
+```
+
+The component automatically:
+- Resolves allowed file extensions from config into proper MIME types
+- Respects admin-configured max file size and server limits (`upload_max_filesize`, `post_max_size`)
+- Uses the configured storage disk (local, S3, R2, etc.)
+- Enables file preview (openable) and download
+- Preserves original filenames
+
 ## File Picker Form Field
 
 Use `MediaPickerField` in any Filament form to let users select media files:
@@ -546,6 +570,129 @@ MediaPickerField::make('design_files')
 | `directory(string $dir)` | Set default upload directory |
 | `collection(string $name)` | Auto-assign collection to uploads |
 
+## Media File Grid Component
+
+A Livewire component that displays a grid of media files attached to a model, with a full-featured context menu and hover overlay. All actions (rename, tags, metadata, visibility, etc.) work out of the box — the component owns its own Filament Actions.
+
+### Single-Model Mode
+
+The parent model must use the `HasMediaFiles` trait. Pass the model as the `record` prop:
+
+```blade
+{{-- Basic usage --}}
+<livewire:filament-media::media-file-grid :record="$record" />
+
+{{-- With delete enabled --}}
+<livewire:filament-media::media-file-grid :record="$record" :deletable="true" />
+
+{{-- Custom relationship name (default: 'files') --}}
+<livewire:filament-media::media-file-grid :record="$record" relationship="images" />
+
+{{-- Custom grid columns --}}
+<livewire:filament-media::media-file-grid :record="$record"
+    columns="grid-cols-2 md:grid-cols-4 xl:grid-cols-6" />
+
+{{-- Custom empty state message --}}
+<livewire:filament-media::media-file-grid :record="$record"
+    empty-message="No documents uploaded yet" />
+```
+
+### Multi-Model Mode
+
+Query files across multiple records of the same morph type without needing a single parent model:
+
+```blade
+{{-- Show files attached to multiple projects --}}
+<livewire:filament-media::media-file-grid
+    fileable-type="App\Models\Project"
+    :fileable-ids="[1, 2, 3]"
+    :deletable="true" />
+```
+
+In multi-model mode, files are queried directly from the `media_files` table using `fileable_type` and `fileable_id`, sorted by latest first.
+
+### Context Menu
+
+Right-click any file to access all actions: **Preview**, **Download**, **Copy Link**, **Rename**, **Alt Text** (images), **Manage Tags**, **Add to Collection**, **Upload New Version**, **Edit Metadata**, **Export**, **Change Visibility**, **Favorites**, and **Move to Trash** (when `deletable` is true).
+
+Feature-gated items (Tags, Collections, Versioning, Metadata, Export) respect the `config('media.features.*')` settings.
+
+#### Excluding Items
+
+Use `contextMenuExclude` to hide specific items:
+
+```blade
+<livewire:filament-media::media-file-grid :record="$record"
+    :context-menu-exclude="['versions', 'metadata', 'export']" />
+```
+
+Available keys: `preview`, `download`, `copy_link`, `view_parent`, `rename`, `alt_text`, `tags`, `collections`, `versions`, `metadata`, `export`, `visibility`, `favorites`, `trash`.
+
+#### Disabling the Context Menu
+
+```blade
+<livewire:filament-media::media-file-grid :record="$record" :context-menu="false" />
+```
+
+### Available Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `record` | Model\|null | `null` | Parent model (must use `HasMediaFiles` trait). Required for single-model mode |
+| `relationship` | string | `'files'` | Relationship method name on the model |
+| `fileableType` | string\|null | `null` | Morph class for multi-model mode (e.g. `App\Models\Project`) |
+| `fileableIds` | array | `[]` | Array of model IDs for multi-model mode |
+| `deletable` | bool | `false` | Show trash/delete in overlay and context menu |
+| `columns` | string | `'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'` | Tailwind grid column classes |
+| `emptyMessage` | string | `'No files attached'` | Message shown when no files are found |
+| `contextMenu` | bool | `true` | Enable/disable the right-click context menu |
+| `contextMenuExclude` | array | `[]` | List of menu item keys to hide |
+
+## Files Upload Widget
+
+A Filament widget that provides a file upload form linked to any Eloquent model via morphable relationship. Useful for adding file upload capability to resource pages, custom pages, or dashboards.
+
+```php
+use Codenzia\FilamentMedia\Widgets\FilesUploadWidget;
+
+// In a Filament resource page or custom page
+protected function getFooterWidgets(): array
+{
+    return [
+        FilesUploadWidget::make([
+            'record' => $this->record,
+            'directory' => 'project-files',
+        ]),
+    ];
+}
+```
+
+### Customizing the Submit Button
+
+The widget supports customizable submit button label, color, and alignment:
+
+```php
+FilesUploadWidget::make([
+    'record' => $this->record,
+    'directory' => 'attachments',
+    'submitLabel' => 'Upload Files',      // default: 'Save'
+    'submitColor' => 'success',           // default: 'primary' (any Filament color)
+    'submitAlignment' => 'center',        // 'start' (default), 'center', or 'end'
+    'visibility' => 'public',             // default: 'private'
+])
+```
+
+### Available Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `record` | Model | required | Parent model to attach uploaded files to |
+| `directory` | string\|null | `null` | Upload directory name (also used as the form field name) |
+| `visibility` | string | `'private'` | File visibility (`'public'` or `'private'`) |
+| `submitLabel` | string | `'Save'` | Submit button label text |
+| `submitColor` | string | `'primary'` | Submit button color (any Filament color: `primary`, `success`, `danger`, etc.) |
+| `submitAlignment` | string | `'start'` | Submit button alignment (`'start'`, `'center'`, or `'end'`) |
+
 ## Attaching Media to Models
 
 Use the `HasMediaFiles` trait to attach media files to any Eloquent model:
@@ -594,6 +741,10 @@ $product->syncMediaFiles($mediaFiles);
 // Detach
 $product->detachMediaFile($mediaFile);
 $product->detachAllMediaFiles();
+
+// Delete a file (verifies ownership, removes physical file + DB record)
+$product->deleteMediaFile($fileId);
+$product->deleteMediaFile($fileId, 'File deleted!', 'Delete failed');
 ```
 
 ### Querying Files
@@ -626,6 +777,25 @@ $product->hasImages();
 // Clear files
 $product->clearMedia();              // all files
 $product->clearMedia('gallery');     // specific collection
+```
+
+### Deleting Files with Physical Cleanup
+
+The `MediaFile` model provides a `deleteWithFile()` method that deletes both the physical file from storage and soft-deletes the database record:
+
+```php
+// Delete file and its physical storage
+$file->deleteWithFile();
+
+// With optional Filament notifications
+$file->deleteWithFile('File deleted successfully', 'Failed to delete file');
+```
+
+The `HasMediaFiles` trait wraps this in a `deleteMediaFile()` convenience method that also verifies the file belongs to the model:
+
+```php
+// Returns true on success, false if file not found or delete failed
+$product->deleteMediaFile($fileId);
 ```
 
 ## Tags & Collections
@@ -1044,6 +1214,7 @@ The media manager uses a **service-based architecture**:
 - `UploadModal.php` - File uploads with progress tracking
 - `PreviewModal.php` - Gallery-style preview with version history
 - `MediaPicker.php` - Embeddable file browser used by `MediaPickerField`
+- `MediaFileGrid.php` - File grid with context menu and Filament Actions for embedding in any page
 
 ## Extending
 

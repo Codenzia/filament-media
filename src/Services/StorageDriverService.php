@@ -16,6 +16,11 @@ class StorageDriverService
         return $this->getConfig('disk') ?? $this->getConfig('driver') ?? 'public';
     }
 
+    public function getMediaDisk(): \Illuminate\Contracts\Filesystem\Filesystem
+    {
+        return Storage::disk($this->getMediaDriver());
+    }
+
     public function isUsingCloud(): bool
     {
         return ! in_array($this->getMediaDriver(), ['local', 'public']);
