@@ -329,7 +329,11 @@ trait InteractsWithMediaQueries
     protected function mergeResults(Collection $folders, Collection $files): Collection
     {
         if ($folders->isNotEmpty()) {
-            $folders->loadSum('files', 'size');
+            $recursiveSizes = MediaFolder::getRecursiveSizeMap($folders->pluck('id')->toArray());
+
+            foreach ($folders as $folder) {
+                $folder->files_sum_size = $recursiveSizes[$folder->id] ?? 0;
+            }
         }
 
         $folderResources = $folders->isNotEmpty()

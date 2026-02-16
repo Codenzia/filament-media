@@ -263,6 +263,72 @@ class MediaFolder extends BaseModel
     }
 
     // ──────────────────────────────────────────────────
+    // Size Calculation
+    // ──────────────────────────────────────────────────
+
+    /**
+     * Efficiently calculate recursive sizes for multiple folders at once.
+     * Includes files from all descendant subfolders, not just direct children.
+     * Uses only 2 queries regardless of tree depth.
+     *
+     * @param  array<int>  $folderIds
+     * @return array<int, int> Map of folder ID => total size in bytes
+     */
+    public static function getRecursiveSizeMap(array $folderIds): array
+    {
+        if (empty($folderIds)) {
+            return [];
+        }
+
+        // Load all folder ID/parent_id pairs to build tree in memory
+        $allFolders = self::withoutGlobalScopes()
+            ->select('id', 'parent_id')
+            ->get()
+            ->groupBy('parent_id');
+
+        // For each folder, collect all descendant IDs (including self)
+        $folderDescendants = [];
+        $allDescendantIds = [];
+
+        foreach ($folderIds as $folderId) {
+            $descendants = [$folderId];
+            $queue = [$folderId];
+
+            while (! empty($queue)) {
+                $currentId = array_shift($queue);
+                $children = $allFolders->get($currentId, collect());
+
+                foreach ($children as $child) {
+                    $descendants[] = $child->id;
+                    $queue[] = $child->id;
+                }
+            }
+
+            $folderDescendants[$folderId] = $descendants;
+            array_push($allDescendantIds, ...$descendants);
+        }
+
+        // Sum file sizes grouped by folder_id in a single query
+        $fileSizes = MediaFile::withoutGlobalScopes()
+            ->whereIn('folder_id', array_unique($allDescendantIds))
+            ->selectRaw('folder_id, SUM(size) as total_size')
+            ->groupBy('folder_id')
+            ->pluck('total_size', 'folder_id');
+
+        // Map sizes back to each original folder
+        $result = [];
+        foreach ($folderIds as $folderId) {
+            $total = 0;
+            foreach ($folderDescendants[$folderId] as $descendantId) {
+                $total += (int) ($fileSizes->get($descendantId, 0));
+            }
+            $result[$folderId] = $total;
+        }
+
+        return $result;
+    }
+
+    // ──────────────────────────────────────────────────
     // Helpers
     // ──────────────────────────────────────────────────
 
