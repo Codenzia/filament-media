@@ -106,6 +106,8 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
         Livewire::component('filament-media::media-picker', \Codenzia\FilamentMedia\Livewire\MediaPicker::class);
         Livewire::component('filament-media::files-upload-widget', \Codenzia\FilamentMedia\Widgets\FilesUploadWidget::class);
         Livewire::component('filament-media::media-file-grid', \Codenzia\FilamentMedia\Livewire\MediaFileGrid::class);
+        Livewire::component('filament-media::media-file-list', \Codenzia\FilamentMedia\Livewire\MediaFileList::class);
+        Livewire::component('filament-media::media-files', \Codenzia\FilamentMedia\Livewire\MediaFiles::class);
 
         // Assets
         FilamentAsset::register($this->getAssets(), $this->getAssetPackageName());

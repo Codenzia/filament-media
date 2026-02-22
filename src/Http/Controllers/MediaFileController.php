@@ -2,6 +2,7 @@
 
 namespace Codenzia\FilamentMedia\Http\Controllers;
 
+use Codenzia\FilamentMedia\Exceptions\MediaUploadException;
 use Codenzia\FilamentMedia\Facades\FilamentMedia;
 use Codenzia\FilamentMedia\Services\MediaUrlService;
 use Codenzia\FilamentMedia\Services\UploadService;
@@ -31,9 +32,15 @@ class MediaFileController extends Controller
                 return FilamentMedia::responseError(__('filament-media::media.no_file_uploaded'));
             }
 
-            $result = $uploadService->handleUpload($file, $request->input('folder_id', 0));
+            $mediaFile = $uploadService->handleUpload($file, $request->input('folder_id', 0));
+            $urlService = app(MediaUrlService::class);
 
-            return $this->handleUploadResponse($result);
+            return FilamentMedia::responseSuccess([
+                'id' => $mediaFile->id,
+                'src' => $urlService->url($mediaFile->url),
+            ]);
+        } catch (MediaUploadException $exception) {
+            return FilamentMedia::responseError($exception->getMessage());
         } catch (Throwable $exception) {
             return FilamentMedia::responseError($exception->getMessage());
         }
@@ -87,7 +94,7 @@ class MediaFileController extends Controller
             $finfo = new \finfo(FILEINFO_MIME_TYPE);
             $mimeType = $finfo->file($mergedFile) ?: 'application/octet-stream';
 
-            $result = $uploadService->handleUpload(
+            $mediaFile = $uploadService->handleUpload(
                 new \Illuminate\Http\UploadedFile(
                     $mergedFile,
                     $fileName,
@@ -101,7 +108,14 @@ class MediaFileController extends Controller
             Storage::disk('local')->deleteDirectory($chunkDir);
             @unlink($mergedFile);
 
-            return $this->handleUploadResponse($result);
+            $urlService = app(MediaUrlService::class);
+
+            return FilamentMedia::responseSuccess([
+                'id' => $mediaFile->id,
+                'src' => $urlService->url($mediaFile->url),
+            ]);
+        } catch (MediaUploadException $exception) {
+            return FilamentMedia::responseError($exception->getMessage());
         } catch (Throwable $exception) {
             return FilamentMedia::responseError($exception->getMessage());
         }
@@ -146,20 +160,6 @@ class MediaFileController extends Controller
         return $tempFile;
     }
 
-    protected function handleUploadResponse(array $result): JsonResponse
-    {
-        if (! $result['error']) {
-            $urlService = app(MediaUrlService::class);
-
-            return FilamentMedia::responseSuccess([
-                'id' => $result['data']->id,
-                'src' => $urlService->url($result['data']->url),
-            ]);
-        }
-
-        return FilamentMedia::responseError($result['message']);
-    }
-
     public function postUploadFromEditor(Request $request): JsonResponse
     {
         return app(UploadService::class)->uploadFromEditor($request);
@@ -176,20 +176,20 @@ class MediaFileController extends Controller
             return FilamentMedia::responseError($validator->messages()->first());
         }
 
-        $uploadService = app(UploadService::class);
-        $result = $uploadService->uploadFromUrl($request->input('url'), $request->input('folderId', 0));
-
-        if (! $result['error']) {
-            $urlService = app(MediaUrlService::class);
+        try {
+            $uploadService = app(UploadService::class);
+            $mediaFile = $uploadService->uploadFromUrl($request->input('url'), $request->input('folderId', 0));
 
             return FilamentMedia::responseSuccess([
-                'id' => $result['data']->id,
-                'src' => Storage::url($result['data']->url),
-                'url' => $result['data']->url,
+                'id' => $mediaFile->id,
+                'src' => Storage::url($mediaFile->url),
+                'url' => $mediaFile->url,
                 'message' => trans('filament-media::media.javascript.message.success_header'),
             ]);
+        } catch (MediaUploadException $exception) {
+            return FilamentMedia::responseError($exception->getMessage());
+        } catch (Throwable $exception) {
+            return FilamentMedia::responseError($exception->getMessage());
         }
-
-        return FilamentMedia::responseError($result['message']);
     }
 }

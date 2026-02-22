@@ -40,17 +40,13 @@ class VersionService
         ]);
 
         // Upload and replace with the new file
-        $result = $this->uploadService->handleUpload($newFile, $file->folder_id);
+        $newMediaFile = $this->uploadService->handleUpload($newFile, $file->folder_id);
 
-        if (! $result['error']) {
-            $newFileData = $result['data'];
-
-            $file->update([
-                'url' => $newFileData->url ?? $file->url,
-                'size' => $newFileData->size ?? $file->size,
-                'mime_type' => $newFileData->mime_type ?? $file->mime_type,
-            ]);
-        }
+        $file->update([
+            'url' => $newMediaFile->url ?? $file->url,
+            'size' => $newMediaFile->size ?? $file->size,
+            'mime_type' => $newMediaFile->mime_type ?? $file->mime_type,
+        ]);
 
         MediaFileVersionCreated::dispatch($file, $version);
 

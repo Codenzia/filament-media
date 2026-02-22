@@ -200,12 +200,11 @@ class ExportImportService
                 continue;
             }
 
-            $result = $this->uploadService->uploadFromPath($fileInfo->getRealPath(), $folderId);
-
-            if (! $result['error']) {
+            try {
+                $this->uploadService->uploadFromPath($fileInfo->getRealPath(), $folderId);
                 $imported++;
-            } else {
-                $errors[] = $fileInfo->getFilename() . ': ' . $result['message'];
+            } catch (\Codenzia\FilamentMedia\Exceptions\MediaUploadException $e) {
+                $errors[] = $fileInfo->getFilename() . ': ' . $e->getMessage();
             }
         }
 
@@ -235,19 +234,14 @@ class ExportImportService
                 continue;
             }
 
-            $result = $this->uploadService->uploadFromPath($filePath, $folderId);
-
-            if ($result['error']) {
-                $errors[] = ($entry['name'] ?? '') . ': ' . $result['message'];
+            try {
+                $file = $this->uploadService->uploadFromPath($filePath, $folderId);
+            } catch (\Codenzia\FilamentMedia\Exceptions\MediaUploadException $e) {
+                $errors[] = ($entry['name'] ?? '') . ': ' . $e->getMessage();
                 continue;
             }
 
             $imported++;
-            $file = MediaFile::find($result['data']->id);
-
-            if (! $file) {
-                continue;
-            }
 
             // Apply metadata from manifest
             if (! empty($entry['alt'])) {

@@ -6,7 +6,7 @@
     $isMultiple = $isMultiple();
     $state = $getState();
     $fileIds = is_array($state) ? $state : ($state ? [$state] : []);
-    $files = MediaFile::whereIn('id', $fileIds)->get()->keyBy('id');
+    $files = MediaFile::withoutGlobalScopes()->whereIn('id', $fileIds)->get()->keyBy('id');
     $urlService = app(MediaUrlService::class);
 @endphp
 
@@ -14,7 +14,8 @@
     <div
         x-data="{
             showPicker: false,
-            state: $wire.$entangle('{{ $getStatePath() }}'),
+            previewUrl: null,
+            state: $wire.$entangle('{{ $getStatePath() }}').live,
             fieldId: '{{ $fieldId }}',
             init() {
                 window.addEventListener('media-picker-selected', (e) => {
@@ -46,9 +47,11 @@
                     @php $file = $files->get($fileId); @endphp
                     @if($file)
                         <div class="group relative flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                            {{-- Thumbnail or Icon --}}
+                            {{-- Thumbnail or Icon (clickable for preview) --}}
                             @if($file->canGenerateThumbnails() && $urlService->fileExists($file->url))
-                                <img src="{{ $file->url }}" alt="{{ $file->name }}" class="w-8 h-8 rounded object-cover" />
+                                <button type="button" x-on:click="previewUrl = '{{ $file->preview_url }}'" class="cursor-pointer shrink-0">
+                                    <img src="{{ $file->preview_url }}" alt="{{ $file->name }}" class="max-w-8 max-h-8 rounded object-contain hover:ring-2 hover:ring-primary-500 transition-shadow" />
+                                </button>
                             @else
                                 @php
                                     $icon = match($file->type) {
@@ -93,6 +96,27 @@
         >
             {{ trans('filament-media::media.browse_media') }}
         </x-filament::button>
+
+        {{-- Image Preview Lightbox --}}
+        <div
+            x-show="previewUrl"
+            x-cloak
+            x-transition:enter="ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80"
+            x-on:click.self="previewUrl = null"
+            x-on:keydown.escape.window="previewUrl = null"
+        >
+            <button type="button" x-on:click="previewUrl = null"
+                class="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors">
+                <x-filament::icon icon="heroicon-m-x-mark" class="w-6 h-6" />
+            </button>
+            <img :src="previewUrl" alt="Preview" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain" />
+        </div>
 
         {{-- Picker Modal Overlay --}}
         <div

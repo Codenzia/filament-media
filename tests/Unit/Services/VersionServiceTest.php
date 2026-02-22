@@ -27,14 +27,13 @@ describe('VersionService', function () {
 
             // Mock the UploadService to avoid real file system operations
             $mockUpload = Mockery::mock(UploadService::class);
-            $mockUpload->shouldReceive('handleUpload')->once()->andReturn([
-                'error' => false,
-                'data' => (object) [
+            $mockUpload->shouldReceive('handleUpload')->once()->andReturn(
+                MediaFile::factory()->create([
                     'url' => 'new-version.png',
                     'size' => 8000,
                     'mime_type' => 'image/png',
-                ],
-            ]);
+                ])
+            );
 
             $service = new VersionService($mockUpload, app(MediaUrlService::class));
 

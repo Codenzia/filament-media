@@ -10,9 +10,34 @@ use Filament\Panel;
  */
 class FilamentMediaPlugin implements Plugin
 {
+    protected bool $mediaManagerPage = true;
+
+    protected bool $settingsPage = true;
+
     public function getId(): string
     {
         return 'filament-media';
+    }
+
+    /**
+     * Show or hide the standalone Media Manager page for this panel.
+     * The MediaPickerField still works regardless of this setting.
+     */
+    public function showMediaManager(bool $show = true): static
+    {
+        $this->mediaManagerPage = $show;
+
+        return $this;
+    }
+
+    /**
+     * Show or hide the Media Settings page for this panel.
+     */
+    public function showSettings(bool $show = true): static
+    {
+        $this->settingsPage = $show;
+
+        return $this;
     }
 
     public function register(Panel $panel): void
@@ -20,11 +45,11 @@ class FilamentMediaPlugin implements Plugin
         $pages = [];
         $nav = config('media.navigation', []);
 
-        if ($nav['media']['visible'] ?? true) {
+        if ($this->mediaManagerPage && ($nav['media']['visible'] ?? true)) {
             $pages[] = Pages\Media::class;
         }
 
-        if (($nav['settings']['visible'] ?? true) && config('media.settings.enabled', true)) {
+        if ($this->settingsPage && ($nav['settings']['visible'] ?? true) && config('media.settings.enabled', true)) {
             $pages[] = Pages\MediaSettings::class;
         }
 

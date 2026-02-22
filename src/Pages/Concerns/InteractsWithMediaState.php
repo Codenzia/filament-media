@@ -18,6 +18,7 @@ trait InteractsWithMediaState
 {
     public function mount(): void
     {
+        $this->perPage = (int) config('media.pagination.per_page', 200);
         $this->loadUserPreferences();
     }
 

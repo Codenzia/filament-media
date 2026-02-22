@@ -2,6 +2,7 @@
 
 use Codenzia\FilamentMedia\FilamentMedia;
 use Codenzia\FilamentMedia\Models\MediaFile;
+use Codenzia\FilamentMedia\Support\MediaHash;
 use Codenzia\FilamentMedia\Models\MediaFolder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -34,7 +35,7 @@ function createTestUser(int $id = 1): Authenticatable
 describe('PrivateMediaController - show', function () {
     it('denies unauthenticated access via auth middleware', function () {
         $file = MediaFile::factory()->private()->create();
-        $hash = sha1($file->id);
+        $hash = MediaHash::generate($file->id);
 
         $response = $this->get("/media/private/{$hash}/{$file->id}");
 
@@ -54,7 +55,7 @@ describe('PrivateMediaController - show', function () {
     it('returns 404 for non-existent file', function () {
         $user = createTestUser();
         $nonExistentId = 99999;
-        $hash = sha1($nonExistentId);
+        $hash = MediaHash::generate($nonExistentId);
 
         $response = $this->actingAs($user)->get("/media/private/{$hash}/{$nonExistentId}");
 
@@ -69,7 +70,7 @@ describe('PrivateMediaController - show', function () {
 
         $user = createTestUser();
         $file = MediaFile::factory()->private()->create();
-        $hash = sha1($file->id);
+        $hash = MediaHash::generate($file->id);
 
         $response = $this->actingAs($user)->get("/media/private/{$hash}/{$file->id}");
 
@@ -87,7 +88,7 @@ describe('PrivateMediaController - show', function () {
 
         Storage::disk('public')->put('test-public-file.jpg', 'image content');
 
-        $hash = sha1($file->id);
+        $hash = MediaHash::generate($file->id);
 
         $response = $this->actingAs($user)->get("/media/private/{$hash}/{$file->id}");
 
@@ -105,7 +106,7 @@ describe('PrivateMediaController - show', function () {
 
         Storage::disk('local')->put('private-test-file.txt', 'private content');
 
-        $hash = sha1($file->id);
+        $hash = MediaHash::generate($file->id);
 
         $response = $this->actingAs($user)->get("/media/private/{$hash}/{$file->id}");
 
@@ -128,7 +129,7 @@ describe('PrivateMediaController - show', function () {
 
         Storage::disk('local')->put('callback-test-file.txt', 'secure content');
 
-        $hash = sha1($file->id);
+        $hash = MediaHash::generate($file->id);
 
         $response = $this->actingAs($user)->get("/media/private/{$hash}/{$file->id}");
 
@@ -146,7 +147,7 @@ describe('PrivateMediaController - show', function () {
 
         Storage::disk('local')->put('download-test.pdf', 'pdf content');
 
-        $hash = sha1($file->id);
+        $hash = MediaHash::generate($file->id);
 
         $response = $this->actingAs($user)->get("/media/private/{$hash}/{$file->id}?download=1");
 
@@ -161,7 +162,7 @@ describe('PrivateMediaController - show', function () {
 describe('PrivateMediaController - showThumbnail', function () {
     it('denies unauthenticated access to thumbnails via auth middleware', function () {
         $file = MediaFile::factory()->private()->create();
-        $hash = sha1($file->id);
+        $hash = MediaHash::generate($file->id);
 
         $response = $this->get("/media/private/{$hash}/{$file->id}/thumb/150x150");
 
@@ -180,7 +181,7 @@ describe('PrivateMediaController - showThumbnail', function () {
     it('returns 404 for non-existent file', function () {
         $user = createTestUser();
         $nonExistentId = 99999;
-        $hash = sha1($nonExistentId);
+        $hash = MediaHash::generate($nonExistentId);
 
         $response = $this->actingAs($user)->get("/media/private/{$hash}/{$nonExistentId}/thumb/150x150");
 
@@ -195,7 +196,7 @@ describe('PrivateMediaController - showThumbnail', function () {
 
         $user = createTestUser();
         $file = MediaFile::factory()->private()->create();
-        $hash = sha1($file->id);
+        $hash = MediaHash::generate($file->id);
 
         $response = $this->actingAs($user)->get("/media/private/{$hash}/{$file->id}/thumb/150x150");
 
@@ -213,7 +214,7 @@ describe('PrivateMediaController - showThumbnail', function () {
 
         Storage::disk('local')->put('thumb-test-150x150.jpg', 'thumbnail content');
 
-        $hash = sha1($file->id);
+        $hash = MediaHash::generate($file->id);
 
         $response = $this->actingAs($user)->get("/media/private/{$hash}/{$file->id}/thumb/150x150");
 
@@ -229,7 +230,7 @@ describe('PrivateMediaController - showThumbnail', function () {
             'name' => 'no-thumb',
         ]);
 
-        $hash = sha1($file->id);
+        $hash = MediaHash::generate($file->id);
 
         $response = $this->actingAs($user)->get("/media/private/{$hash}/{$file->id}/thumb/150x150");
 

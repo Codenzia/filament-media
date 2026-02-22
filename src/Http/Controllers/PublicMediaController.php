@@ -4,6 +4,7 @@ namespace Codenzia\FilamentMedia\Http\Controllers;
 
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Services\MediaUrlService;
+use Codenzia\FilamentMedia\Support\MediaHash;
 use Codenzia\FilamentMedia\Services\StorageDriverService;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -13,7 +14,7 @@ class PublicMediaController extends Controller
 {
     public function show(string $hash, string $id): Response
     {
-        $expectedHash = sha1($id);
+        $expectedHash = MediaHash::generate($id);
 
         if ($hash !== $expectedHash) {
             abort(404);

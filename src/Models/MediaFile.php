@@ -5,6 +5,7 @@ namespace Codenzia\FilamentMedia\Models;
 use Codenzia\FilamentMedia\Database\Factories\MediaFileFactory;
 use Codenzia\FilamentMedia\Facades\FilamentMedia;
 use Codenzia\FilamentMedia\Helpers\BaseHelper;
+use Codenzia\FilamentMedia\Support\MediaHash;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -81,6 +82,42 @@ class MediaFile extends Model
             if (FilamentMedia::canOnlyViewOwnMedia()) {
                 $query->where('media_files.user_id', $user->getAuthIdentifier());
             }
+        });
+
+        // Auto-resolve folder_id from the URL path when creating a file
+        // without an explicit folder. E.g. url "avatars/photo.jpg" → creates
+        // an "Avatars" folder and assigns the file to it.
+        static::creating(function (self $file): void {
+            if (! config('media.auto_resolve_folders', true)) {
+                return;
+            }
+
+            if (($file->folder_id ?? 0) != 0 || empty($file->url)) {
+                return;
+            }
+
+            $dir = dirname($file->url);
+            if ($dir === '.' || $dir === '') {
+                return;
+            }
+
+            $segments = array_filter(explode('/', $dir));
+            $parentId = 0;
+
+            foreach ($segments as $segment) {
+                $slug = Str::slug($segment);
+                $folder = MediaFolder::withoutGlobalScopes()->firstOrCreate(
+                    ['slug' => $slug, 'parent_id' => $parentId],
+                    [
+                        'name' => Str::title(str_replace(['-', '_'], ' ', $segment)),
+                        'user_id' => $file->user_id,
+                    ]
+                );
+
+                $parentId = $folder->id;
+            }
+
+            $file->folder_id = $parentId;
         });
     }
 
@@ -340,7 +377,7 @@ class MediaFile extends Model
     protected function privateRouteUrl(): string
     {
         $id = $this->getKey();
-        $hash = sha1($id);
+        $hash = MediaHash::generate($id);
 
         return route('media.private.url', compact('hash', 'id'));
     }
@@ -354,7 +391,7 @@ class MediaFile extends Model
     {
         return Attribute::get(function () {
             $id = $this->getKey() ?: dechex((int) $this->getKey());
-            $hash = sha1($id);
+            $hash = MediaHash::generate($id);
 
             if ($this->visibility === 'private') {
                 return route('media.private.url', compact('hash', 'id'));

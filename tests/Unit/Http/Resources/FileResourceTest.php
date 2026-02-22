@@ -2,6 +2,7 @@
 
 use Codenzia\FilamentMedia\Http\Resources\FileResource;
 use Codenzia\FilamentMedia\Models\MediaFile;
+use Codenzia\FilamentMedia\Support\MediaHash;
 use Codenzia\FilamentMedia\Models\MediaFolder;
 use Codenzia\FilamentMedia\Models\MediaTag;
 use Codenzia\FilamentMedia\Services\MediaUrlService;
@@ -97,7 +98,7 @@ describe('FileResource', function () {
         ]);
 
         $resource = (new FileResource($file))->toArray(Request::create('/'));
-        $expectedHash = sha1($file->id);
+        $expectedHash = MediaHash::generate($file->id);
 
         expect($resource['full_url'])->toContain('media/private')
             ->and($resource['full_url'])->toContain($expectedHash);

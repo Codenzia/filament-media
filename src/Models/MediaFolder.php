@@ -328,6 +328,105 @@ class MediaFolder extends BaseModel
         return $result;
     }
 
+    /**
+     * Efficiently calculate recursive file counts for multiple folders at once.
+     * Includes files from all descendant subfolders, not just direct children.
+     * Optionally filters by mime type group (image, video, document).
+     *
+     * @param  array<int>  $folderIds
+     * @param  string  $filter  Type filter ('everything', 'image', 'video', 'document')
+     * @return array{total: array<int, int>, filtered: array<int, int>} Maps of folder ID => count
+     */
+    public static function getRecursiveFileCountMap(array $folderIds, string $filter = 'everything'): array
+    {
+        if (empty($folderIds)) {
+            return ['total' => [], 'filtered' => []];
+        }
+
+        // Load all folder ID/parent_id pairs to build tree in memory
+        $allFolders = self::withoutGlobalScopes()
+            ->select('id', 'parent_id')
+            ->get()
+            ->groupBy('parent_id');
+
+        // For each folder, collect all descendant IDs (including self)
+        $folderDescendants = [];
+        $allDescendantIds = [];
+
+        foreach ($folderIds as $folderId) {
+            $descendants = [$folderId];
+            $queue = [$folderId];
+
+            while (! empty($queue)) {
+                $currentId = array_shift($queue);
+                $children = $allFolders->get($currentId, collect());
+
+                foreach ($children as $child) {
+                    $descendants[] = $child->id;
+                    $queue[] = $child->id;
+                }
+            }
+
+            $folderDescendants[$folderId] = $descendants;
+            array_push($allDescendantIds, ...$descendants);
+        }
+
+        $uniqueIds = array_unique($allDescendantIds);
+
+        // Total counts (no filter)
+        $totalCounts = MediaFile::withoutGlobalScopes()
+            ->whereIn('folder_id', $uniqueIds)
+            ->selectRaw('folder_id, COUNT(*) as file_count')
+            ->groupBy('folder_id')
+            ->pluck('file_count', 'folder_id');
+
+        // Filtered counts (if filter is active)
+        $filteredCounts = collect();
+        $isFiltered = ! empty($filter) && $filter !== 'everything';
+
+        if ($isFiltered) {
+            $allMimeTypes = config('media.mime_types', []);
+            $filterMimes = $allMimeTypes[$filter] ?? null;
+
+            $query = MediaFile::withoutGlobalScopes()
+                ->whereIn('folder_id', $uniqueIds);
+
+            if ($filterMimes) {
+                $query->whereIn('media_files.mime_type', $filterMimes);
+            } else {
+                $allMimes = collect($allMimeTypes)->flatten()->unique()->toArray();
+                $query->whereNotIn('media_files.mime_type', $allMimes);
+            }
+
+            $filteredCounts = $query
+                ->selectRaw('folder_id, COUNT(*) as file_count')
+                ->groupBy('folder_id')
+                ->pluck('file_count', 'folder_id');
+        }
+
+        // Map counts back to each original folder
+        $totalResult = [];
+        $filteredResult = [];
+
+        foreach ($folderIds as $folderId) {
+            $total = 0;
+            $filtered = 0;
+
+            foreach ($folderDescendants[$folderId] as $descendantId) {
+                $total += (int) ($totalCounts->get($descendantId, 0));
+
+                if ($isFiltered) {
+                    $filtered += (int) ($filteredCounts->get($descendantId, 0));
+                }
+            }
+
+            $totalResult[$folderId] = $total;
+            $filteredResult[$folderId] = $isFiltered ? $filtered : $total;
+        }
+
+        return ['total' => $totalResult, 'filtered' => $filteredResult];
+    }
+
     // ──────────────────────────────────────────────────
     // Helpers
     // ──────────────────────────────────────────────────

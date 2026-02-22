@@ -30,7 +30,7 @@ it('loads the config file', function () {
 });
 
 it('has correct default config values', function () {
-    expect(config('media.pagination.per_page'))->toBe(30)
+    expect(config('media.pagination.per_page'))->toBe(200)
         ->and(config('media.driver'))->toBe('public')
         ->and(config('media.max_file_size'))->toBe(10 * 1024 * 1024);
 });

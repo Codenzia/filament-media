@@ -20,6 +20,8 @@ class FolderResource extends JsonResource
     public function toArray($request): array
     {
         $totalSize = $this->files_sum_size ?? null;
+        $totalFileCount = $this->total_file_count ?? null;
+        $filteredFileCount = $this->filtered_file_count ?? null;
 
         return [
             'id' => $this->id,
@@ -27,6 +29,8 @@ class FolderResource extends JsonResource
             'name' => $this->name,
             'color' => $this->color,
             'size' => $totalSize ? BaseHelper::humanFilesize((int) $totalSize) : null,
+            'total_file_count' => $totalFileCount,
+            'filtered_file_count' => $filteredFileCount,
             'created_at' => BaseHelper::formatDate($this->created_at, 'Y-m-d H:i:s'),
             'updated_at' => BaseHelper::formatDate($this->updated_at, 'Y-m-d H:i:s'),
             'tags' => $this->whenLoaded('tags', fn () => $this->tags->pluck('name')->toArray(), []),

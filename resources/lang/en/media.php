@@ -229,6 +229,13 @@ return [
     'unable_to_create_temp_file' => 'Unable to create temporary file.',
     'unable_to_write_temp_file' => 'Unable to write to temporary file.',
 
+    'load_more' => 'Load More',
+    'loading' => 'Loading...',
+    'folder_file_count' => ':count files',
+    'filtered_file_count' => ':filtered of :total files',
+    'showing_of_files' => 'Showing :displayed of :total files',
+    'total_files' => ':count files',
+
     'grid_view' => 'Grid View',
     'list_view' => 'List View',
     'toggle_details' => 'Toggle Details Panel',

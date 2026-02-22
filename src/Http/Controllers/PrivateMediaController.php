@@ -4,6 +4,7 @@ namespace Codenzia\FilamentMedia\Http\Controllers;
 
 use Codenzia\FilamentMedia\FilamentMedia;
 use Codenzia\FilamentMedia\Models\MediaFile;
+use Codenzia\FilamentMedia\Support\MediaHash;
 use Codenzia\FilamentMedia\Services\StorageDriverService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
@@ -15,7 +16,7 @@ class PrivateMediaController extends Controller
 {
     public function show(string $hash, string $id): BinaryFileResponse|RedirectResponse|StreamedResponse
     {
-        $expectedHash = sha1($id);
+        $expectedHash = MediaHash::generate($id);
 
         if ($hash !== $expectedHash) {
             abort(404);
@@ -44,7 +45,7 @@ class PrivateMediaController extends Controller
 
     public function showThumbnail(string $hash, string $id, string $size): BinaryFileResponse|RedirectResponse|StreamedResponse
     {
-        $expectedHash = sha1($id);
+        $expectedHash = MediaHash::generate($id);
 
         if ($hash !== $expectedHash) {
             abort(404);

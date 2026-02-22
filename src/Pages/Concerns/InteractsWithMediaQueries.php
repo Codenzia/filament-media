@@ -29,6 +29,11 @@ trait InteractsWithMediaQueries
     {
         $_ = $this->refreshKey;
 
+        // Reset pagination counters (paginated views set them in paginatedFiles)
+        $this->totalFileCount = 0;
+        $this->displayedFileCount = 0;
+        $this->hasMorePages = false;
+
         $items = collect();
 
         switch ($this->viewIn) {
@@ -201,13 +206,14 @@ trait InteractsWithMediaQueries
             ->sorted($this->sortBy)
             ->get();
 
-        $files = MediaFile::inFolder($this->folderId)
-            ->filterByType($this->filter)
-            ->search($this->search)
-            ->sorted($this->sortBy)
-            ->paginate($this->perPage, ['*'], 'page', $this->currentPage);
+        $files = $this->paginatedFiles(
+            MediaFile::inFolder($this->folderId)
+                ->filterByType($this->filter)
+                ->search($this->search)
+                ->sorted($this->sortBy)
+        );
 
-        return $this->mergeResults($folders, collect($files->items()));
+        return $this->mergeResults($folders, $files);
     }
 
     protected function queryTrashedItems(): Collection
@@ -219,14 +225,15 @@ trait InteractsWithMediaQueries
                 ->sorted($this->sortBy)
                 ->get();
 
-            $files = MediaFile::onlyTrashed()
-                ->inFolder($this->folderId)
-                ->filterByType($this->filter)
-                ->search($this->search)
-                ->sorted($this->sortBy)
-                ->paginate($this->perPage, ['*'], 'page', $this->currentPage);
+            $files = $this->paginatedFiles(
+                MediaFile::onlyTrashed()
+                    ->inFolder($this->folderId)
+                    ->filterByType($this->filter)
+                    ->search($this->search)
+                    ->sorted($this->sortBy)
+            );
 
-            return $this->mergeResults($folders, collect($files->items()));
+            return $this->mergeResults($folders, $files);
         }
 
         $folders = MediaFolder::onlyTrashed()
@@ -234,13 +241,14 @@ trait InteractsWithMediaQueries
             ->sorted($this->sortBy)
             ->get();
 
-        $files = MediaFile::onlyTrashed()
-            ->filterByType($this->filter)
-            ->search($this->search)
-            ->sorted($this->sortBy)
-            ->paginate($this->perPage, ['*'], 'page', $this->currentPage);
+        $files = $this->paginatedFiles(
+            MediaFile::onlyTrashed()
+                ->filterByType($this->filter)
+                ->search($this->search)
+                ->sorted($this->sortBy)
+        );
 
-        return $this->mergeResults($folders, collect($files->items()));
+        return $this->mergeResults($folders, $files);
     }
 
     protected function queryRecentItems(): Collection
@@ -273,6 +281,9 @@ trait InteractsWithMediaQueries
         $files = ! empty($fileIds)
             ? MediaFile::whereIn('id', $fileIds)->filterByType($this->filter)->search($this->search)->get()
             : collect();
+
+        $this->totalFileCount = $files->count();
+        $this->displayedFileCount = $files->count();
 
         return $this->mergeResults($folders, $files);
     }
@@ -308,6 +319,9 @@ trait InteractsWithMediaQueries
             ? MediaFile::whereIn('id', $fileIds)->filterByType($this->filter)->search($this->search)->get()
             : collect();
 
+        $this->totalFileCount = $files->count();
+        $this->displayedFileCount = $files->count();
+
         return $this->mergeResults($folders, $files);
     }
 
@@ -317,22 +331,44 @@ trait InteractsWithMediaQueries
             return collect();
         }
 
-        $files = MediaFile::inCollection($this->collectionId)
-            ->filterByType($this->filter)
-            ->search($this->search)
-            ->sorted($this->sortBy)
-            ->paginate($this->perPage, ['*'], 'page', $this->currentPage);
+        $files = $this->paginatedFiles(
+            MediaFile::inCollection($this->collectionId)
+                ->filterByType($this->filter)
+                ->search($this->search)
+                ->sorted($this->sortBy)
+        );
 
-        return $this->mergeResults(collect(), collect($files->items()));
+        return $this->mergeResults(collect(), $files);
+    }
+
+    /**
+     * Run a cumulative "load more" query: fetches perPage * currentPage items
+     * and sets $this->hasMorePages so the view can show a Load More button.
+     */
+    protected function paginatedFiles(\Illuminate\Database\Eloquent\Builder $query): Collection
+    {
+        $limit = $this->perPage * $this->currentPage;
+        $total = (clone $query)->count();
+        $this->hasMorePages = $total > $limit;
+        $this->totalFileCount = $total;
+
+        $files = $query->take($limit)->get();
+        $this->displayedFileCount = $files->count();
+
+        return $files;
     }
 
     protected function mergeResults(Collection $folders, Collection $files): Collection
     {
         if ($folders->isNotEmpty()) {
-            $recursiveSizes = MediaFolder::getRecursiveSizeMap($folders->pluck('id')->toArray());
+            $folderIds = $folders->pluck('id')->toArray();
+            $recursiveSizes = MediaFolder::getRecursiveSizeMap($folderIds);
+            $recursiveCounts = MediaFolder::getRecursiveFileCountMap($folderIds, $this->filter);
 
             foreach ($folders as $folder) {
                 $folder->files_sum_size = $recursiveSizes[$folder->id] ?? 0;
+                $folder->total_file_count = $recursiveCounts['total'][$folder->id] ?? 0;
+                $folder->filtered_file_count = $recursiveCounts['filtered'][$folder->id] ?? 0;
             }
         }
 

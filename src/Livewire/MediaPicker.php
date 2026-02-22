@@ -6,7 +6,9 @@ use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
 use Codenzia\FilamentMedia\Services\MediaUrlService;
 use Illuminate\Support\Arr;
+use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 /**
  * Livewire component for browsing and selecting media files with folder navigation,
@@ -14,6 +16,8 @@ use Livewire\Component;
  */
 class MediaPicker extends Component
 {
+    use WithPagination;
+
     public array $selected = [];
 
     public bool $multiple = false;
@@ -126,6 +130,23 @@ class MediaPicker extends Component
         } else {
             $this->selected = [$fileId];
         }
+    }
+
+    /**
+     * Refresh the file and folder listings by clearing cached computed properties.
+     */
+    public function refresh(): void
+    {
+        unset($this->files, $this->folders);
+    }
+
+    /**
+     * Re-query files after new uploads are completed via the upload modal.
+     */
+    #[On('media-files-uploaded')]
+    public function onFilesUploaded(): void
+    {
+        $this->refresh();
     }
 
     public function confirm(): void

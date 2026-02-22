@@ -1,6 +1,7 @@
 <?php
 
 use Codenzia\FilamentMedia\Models\MediaFile;
+use Codenzia\FilamentMedia\Support\MediaHash;
 use Codenzia\FilamentMedia\Models\MediaFolder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -25,7 +26,7 @@ describe('PublicMediaController', function () {
 
     it('returns 404 for non-existent file', function () {
         $nonExistentId = 99999;
-        $hash = sha1($nonExistentId);
+        $hash = MediaHash::generate($nonExistentId);
 
         $response = $this->get("/media/files/{$hash}/{$nonExistentId}");
 
@@ -34,7 +35,7 @@ describe('PublicMediaController', function () {
 
     it('returns 403 for private file', function () {
         $file = MediaFile::factory()->private()->create();
-        $hash = sha1($file->id);
+        $hash = MediaHash::generate($file->id);
 
         $response = $this->get("/media/files/{$hash}/{$file->id}");
 
@@ -50,7 +51,7 @@ describe('PublicMediaController', function () {
 describe('Indirect URL Generation', function () {
     it('generates correct indirect url for file', function () {
         $file = MediaFile::factory()->create();
-        $expectedHash = sha1($file->id);
+        $expectedHash = MediaHash::generate($file->id);
 
         expect($file->indirect_url)->toContain($expectedHash)
             ->and($file->indirect_url)->toContain((string) $file->id);

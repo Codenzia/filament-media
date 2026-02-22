@@ -4,132 +4,50 @@
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/codenzia/filament-media/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/codenzia/filament-media/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/codenzia/filament-media.svg?style=flat-square)](https://packagist.org/packages/codenzia/filament-media)
 
-A powerful Digital Asset Management plugin for Filament v4. Service-based architecture with tags, collections, custom metadata, full-text search, file versioning, and cloud storage support. Built with Livewire and Alpine.js for optimal performance.
+A full-featured Digital Asset Management plugin for Filament v4. Upload, organize, tag, version, and serve media files across local and cloud storage — with a modern UI, fine-grained access control, and a developer-friendly service architecture.
 
 ## Features
 
-### File Management
-- Drag-and-drop file uploads with real-time progress tracking
-- Chunked uploads for large files (configurable chunk size)
-- Upload from URL with SSRF protection
-- Multi-file selection and batch operations
-- Download files (single file or multiple as ZIP)
-- Copy, move, rename files with optional physical rename on disk
-- Alt text support for images (accessibility/SEO)
-- Automatic thumbnail generation with watermark support
+**File Management** — Drag-and-drop uploads with progress tracking, chunked uploads for large files, upload from URL (with SSRF protection), multi-file selection, batch operations, copy/move/rename, alt text, automatic thumbnails with optional watermarks.
 
-### Folder Management
-- Create, rename, and delete folders
-- Nested folder structure (unlimited depth)
-- Color-coded folders (10 customizable colors)
-- Move folders between parent folders
+**Folders** — Nested folder structure with unlimited depth, color-coded folders, drag-and-drop organization, automatic folder resolution from file paths.
 
-### Tags & Collections
-- Create and manage tags for files and folders
-- Organize files into named collections
-- Filter and search by tags
-- Bulk tagging operations
-- Popular tags with usage counts
+**Tags & Collections** — Tag files and folders, organize into named collections, filter and search by tags, bulk tagging, popular tags with usage counts.
 
-### Custom Metadata
-- Define custom metadata fields (text, number, date, select, boolean, URL)
-- Attach metadata to files
-- Search and filter by metadata values
-- Auto-extraction from EXIF data
+**Custom Metadata** — Define custom fields (text, number, date, select, boolean, URL), attach to files, search and filter by metadata, auto-extract EXIF data.
 
-### Full-Text Search
-- Database search (default, no extra dependencies)
-- Optional Laravel Scout integration for advanced search
-- Search by name, tags, metadata, file type, date range
+**Search** — Database search out of the box, optional Laravel Scout integration, search by name, tags, metadata, file type, and date range.
 
-### File Versioning
-- Upload new versions of existing files
-- View version history with changelogs
-- Revert to any previous version
-- Configurable version retention (auto-prune)
+**Versioning** — Upload new versions, view history with changelogs, revert to any previous version, configurable retention with auto-prune.
 
-### Export & Import
-- Export files as ZIP archives
-- Export with metadata manifest (manifest.json preserves tags, collections, metadata)
-- Import from ZIP with automatic metadata restoration
-- Import from local folder
+**Export & Import** — Export as ZIP with metadata manifest, import from ZIP or local folder with automatic metadata restoration.
 
-### Organization & Discovery
-- Favorites system for files and folders
-- Recent items tracking
-- Filter by file type (images, videos, documents, audio, archives)
-- Sort by name, date, or size
-- Grid and list view layouts
-- Breadcrumb navigation
+**Organization** — Favorites, recent items, type filters (image, video, document, audio, archive), sort by name/date/size, grid and list views, breadcrumb navigation.
 
-### Trash & Recovery
-- Soft delete with trash folder
-- Restore items from trash
-- Empty trash (permanent delete)
+**Trash & Recovery** — Soft delete with trash folder, restore, permanent delete.
 
-### Preview & Viewing
-- Full-screen gallery preview modal with version history
-- Image, video, and audio preview with native controls
-- Document preview (PDF, Office documents via Google/Microsoft viewers)
-- Keyboard navigation in gallery (arrow keys, escape)
+**Preview** — Full-screen gallery modal with version history, image/video/audio preview, document preview (PDF, Office via Google/Microsoft viewers), keyboard navigation.
 
-### User Interface
-- Modern, responsive design with configurable theme
-- Dark mode support with separate color configuration
-- Context menu (right-click actions)
-- Details panel with file metadata
-- Drag & drop to move items between folders
-- Selection with Ctrl/Cmd and Shift keys
+**UI** — Responsive design, dark mode, configurable theme colors, context menu, details panel, drag-and-drop between folders, multi-select with Ctrl/Cmd and Shift.
 
-### File Visibility & Access Control
-- Per-file visibility (public or private)
-- Public files served directly via storage URL (fast, CDN-friendly)
-- Private files served through authenticated controller with hash verification
-- Custom authorization callback for fine-grained access control
-- Automatic file movement between public and private storage disks
-- Thumbnail support for both public and private files
-- Change visibility from the context menu or details panel
+**Visibility & Access Control** — Per-file public/private visibility, HMAC-SHA256 hash verification for private URLs, custom authorization callbacks, automatic file movement between storage disks, per-user media scoping.
 
-### Storage & Cloud Support
-- Local storage (public disk)
-- Amazon S3
-- Cloudflare R2
-- DigitalOcean Spaces
-- Wasabi
-- Backblaze B2
-- BunnyCDN
+**Cloud Storage** — Local, Amazon S3, Cloudflare R2, DigitalOcean Spaces, Wasabi, Backblaze B2, BunnyCDN.
 
-### Developer Features
-- Service-based architecture with dependency injection
-- 16 Laravel Events for all file lifecycle operations
-- `MediaFileUpload` pre-configured FileUpload component for Filament forms
-- `MediaPickerField` form component for Filament forms
-- `MediaFileGrid` Livewire component for displaying file grids with full context menu
-- `FilesUploadWidget` Filament widget for file uploads linked to any model
-- `HasMediaFiles` trait for attaching media to any model
-- Query scopes for filtering (tags, collections, metadata, type)
-- Fully configurable sidebar navigation, icons, and groups
-- Customizable theme colors via CSS custom properties
+**Developer Tools** — 15 singleton services with DI, 16 Laravel events, `MediaFileUpload` and `MediaPickerField` form components, `MediaFileGrid` / `MediaFileList` / `MediaFiles` embeddable Livewire components, `FilesUploadWidget`, `HasMediaFiles` and `InteractsWithMediaCollections` traits, `MediaAdder` fluent builder, typed exceptions, query scopes, per-panel page visibility, configurable navigation.
 
 ## Keyboard Shortcuts
 
-### Media Browser
 | Shortcut | Action |
 |----------|--------|
-| `Arrow Keys` | Navigate between items in grid/list |
+| `Arrow Keys` | Navigate between items |
 | `Enter` | Open folder or preview file |
-| `Space` | Toggle item selection |
-| `Ctrl+A` / `Cmd+A` | Select all items |
-| `Delete` / `Backspace` | Move selected items to trash |
-| `F2` | Rename selected item |
-| `Escape` | Clear selection |
-
-### Preview Modal
-| Shortcut | Action |
-|----------|--------|
-| `Arrow Left` | Previous file |
-| `Arrow Right` | Next file |
-| `Escape` | Close preview |
+| `Space` | Toggle selection |
+| `Ctrl/Cmd+A` | Select all |
+| `Delete` | Move to trash |
+| `F2` | Rename |
+| `Escape` | Clear selection / Close preview |
+| `Arrow Left/Right` | Previous/next in preview |
 
 ## Requirements
 
@@ -141,26 +59,24 @@ A powerful Digital Asset Management plugin for Filament v4. Service-based archit
 
 ## Installation
 
-Install the package via Composer:
-
 ```bash
 composer require codenzia/filament-media
 ```
 
-Publish and run the migrations:
+Publish and run migrations:
 
 ```bash
 php artisan vendor:publish --tag="filament-media-migrations"
 php artisan migrate
 ```
 
-Publish the config file:
+Publish the config:
 
 ```bash
 php artisan vendor:publish --tag="filament-media-config"
 ```
 
-Optionally, publish the views for customization:
+Optionally publish views:
 
 ```bash
 php artisan vendor:publish --tag="filament-media-views"
@@ -169,8 +85,6 @@ php artisan vendor:publish --tag="filament-media-views"
 ## Setup
 
 ### Register the Plugin
-
-Add the plugin to your Filament panel provider:
 
 ```php
 use Codenzia\FilamentMedia\FilamentMediaPlugin;
@@ -184,21 +98,44 @@ public function panel(Panel $panel): Panel
 }
 ```
 
+Control which pages are registered per panel:
+
+```php
+// Admin panel — full access
+FilamentMediaPlugin::make(),
+
+// User dashboard — picker only, no standalone pages
+FilamentMediaPlugin::make()
+    ->showMediaManager(false)
+    ->showSettings(false),
+```
+
 ### Storage Link
 
-If using local storage, ensure you have created the storage symlink:
+For local storage:
 
 ```bash
 php artisan storage:link
 ```
 
+### Custom Theme (Tailwind v4)
+
+If your panel uses a custom theme (`->viteTheme()`), add these `@source` directives to your theme CSS so Tailwind discovers the package's utility classes:
+
+```css
+@source '../../../../vendor/codenzia/filament-media/resources/views/**/*.blade.php';
+@source '../../../../vendor/codenzia/filament-media/src/**/*.php';
+```
+
+Then rebuild: `npm run build`
+
+> This is only needed with custom themes. Filament's default theme works without changes.
+
 ## Configuration
 
-The published config file (`config/media.php`) contains all available options.
+The config file (`config/media.php`) provides full control over all options.
 
 ### Feature Flags
-
-Enable or disable features individually:
 
 ```php
 'features' => [
@@ -217,16 +154,14 @@ Enable or disable features individually:
 'driver' => 'public', // 'public', 's3', 'r2', 'do_spaces', 'wasabi', 'bunnycdn', 'backblaze'
 ```
 
-### Sidebar Navigation
-
-Configure how media pages appear in the Filament sidebar:
+### Navigation
 
 ```php
 'navigation' => [
     'media' => [
         'label' => null,                // null = use translation key
         'icon' => 'heroicon-o-photo',
-        'group' => null,                // null = no group, or string group name
+        'group' => null,
         'sort' => 1,
         'visible' => true,
     ],
@@ -237,43 +172,26 @@ Configure how media pages appear in the Filament sidebar:
         'sort' => 2,
         'visible' => true,
     ],
-    'shared_group' => null, // e.g. 'Media' - groups all pages under one heading
 ],
 ```
 
 ### Theme Colors
 
-Customize the UI for both light and dark mode. Colors are injected as CSS custom properties (`--fm-*`):
+Colors are injected as CSS custom properties (`--fm-*`) with separate light and dark mode values:
 
 ```php
 'theme' => [
     'light' => [
         'primary' => '#6366f1',
-        'primary_hover' => '#4f46e5',
-        'primary_light' => '#eef2ff',
-        'success' => '#22c55e',
-        'danger' => '#ef4444',
-        'warning' => '#f59e0b',
-        'info' => '#3b82f6',
         'surface' => '#ffffff',
-        'surface_alt' => '#f9fafb',
         'border' => '#e5e7eb',
         'text' => '#111827',
-        'text_muted' => '#6b7280',
+        // ... see config for all options
     ],
     'dark' => [
         'primary' => '#818cf8',
-        'primary_hover' => '#6366f1',
-        'primary_light' => '#1e1b4b',
-        'success' => '#4ade80',
-        'danger' => '#f87171',
-        'warning' => '#fbbf24',
-        'info' => '#60a5fa',
         'surface' => '#111827',
-        'surface_alt' => '#1f2937',
-        'border' => '#374151',
-        'text' => '#f9fafb',
-        'text_muted' => '#9ca3af',
+        // ...
     ],
 ],
 ```
@@ -281,35 +199,15 @@ Customize the UI for both light and dark mode. Colors are injected as CSS custom
 ### Upload Limits
 
 ```php
-'max_file_size' => 10 * 1024 * 1024, // 10MB in bytes
+'max_file_size' => 10 * 1024 * 1024, // 10MB
 'allowed_mime_types' => 'jpg,jpeg,png,gif,pdf,doc,docx,...',
 'allowed_download_domains' => [], // empty = all domains allowed for URL uploads
-```
-
-### Search
-
-```php
-'search' => [
-    'driver' => 'database', // 'database' or 'scout'
-    'min_query_length' => 2,
-],
-```
-
-### File Versioning
-
-```php
-'versioning' => [
-    'max_versions' => 10,
-    'auto_prune' => true,
-],
 ```
 
 ### Thumbnails & Watermarks
 
 ```php
-'sizes' => [
-    'thumb' => '150x150',
-],
+'sizes' => ['thumb' => '150x150'],
 'generate_thumbnails_enabled' => true,
 'watermark' => [
     'enabled' => false,
@@ -322,85 +220,75 @@ Customize the UI for both light and dark mode. Colors are injected as CSS custom
 
 ### Private Files
 
-Configure how private files are stored and served:
-
 ```php
 'private_files' => [
     'enabled' => true,
-    'signed_url_expiry' => 30, // minutes for cloud temporary URLs
-    'private_disk' => 'local', // disk for private file storage
+    'signed_url_expiry' => 30, // minutes (cloud temporary URLs)
+    'private_disk' => 'local', // storage disk for private files
 ],
 ```
 
-- `private_disk` — The Laravel filesystem disk used to store private files. Defaults to `local` (the `storage/app` directory, not publicly accessible).
-- `signed_url_expiry` — When using cloud storage (S3, R2, etc.), private files are served via temporary signed URLs that expire after this many minutes.
+### Search & Versioning
+
+```php
+'search' => ['driver' => 'database', 'min_query_length' => 2], // or 'scout'
+'versioning' => ['max_versions' => 10, 'auto_prune' => true],
+```
 
 ## Usage
 
 ### Media Manager Page
 
-Once installed, the media manager is available at `/admin/media` (or your Filament panel prefix + `/media`).
+Available at `/admin/media` (or your panel prefix + `/media`).
 
-### Programmatic Access via Services
+### Programmatic Access
 
-All operations use dedicated service classes, resolved via Laravel's container:
+All operations use dedicated service classes:
 
 ```php
 use Codenzia\FilamentMedia\Services\UploadService;
 use Codenzia\FilamentMedia\Services\FileOperationService;
 use Codenzia\FilamentMedia\Services\MediaUrlService;
 use Codenzia\FilamentMedia\Services\TagService;
+use Codenzia\FilamentMedia\Exceptions\MediaUploadException;
 
 // Upload a file
-$result = app(UploadService::class)->handleUpload($uploadedFile, $folderId);
+try {
+    $file = app(UploadService::class)->handleUpload($uploadedFile, $folderId);
+} catch (MediaUploadException $e) {
+    // Handle: invalidFileType, fileTooLarge, unableToWrite, etc.
+}
 
-// Get full URL for a file
+// Get URL, copy, tag
 $url = app(MediaUrlService::class)->url($file->url);
-
-// Copy a file
 $copy = app(FileOperationService::class)->copyFile($file, $targetFolderId);
-
-// Tag a file
 app(TagService::class)->attachTags($file, ['nature', 'landscape']);
 ```
 
+Upload methods return `MediaFile` directly and throw `MediaUploadException` on failure.
+
 ### File Visibility & Access Control
 
-Files have a `visibility` attribute — either `public` (default) or `private`. Public files are served directly via storage URL. Private files are served through an authenticated controller that validates access before streaming the file.
+Files have a `visibility` attribute — `public` (default) or `private`. Public files are served via direct storage URL. Private files are served through an authenticated controller with HMAC-SHA256 hash verification.
 
 #### Changing Visibility
 
-From the UI, right-click any file and select **Change Visibility**, or use the details panel. Programmatically:
-
 ```php
-use Codenzia\FilamentMedia\Services\FileOperationService;
-
 $fileOps = app(FileOperationService::class);
-
-// Make a file private (moves it from public to private disk)
-$fileOps->changeVisibility($file, 'private');
-
-// Make a file public again (moves it back to public disk)
-$fileOps->changeVisibility($file, 'public');
+$fileOps->changeVisibility($file, 'private'); // moves to private disk
+$fileOps->changeVisibility($file, 'public');  // moves back
 ```
 
-When changing visibility on local storage, the file (and its thumbnails) are physically moved between the public and private disks.
+On local storage, files and thumbnails are physically moved between disks.
 
-#### How Private File URLs Work
+#### How Private URLs Work
 
-Public files get direct storage URLs (e.g. `/storage/photos/image.jpg`). Private files get routed through an authenticated controller:
+Public files: `/storage/photos/image.jpg`
+Private files: `/media/private/{hash}/{id}`
 
-```
-/media/private/{hash}/{id}
-```
-
-The hash is a SHA-1 of the file ID, providing a layer of URL obfuscation. The controller verifies authentication and authorization before streaming the file.
-
-To force a download instead of inline display, append `?download=1` to the URL.
+The hash is an HMAC-SHA256 of the file ID, keyed to `APP_KEY`. URLs cannot be guessed or enumerated without the secret key. The controller verifies authentication and authorization before streaming. Append `?download=1` to force download.
 
 #### Custom Authorization
-
-By default, any authenticated user can access private files. To customize this, register an authorization callback in a service provider:
 
 ```php
 use Codenzia\FilamentMedia\FilamentMedia;
@@ -408,294 +296,158 @@ use Codenzia\FilamentMedia\Models\MediaFile;
 
 // In a service provider's boot() method:
 app(FilamentMedia::class)->authorizeFileAccessUsing(function (MediaFile $file, $user) {
-    // Only the file owner can access it
     return $user && $file->user_id === $user->id;
 });
 ```
 
-The callback receives the `MediaFile` model and the authenticated user (or `null` for guests). Return `true` to allow access or `false` to deny. Public files always bypass the callback.
+The callback receives the `MediaFile` and the authenticated user (or `null`). Return `true` to allow, `false` to deny. Public files bypass the callback.
+
+#### Per-User Media Scoping
+
+Control which files each user sees in the Media page:
 
 ```php
-// Role-based access example
-app(FilamentMedia::class)->authorizeFileAccessUsing(function (MediaFile $file, $user) {
-    if (! $user) {
-        return false;
-    }
-
-    // Admins can access everything
-    if ($user->hasRole('admin')) {
-        return true;
-    }
-
-    // Regular users can only access files in their folder
-    return $file->folder?->user_id === $user->id;
-});
-```
-
-#### Checking Access Programmatically
-
-```php
-$media = app(FilamentMedia::class);
-
-// Check if a user can access a file
-$canAccess = $media->canAccessFile($file, $user);
-
-// Check without a user (guest access)
-$canAccess = $media->canAccessFile($file);
-```
-
-#### Query-Level Filtering (Per-User Media Scoping)
-
-By default, the Media page shows all files to every user. To filter which files each user can see, register a query scope callback. This applies a global scope on `MediaFile` and `MediaFolder` queries, so the Media page (and all views: all media, trash, recent, favorites, collections) only returns files the user is authorized to see.
-
-```php
-use Codenzia\FilamentMedia\FilamentMedia;
-
-// In a service provider's boot() method:
 app(FilamentMedia::class)->scopeMediaQueryUsing(function ($query, $user) {
-    // Only show files the user uploaded
     $query->where('media_files.created_by_user_id', $user->id);
 });
 ```
 
-The callback receives an Eloquent `Builder` instance and the authenticated user. Modify the query to constrain results. When no user is authenticated, the callback is not invoked. If no callback is registered, the default behavior applies (all files visible, or filtered by `user_id` if `canOnlyViewOwnMedia()` returns `true`).
+The callback applies a global scope on `MediaFile` and `MediaFolder` queries across all views (media, trash, recent, favorites, collections). Not invoked when no user is authenticated.
 
-The callback is also invoked for `MediaFolder` queries. You can differentiate between files and folders by checking the query's table:
-
-```php
-app(FilamentMedia::class)->scopeMediaQueryUsing(function ($query, $user) {
-    $table = $query->getModel()->getTable();
-
-    if ($table === 'media_folders') {
-        // Folders: only show folders the user created
-        $query->where('media_folders.user_id', $user->id);
-        return;
-    }
-
-    // Files: complex relationship-based filtering
-    $query->where(function ($q) use ($user) {
-        $q->where('media_files.created_by_user_id', $user->id)
-          ->orWhere(function ($sub) use ($user) {
-              $sub->where('media_files.fileable_type', 'App\\Models\\Project')
-                  ->whereIn('media_files.fileable_id', function ($projectQuery) use ($user) {
-                      $projectQuery->select('id')
-                          ->from('projects')
-                          ->where('owner_id', $user->id);
-                  });
-          });
-    });
-});
-```
-
-> **Note:** `scopeMediaQueryUsing()` controls which files appear in the Media page (query-level filtering), while `authorizeFileAccessUsing()` controls who can download/view a specific private file (file-level authorization). For complete access control, use both together.
+> `scopeMediaQueryUsing()` controls query-level filtering (what appears in the UI), while `authorizeFileAccessUsing()` controls file-level download authorization. Use both together for complete access control.
 
 ### Artisan Commands
 
 ```bash
-# Remove database entries for files that no longer exist on disk
-php artisan media:cleanup
-php artisan media:cleanup --dry-run  # Preview what would be deleted
-php artisan media:cleanup --force    # Skip confirmation prompt
+php artisan media:cleanup              # Remove DB entries for missing files
+php artisan media:cleanup --dry-run    # Preview changes
+php artisan media:cleanup --force      # Skip confirmation
 ```
 
-To import untracked files from storage into the database, use the **Orphan File Scanner** in the Media Settings page (see [Orphan File Management](#orphan-file-management)).
+## Form Components
 
-## File Upload Form Field
+### MediaFileUpload
 
-Use `MediaFileUpload` in any Filament form to get a pre-configured `FileUpload` component that automatically reads allowed file types, max upload size, and storage disk from the plugin configuration:
+Pre-configured `FileUpload` that reads settings from `config/media.php`:
 
 ```php
 use Codenzia\FilamentMedia\Forms\MediaFileUpload;
 
-// Basic usage — inherits all settings from config/media.php
-MediaFileUpload::make(),
-
-// Upload to a specific directory
-MediaFileUpload::make('avatars'),
+MediaFileUpload::make(),              // inherits all config settings
+MediaFileUpload::make('avatars'),     // upload to specific directory
 ```
 
-The component automatically:
-- Resolves allowed file extensions from config into proper MIME types
-- Respects admin-configured max file size and server limits (`upload_max_filesize`, `post_max_size`)
-- Uses the configured storage disk (local, S3, R2, etc.)
-- Enables file preview (openable) and download
-- Preserves original filenames
+Automatically resolves MIME types, respects max file size and server limits, uses the configured storage disk, and preserves original filenames.
 
-## File Picker Form Field
+### MediaPickerField
 
-Use `MediaPickerField` in any Filament form to let users select media files:
+File picker for selecting existing media:
 
 ```php
 use Codenzia\FilamentMedia\Forms\MediaPickerField;
 
-// Single image selection
 MediaPickerField::make('featured_image')
-    ->label('Featured Image')
     ->imageOnly()
     ->required(),
 
-// Multiple file selection
 MediaPickerField::make('attachments')
-    ->label('Attachments')
     ->multiple()
     ->maxFiles(10),
 
-// Documents with directory and collection
 MediaPickerField::make('contracts')
-    ->label('Contract Documents')
     ->documentOnly()
     ->directory('contracts')
     ->collection('legal'),
-
-// Videos only
-MediaPickerField::make('video')
-    ->label('Video File')
-    ->videoOnly(),
-
-// Custom MIME types
-MediaPickerField::make('design_files')
-    ->acceptedFileTypes(['image/svg+xml', 'image/webp', 'application/pdf']),
 ```
-
-### Available Methods
 
 | Method | Description |
 |--------|-------------|
-| `multiple(bool $multiple = true)` | Allow selecting multiple files |
-| `imageOnly()` | Restrict to image files |
-| `videoOnly()` | Restrict to video files |
-| `documentOnly()` | Restrict to document files |
-| `acceptedFileTypes(array $types)` | Set custom allowed MIME types |
-| `maxFiles(int $max)` | Limit number of selected files |
-| `directory(string $dir)` | Set default upload directory |
-| `collection(string $name)` | Auto-assign collection to uploads |
+| `multiple()` | Allow selecting multiple files |
+| `imageOnly()` | Restrict to images |
+| `videoOnly()` | Restrict to videos |
+| `documentOnly()` | Restrict to documents |
+| `acceptedFileTypes(array)` | Custom MIME types |
+| `maxFiles(int)` | Limit selections |
+| `directory(string)` | Default upload directory |
+| `collection(string)` | Auto-assign collection |
 
-## Media File Grid Component
+## Livewire Components
 
-A Livewire component that displays a grid of media files attached to a model, with a full-featured context menu and hover overlay. All actions (rename, tags, metadata, visibility, etc.) work out of the box — the component owns its own Filament Actions.
+### MediaFileGrid
 
-### Single-Model Mode
-
-The parent model must use the `HasMediaFiles` trait. Pass the model as the `record` prop:
+Displays a grid of media files with full context menu. The parent model must use `HasMediaFiles`:
 
 ```blade
-{{-- Basic usage --}}
+{{-- Single model --}}
 <livewire:filament-media::media-file-grid :record="$record" />
-
-{{-- With delete enabled --}}
 <livewire:filament-media::media-file-grid :record="$record" :deletable="true" />
 
-{{-- Custom relationship name (default: 'files') --}}
-<livewire:filament-media::media-file-grid :record="$record" relationship="images" />
-
-{{-- Custom grid columns --}}
-<livewire:filament-media::media-file-grid :record="$record"
-    columns="grid-cols-2 md:grid-cols-4 xl:grid-cols-6" />
-
-{{-- Custom empty state message --}}
-<livewire:filament-media::media-file-grid :record="$record"
-    empty-message="No documents uploaded yet" />
-```
-
-### Multi-Model Mode
-
-Query files across multiple records of the same morph type without needing a single parent model:
-
-```blade
-{{-- Show files attached to multiple projects --}}
+{{-- Multi-model mode --}}
 <livewire:filament-media::media-file-grid
     fileable-type="App\Models\Project"
-    :fileable-ids="[1, 2, 3]"
-    :deletable="true" />
+    :fileable-ids="[1, 2, 3]" />
 ```
 
-In multi-model mode, files are queried directly from the `media_files` table using `fileable_type` and `fileable_id`, sorted by latest first.
+### MediaFileList
 
-### Context Menu
-
-Right-click any file to access all actions: **Preview**, **Download**, **Copy Link**, **Rename**, **Alt Text** (images), **Manage Tags**, **Add to Collection**, **Upload New Version**, **Edit Metadata**, **Export**, **Change Visibility**, **Favorites**, and **Move to Trash** (when `deletable` is true).
-
-Feature-gated items (Tags, Collections, Versioning, Metadata, Export) respect the `config('media.features.*')` settings.
-
-#### Excluding Items
-
-Use `contextMenuExclude` to hide specific items:
+Same features as `MediaFileGrid` in a table/list layout:
 
 ```blade
-<livewire:filament-media::media-file-grid :record="$record"
-    :context-menu-exclude="['versions', 'metadata', 'export']" />
+<livewire:filament-media::media-file-list :record="$record" :deletable="true" />
 ```
 
-Available keys: `preview`, `download`, `copy_link`, `view_parent`, `rename`, `alt_text`, `tags`, `collections`, `versions`, `metadata`, `export`, `visibility`, `favorites`, `trash`.
+### MediaFiles
 
-#### Disabling the Context Menu
+Unified viewer with a toggle between grid and list layouts:
 
 ```blade
-<livewire:filament-media::media-file-grid :record="$record" :context-menu="false" />
+<livewire:filament-media::media-files :record="$record" :deletable="true" />
+
+{{-- Disable layout toggle --}}
+<livewire:filament-media::media-files :record="$record" :show-layout-toggle="false" layout="list" />
 ```
 
-### Available Props
+### Shared Props
+
+All three components accept the same props:
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `record` | Model\|null | `null` | Parent model (must use `HasMediaFiles` trait). Required for single-model mode |
-| `relationship` | string | `'files'` | Relationship method name on the model |
-| `fileableType` | string\|null | `null` | Morph class for multi-model mode (e.g. `App\Models\Project`) |
-| `fileableIds` | array | `[]` | Array of model IDs for multi-model mode |
-| `deletable` | bool | `false` | Show trash/delete in overlay and context menu |
-| `columns` | string | `'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'` | Tailwind grid column classes |
-| `emptyMessage` | string | `'No files attached'` | Message shown when no files are found |
-| `contextMenu` | bool | `true` | Enable/disable the right-click context menu |
-| `contextMenuExclude` | array | `[]` | List of menu item keys to hide |
+| `record` | Model\|null | `null` | Parent model (single-model mode) |
+| `relationship` | string | `'files'` | Relationship method name |
+| `fileableType` | string\|null | `null` | Morph class (multi-model mode) |
+| `fileableIds` | array | `[]` | Model IDs (multi-model mode) |
+| `deletable` | bool | `false` | Enable trash/delete |
+| `columns` | string | responsive grid | Tailwind grid classes |
+| `emptyMessage` | string | `'No files attached'` | Empty state message |
+| `contextMenu` | bool | `true` | Enable right-click menu |
+| `contextMenuExclude` | array | `[]` | Menu items to hide |
 
-## Files Upload Widget
+**Context menu keys:** `preview`, `download`, `copy_link`, `view_parent`, `rename`, `alt_text`, `tags`, `collections`, `versions`, `metadata`, `export`, `visibility`, `favorites`, `trash`.
 
-A Filament widget that provides a file upload form linked to any Eloquent model via morphable relationship. Useful for adding file upload capability to resource pages, custom pages, or dashboards.
+### FilesUploadWidget
+
+Filament widget for adding uploads to any resource page:
 
 ```php
 use Codenzia\FilamentMedia\Widgets\FilesUploadWidget;
 
-// In a Filament resource page or custom page
 protected function getFooterWidgets(): array
 {
     return [
         FilesUploadWidget::make([
             'record' => $this->record,
             'directory' => 'project-files',
+            'submitLabel' => 'Upload Files',
+            'submitColor' => 'success',
+            'submitAlignment' => 'center',
+            'visibility' => 'public',
         ]),
     ];
 }
 ```
 
-### Customizing the Submit Button
-
-The widget supports customizable submit button label, color, and alignment:
-
-```php
-FilesUploadWidget::make([
-    'record' => $this->record,
-    'directory' => 'attachments',
-    'submitLabel' => 'Upload Files',      // default: 'Save'
-    'submitColor' => 'success',           // default: 'primary' (any Filament color)
-    'submitAlignment' => 'center',        // 'start' (default), 'center', or 'end'
-    'visibility' => 'public',             // default: 'private'
-])
-```
-
-### Available Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `record` | Model | required | Parent model to attach uploaded files to |
-| `directory` | string\|null | `null` | Upload directory name (also used as the form field name) |
-| `visibility` | string | `'private'` | File visibility (`'public'` or `'private'`) |
-| `submitLabel` | string | `'Save'` | Submit button label text |
-| `submitColor` | string | `'primary'` | Submit button color (any Filament color: `primary`, `success`, `danger`, etc.) |
-| `submitAlignment` | string | `'start'` | Submit button alignment (`'start'`, `'center'`, or `'end'`) |
-
 ## Attaching Media to Models
-
-Use the `HasMediaFiles` trait to attach media files to any Eloquent model:
 
 ### Setup
 
@@ -708,411 +460,272 @@ class Product extends Model
 }
 ```
 
-### Uploading Files
+### Uploading
 
 ```php
-$product = Product::find(1);
+$product->addMedia($uploadedFile)->save();
 
-// Upload a file and attach it
-$file = $product->addMedia($uploadedFile);
+$product->addMedia($uploadedFile)
+    ->usingName('Product Photo')
+    ->toCollection('gallery')
+    ->save();
 
-// Upload to a specific collection
-$file = $product->addMedia($uploadedFile, 'gallery');
+$product->addMediaFromUrl('https://example.com/photo.jpg')
+    ->withAlt('Product hero image')
+    ->toCollection('gallery')
+    ->toFolder($folderId)
+    ->save();
 
-// Upload from URL
-$file = $product->addMediaFromUrl('https://example.com/photo.jpg', 'gallery');
+$product->addMedia('/path/to/file.jpg')
+    ->usingName('Local import')
+    ->save();
 ```
 
-### Attaching Existing Files
+### Attaching & Detaching
 
 ```php
-// Attach a single file
 $product->attachMediaFile($mediaFile);
-
-// Attach with metadata
+$product->attachMediaFiles($mediaFiles);
 $product->attachMediaWithMeta($mediaFile, ['alt' => 'Product photo']);
 
-// Attach multiple files
-$product->attachMediaFiles($mediaFiles);
-
-// Sync (replaces all existing attachments)
 $product->syncMediaFiles($mediaFiles);
+$product->syncMediaByIds([1, 2, 3]);
 
-// Detach
 $product->detachMediaFile($mediaFile);
 $product->detachAllMediaFiles();
-
-// Delete a file (verifies ownership, removes physical file + DB record)
 $product->deleteMediaFile($fileId);
-$product->deleteMediaFile($fileId, 'File deleted!', 'Delete failed');
 ```
 
-### Querying Files
+### Querying
 
 ```php
-// All files
 $product->files;
-
-// By type
 $product->images;
 $product->videos;
 $product->documents;
 $product->audio;
 
-// By collection
 $product->mediaByCollection('gallery')->get();
-
-// By tag
 $product->mediaByTag('featured')->get();
 
-// First file / URL helpers
 $url = $product->getFirstImageUrl();
+$url = $product->getFirstImageUrl('/images/placeholder.jpg');
 $file = $product->getFirstMediaFile();
 $urls = $product->getMediaUrls('gallery');
 
-// Check existence
-$product->hasMediaFiles();
+$product->hasMedia();
 $product->hasImages();
-
-// Clear files
-$product->clearMedia();              // all files
-$product->clearMedia('gallery');     // specific collection
+$product->clearMedia('gallery');
 ```
 
-### Deleting Files with Physical Cleanup
-
-The `MediaFile` model provides a `deleteWithFile()` method that deletes both the physical file from storage and soft-deletes the database record:
+### URL Attributes on MediaFile
 
 ```php
-// Delete file and its physical storage
-$file->deleteWithFile();
-
-// With optional Filament notifications
-$file->deleteWithFile('File deleted successfully', 'Failed to delete file');
+$file->preview_url;    // Full public URL for display
+$file->indirect_url;   // Controller-routed URL with hash verification
+$file->url;            // Raw relative storage path
 ```
 
-The `HasMediaFiles` trait wraps this in a `deleteMediaFile()` convenience method that also verifies the file belongs to the model:
+### Physical File Deletion
 
 ```php
-// Returns true on success, false if file not found or delete failed
-$product->deleteMediaFile($fileId);
+$file->deleteWithFile();                                  // deletes file + soft-deletes record
+$file->deleteWithFile('Deleted!', 'Failed to delete');    // with Filament notifications
+$product->deleteMediaFile($fileId);                       // verifies ownership first
 ```
+
+## Named Media Collections
+
+For models that need structured, constrained media:
+
+```php
+use Codenzia\FilamentMedia\Traits\HasMediaFiles;
+use Codenzia\FilamentMedia\Traits\InteractsWithMediaCollections;
+
+class User extends Model
+{
+    use HasMediaFiles, InteractsWithMediaCollections;
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('avatar')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/*'])
+            ->useFallbackUrl('/images/default-avatar.png');
+
+        $this->addMediaCollection('gallery')
+            ->onlyKeepLatest(20);
+
+        $this->addMediaCollection('documents')
+            ->acceptsMimeTypes(['application/pdf', 'application/msword']);
+    }
+}
+```
+
+| Method | Description |
+|--------|-------------|
+| `singleFile()` | One file only — new uploads auto-detach the previous |
+| `onlyKeepLatest(int)` | Keep at most N files, auto-prune oldest |
+| `acceptsMimeTypes(array)` | Restrict MIME types (supports `image/*` wildcards) |
+| `useFallbackUrl(string)` | URL returned when collection is empty |
+
+```php
+$user->addMedia($file)->toCollection('avatar')->save();
+$avatarUrl = $user->getFirstCollectionUrl('avatar');
+$user->validateCollectionMimeType('avatar', 'image/jpeg'); // true
+```
+
+Collections build on the tag system (`MediaTag` with `type='collection'`). No additional migrations needed.
+
+## Error Handling
+
+```php
+use Codenzia\FilamentMedia\Exceptions\MediaUploadException;
+
+try {
+    $file = $product->addMedia($uploadedFile)->save();
+} catch (MediaUploadException $e) {
+    logger()->error('Upload failed: ' . $e->getMessage());
+}
+```
+
+| Method | When Thrown |
+|--------|------------|
+| `invalidFileType()` | MIME type not in allowed list |
+| `fileTooLarge(string $size)` | Exceeds configured max size |
+| `unableToWrite(string $folder)` | Storage write failed |
+| `networkError(string $url)` | URL download failed |
+| `ssrfBlocked(string $message)` | URL targets internal network |
+| `invalidUrl()` | Malformed or empty URL |
+| `invalidPath()` | Local file path doesn't exist |
+| `noFileDetected()` | Could not detect file type |
+| `tempFileError()` | Temp file creation failed |
+
+## Automatic Folder Resolution
+
+When creating a `MediaFile` without an explicit `folder_id`, the folder is resolved from the `url` path:
+
+```php
+// Creates "Avatars" folder automatically
+MediaFile::create([
+    'url' => 'avatars/photo.jpg',
+    'name' => 'Profile Photo',
+    'mime_type' => 'image/jpeg',
+    'size' => 12345,
+    'visibility' => 'public',
+    'user_id' => $user->id,
+]);
+
+// Nested: creates Products > Gallery
+MediaFile::create(['url' => 'products/gallery/photo.jpg', ...]);
+
+// Explicit folder_id skips auto-resolution
+MediaFile::create(['url' => 'avatars/photo.jpg', 'folder_id' => $id, ...]);
+```
+
+Auto-resolution only runs when `folder_id` is `0` or not set. Uses `firstOrCreate()` internally, so concurrent uploads are safe.
 
 ## Tags & Collections
 
-### Managing Tags
-
 ```php
-use Codenzia\FilamentMedia\Services\TagService;
-
 $tagService = app(TagService::class);
 
-// Create or find a tag
-$tag = $tagService->findOrCreate('Nature');
-
-// Attach tags to a file
-$tagService->attachTags($file, ['nature', 'landscape', 'mountains']);
-
-// Sync tags (replaces existing)
+$tagService->attachTags($file, ['nature', 'landscape']);
 $tagService->syncTags($file, ['nature', 'updated']);
-
-// Detach tags by ID
 $tagService->detachTags($file, [$tagId]);
-
-// Get popular tags
 $popular = $tagService->getPopularTags(20);
+$tagService->mergeTags([$sourceId1, $sourceId2], $targetId);
 
-// Merge tags
-$tagService->mergeTags([$sourceTagId1, $sourceTagId2], $targetTagId);
-```
-
-### Collections
-
-Collections are special tags (type = 'collection') that group related files:
-
-```php
-// Create a collection
-$collection = $tagService->createCollection('Hero Banners', 'Homepage banner images');
-
-// Add files to collection
+// Collections (special tags with type='collection')
+$collection = $tagService->createCollection('Hero Banners', 'Homepage banners');
 $tagService->addToCollection($collection->id, [$fileId1, $fileId2]);
-
-// Remove from collection
-$tagService->removeFromCollection($collection->id, [$fileId1]);
-
-// List all collections
-$collections = $tagService->getCollections();
-
-// Get files in a collection
 $files = $tagService->getCollectionContents($collection->id);
-```
 
-### Query Scopes
-
-```php
-use Codenzia\FilamentMedia\Models\MediaFile;
-
-// Files with specific tags
+// Query scopes
 $files = MediaFile::tagged([$tagId1, $tagId2])->get();
-
-// Files in a collection
 $files = MediaFile::inCollection($collectionId)->get();
 ```
 
 ## Custom Metadata
 
-### Defining Fields
-
 ```php
-use Codenzia\FilamentMedia\Services\MetadataService;
-
 $metadata = app(MetadataService::class);
 
-// Create a text field
 $metadata->createField([
-    'name' => 'Copyright',
-    'slug' => 'copyright',
-    'type' => 'text',
-    'is_required' => false,
-    'is_searchable' => true,
-    'sort_order' => 1,
+    'name' => 'Copyright', 'slug' => 'copyright',
+    'type' => 'text', 'is_searchable' => true,
 ]);
 
-// Create a select field
-$metadata->createField([
-    'name' => 'License',
-    'slug' => 'license',
-    'type' => 'select',
-    'options' => ['MIT', 'Apache 2.0', 'GPL', 'Proprietary'],
-    'is_required' => true,
-]);
-
-// Update a field
-$metadata->updateField($fieldId, ['name' => 'Photo Credit']);
-
-// Delete a field
-$metadata->deleteField($fieldId);
-
-// List all fields
-$fields = $metadata->getFields();
-```
-
-### Setting Metadata on Files
-
-```php
-// Set metadata values
-$metadata->setMetadata($file, [
-    $copyrightFieldId => '2025 Acme Inc.',
-    $licenseFieldId => 'MIT',
-]);
-
-// Bulk set for multiple files
-$metadata->bulkSetMetadata([$fileId1, $fileId2], [
-    $licenseFieldId => 'Apache 2.0',
-]);
-
-// Read metadata
-$allMeta = $metadata->getMetadata($file);
+$metadata->setMetadata($file, [$fieldId => '2025 Acme Inc.']);
 $value = $metadata->getMetadataValue($file, 'copyright');
-```
 
-### Query Scope
-
-```php
+// Query scope
 $files = MediaFile::withMetadataValue('license', 'MIT')->get();
 ```
 
-## Full-Text Search
-
-### Basic Search
+## Search
 
 ```php
-use Codenzia\FilamentMedia\Services\SearchService;
-
 $search = app(SearchService::class);
 
-// Search by name
 $results = $search->search('annual report');
-
-// Search within a folder
 $results = $search->searchFiles('report', $folderId);
-
-// Search by tag
 $results = $search->searchByTag('nature');
-
-// Search by metadata
 $results = $search->searchByMetadata('copyright', 'Acme');
-```
-
-### Advanced Search
-
-```php
 $results = $search->advancedSearch([
-    'name' => 'report',
-    'type' => 'document',
-    'date_from' => '2025-01-01',
-    'date_to' => '2025-12-31',
+    'name' => 'report', 'type' => 'document',
+    'date_from' => '2025-01-01', 'date_to' => '2025-12-31',
 ]);
-```
-
-### Laravel Scout Integration
-
-For advanced search capabilities, install Laravel Scout and change the search driver:
-
-```php
-// config/media.php
-'search' => [
-    'driver' => 'scout',
-],
-```
-
-Check if Scout is active:
-
-```php
-$search->isScoutEnabled(); // true if driver is 'scout' and Scout is installed
 ```
 
 ## File Versioning
 
-### Uploading a New Version
-
 ```php
-use Codenzia\FilamentMedia\Services\VersionService;
-
 $versions = app(VersionService::class);
 
-// Upload a new version (snapshots current file, replaces with new one)
 $version = $versions->createVersion($file, $uploadedFile, 'Updated design v2');
-```
-
-### Version History
-
-```php
-// Get all versions for a file
 $history = $versions->getVersions($file);
-
-foreach ($history as $version) {
-    echo "v{$version->version_number}: {$version->changelog} ({$version->created_at})";
-}
-```
-
-### Reverting
-
-```php
-// Revert to a previous version (creates snapshot of current state first)
 $file = $versions->revertToVersion($file, $versionId);
-```
-
-### Maintenance
-
-```php
-// Delete a specific version
 $versions->deleteVersion($versionId);
-
-// Prune old versions (keep most recent N)
 $deleted = $versions->pruneOldVersions($file, keepCount: 5);
-
-// Compare two versions
-$diff = $versions->getVersionDiff($versionId1, $versionId2);
 ```
 
 ## Export & Import
 
-### Exporting Files
-
 ```php
-use Codenzia\FilamentMedia\Services\ExportImportService;
-
 $exporter = app(ExportImportService::class);
 
-// Export specific files as ZIP
 $response = $exporter->exportFiles([$fileId1, $fileId2]);
-
-// Export entire folder
 $response = $exporter->exportFolder($folderId, includeSubfolders: true);
-
-// Export with metadata (includes manifest.json with tags, collections, metadata)
 $response = $exporter->exportWithMetadata([$fileId1, $fileId2]);
-```
 
-### Importing Files
-
-```php
-// Import from ZIP
 $result = $exporter->importFromZip($uploadedZipFile, $targetFolderId);
-// Returns: ['error' => false, 'imported' => 5, 'message' => '...']
-
-// Import from local folder
 $result = $exporter->importFromFolder('/path/to/folder', $targetFolderId);
 ```
 
-### Manifest Format
-
-When exporting with metadata, the ZIP includes a `manifest.json`:
-
-```json
-{
-  "exported_at": "2025-01-15T10:30:00Z",
-  "files": [
-    {
-      "path": "documents/report.pdf",
-      "name": "Annual Report",
-      "tags": ["reports", "2024"],
-      "collection": "annual-reports",
-      "metadata": {
-        "author": "John Doe",
-        "department": "Finance"
-      }
-    }
-  ]
-}
-```
+Exports with metadata include a `manifest.json` preserving tags, collections, and custom metadata.
 
 ## Orphan File Management
 
-The media manager includes tools for managing orphaned files — files that exist in storage but have no corresponding database record.
-
-### Settings UI
-
-Visit the **Media Settings** page and expand the **Storage Scanner** section to:
-- Scan storage for untracked files
-- Select and import orphaned files into the media library
-- Select and delete orphaned files from storage
-
-### Programmatic API
+Manage files in storage that have no database record:
 
 ```php
-use Codenzia\FilamentMedia\Services\OrphanScanService;
-
 $scanner = app(OrphanScanService::class);
 
-// Scan for orphaned files (returns Collection of file info arrays)
 $orphans = $scanner->scan();
-
-// Import orphaned files into the database
 $imported = $scanner->import(
-    paths: ['uploads/photo.jpg', 'uploads/doc.pdf'],
+    paths: ['uploads/photo.jpg'],
     folderId: 0,
     userId: auth()->id(),
 );
-
-// Delete orphaned files from disk
 $deleted = $scanner->delete(['uploads/old-file.jpg']);
 ```
 
-For removing **database entries** that point to missing files (the opposite direction), use the `media:cleanup` artisan command.
+Also available via the **Storage Scanner** section in Media Settings.
 
 ## Events
 
-All file operations dispatch Laravel events. Listen to them in your `EventServiceProvider` or using closures:
-
-```php
-use Codenzia\FilamentMedia\Events\MediaFileUploaded;
-
-Event::listen(MediaFileUploaded::class, function (MediaFileUploaded $event) {
-    Log::info("File uploaded: {$event->file->name}");
-});
-```
+All operations dispatch Laravel events:
 
 ### File Events
 
@@ -1135,14 +748,12 @@ Event::listen(MediaFileUploaded::class, function (MediaFileUploaded $event) {
 | Event | Properties |
 |-------|------------|
 | `MediaFolderCreated` | `MediaFolder $folder` |
-| `MediaFolderRenaming` | `MediaFolder $file`, `string $newName`, `bool $renameOnDisk` |
+| `MediaFolderRenaming` | `MediaFolder $folder`, `string $newName`, `bool $renameOnDisk` |
 | `MediaFolderRenamed` | `MediaFolder $folder` |
 | `MediaFolderDeleted` | `MediaFolder $folder` |
 | `MediaFolderMoved` | `MediaFolder $folder`, `$oldParentId`, `$newParentId` |
 
 ## Permissions
-
-The plugin includes permission keys for integration with your authorization system:
 
 | Permission | Description |
 |------------|-------------|
@@ -1160,8 +771,6 @@ The plugin includes permission keys for integration with your authorization syst
 | `settings.access` | Access settings page |
 
 ```php
-use Codenzia\FilamentMedia\FilamentMedia;
-
 $media = app(FilamentMedia::class);
 $media->hasPermission('files.create');
 $media->hasAnyPermission(['files.edit', 'files.trash']);
@@ -1170,32 +779,27 @@ $media->addPermission('files.export');
 
 ## Security
 
-- **Authorization Checks** - All actions verify user permissions
-- **Private File Access Control** - Private files served through authenticated controller with customizable authorization callback
-- **URL Obfuscation** - Private file URLs use SHA-1 hash verification
-- **XSS Prevention** - User content is properly escaped via `SafeContentService`
-- **File Validation** - Uploads validated for MIME type and size
-- **SSRF Protection** - URL downloads validated against internal network ranges
-- **Upload Limits** - Maximum 50 files per upload session
-- **CSRF Protection** - All Livewire actions protected
-- **URL Download Security** - Configurable domain allowlist
-- **Rate Limiting** - Private file routes throttled to prevent abuse
+- **Private File Access** — Authenticated controller with customizable authorization callbacks
+- **HMAC-SHA256 URLs** — Private file URLs keyed to the application secret, not guessable
+- **SSRF Protection** — URL downloads validated against internal networks, cloud metadata IPs, and configurable domain allowlists
+- **XSS Prevention** — User content escaped via `SafeContentService`
+- **File Validation** — Uploads validated for MIME type and size
+- **Rate Limiting** — Private file routes throttled
+- **CSRF Protection** — All Livewire actions protected
 
 ## Architecture
-
-The media manager uses a **service-based architecture**:
 
 ### Services (registered as singletons)
 
 | Service | Responsibility |
 |---------|---------------|
 | `UploadService` | File uploads, validation, SSRF checks |
-| `FileOperationService` | Rename, copy, move, delete operations |
+| `FileOperationService` | Rename, copy, move, delete, visibility changes |
 | `ImageService` | Thumbnails, watermarks, image processing |
 | `MediaUrlService` | URL generation, path resolution, MIME detection |
 | `StorageDriverService` | Cloud disk configuration (S3, R2, DO, etc.) |
 | `FavoriteService` | Favorites and recent items |
-| `TagService` | Tags and collections management |
+| `TagService` | Tags and collections |
 | `MetadataService` | Custom metadata fields |
 | `SearchService` | Full-text search (DB or Scout) |
 | `VersionService` | File versioning |
@@ -1203,41 +807,49 @@ The media manager uses a **service-based architecture**:
 | `OrphanScanService` | Storage scan, orphan import/delete |
 | `ThumbnailService` | Image resize and crop |
 
-### Design Principles
-- **Service-based DI** - All operations through dedicated services, resolved via Laravel's container
-- **Query scopes** - Model scopes replace the repository pattern (`MediaFile::inFolder()`, `::tagged()`, etc.)
-- **Laravel Events** - 16 events for all file lifecycle operations (no custom hook system)
-- **Livewire + Alpine.js** - Livewire handles data/actions, Alpine.js handles UI (uploads, drag-drop, context menu)
+### Support Classes
+
+| Class | Purpose |
+|-------|---------|
+| `MediaAdder` | Fluent builder for uploads (`->usingName()->toCollection()->save()`) |
+| `MediaCollection` | Collection definition with constraints |
+| `MediaHash` | HMAC-SHA256 hash generation for URL obfuscation |
+| `MediaUploadException` | Typed exceptions for upload failures |
+
+### Traits
+
+| Trait | Purpose |
+|-------|---------|
+| `HasMediaFiles` | Polymorphic relationships, attach/detach/sync, fluent upload builder |
+| `InteractsWithMediaCollections` | Named collections with constraints |
 
 ### Livewire Components
-- `Media.php` - Main media manager page with full state management
-- `UploadModal.php` - File uploads with progress tracking
-- `PreviewModal.php` - Gallery-style preview with version history
-- `MediaPicker.php` - Embeddable file browser used by `MediaPickerField`
-- `MediaFileGrid.php` - File grid with context menu and Filament Actions for embedding in any page
+
+| Component | Purpose |
+|-----------|---------|
+| `Media` | Main media manager page |
+| `UploadModal` | File uploads with progress tracking |
+| `PreviewModal` | Gallery-style preview with version history |
+| `MediaPicker` | Embeddable file browser for `MediaPickerField` |
+| `MediaFileGrid` | File grid with context menu |
+| `MediaFileList` | File list/table with context menu |
+| `MediaFiles` | Unified viewer with grid/list toggle |
 
 ## Extending
 
-### Custom Service Bindings
-
-Override any service via Laravel's container:
+Override any service:
 
 ```php
-// In a service provider
 $this->app->singleton(TagService::class, MyCustomTagService::class);
 ```
 
-### Custom Event Listeners
+Listen to events:
 
 ```php
-// In EventServiceProvider
 protected $listen = [
     MediaFileUploaded::class => [
         GenerateAiDescription::class,
         SyncToExternalCdn::class,
-    ],
-    MediaFileTagged::class => [
-        UpdateSearchIndex::class,
     ],
 ];
 ```
@@ -1269,10 +881,7 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 This project uses a **dual license**:
 
-### Open Source Projects
-For open source projects released under an OSI-approved license, this plugin is available under the [MIT License](LICENSE.md).
-
-### Commercial Projects
-For commercial or proprietary projects, a commercial license is required. Visit [codenzia.com](https://codenzia.com) for licensing options.
+- **Open Source** — Available under the [MIT License](LICENSE.md) for OSI-approved open source projects.
+- **Commercial** — A commercial license is required for proprietary projects. Visit [codenzia.com](https://codenzia.com) for options.
 
 See [LICENSE.md](LICENSE.md) for full details.

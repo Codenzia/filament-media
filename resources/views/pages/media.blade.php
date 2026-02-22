@@ -152,7 +152,7 @@
     x-on:click.away="contextMenu.show = false">
     {{-- Main Container --}}
     <div
-        class="fm-container flex flex-col h-[calc(100vh-12rem)] bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        class="fm-container flex flex-col min-h-[calc(100vh-12rem)] bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
 
         {{-- Top Toolbar - Reorganized Layout --}}
         <header
@@ -348,7 +348,8 @@
 
         {{-- Breadcrumbs --}}
         <nav
-            class="fm-breadcrumbs flex-shrink-0 flex items-center gap-2 px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm overflow-x-auto">
+            class="fm-breadcrumbs flex-shrink-0 flex flex-col gap-0.5 px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm">
+            <div class="flex items-center gap-2 overflow-x-auto">
             @foreach ($this->breadcrumbs as $index => $crumb)
                 @if ($index > 0)
                     <x-filament::icon icon="heroicon-m-chevron-right" class="w-4 h-4 text-gray-900 dark:text-gray-400 flex-shrink-0" />
@@ -400,6 +401,18 @@
                     </div>
                 </template>
             </div>
+            </div>
+
+            {{-- File count line --}}
+            @php
+                $fileCount = $this->items->where('is_folder', false)->count();
+            @endphp
+            @if ($fileCount > 0)
+                <div class="text-xs tabular-nums text-gray-400 dark:text-gray-500"
+                    wire:key="file-count-{{ $folderId }}-{{ $viewIn }}-{{ $filter }}-{{ $fileCount }}">
+                    {{ trans('filament-media::media.total_files', ['count' => $fileCount]) }}
+                </div>
+            @endif
         </nav>
 
         {{-- Main Content Area --}}
@@ -580,6 +593,16 @@
                                     ])
                                 @endforeach
                             </div>
+                        </div>
+                    @endif
+
+                    {{-- Infinite Scroll Sentinel --}}
+                    @if ($hasMorePages)
+                        <div x-intersect.margin.200px="$wire.loadMore()"
+                            class="flex justify-center py-4">
+                            <x-filament::loading-indicator
+                                wire:loading wire:target="loadMore"
+                                class="h-6 w-6 text-gray-400" />
                         </div>
                     @endif
                 @endif

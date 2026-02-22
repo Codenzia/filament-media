@@ -26,7 +26,7 @@
                 this.contextMenu.show = false;
             },
         }">
-            @include('filament-media::livewire.partials.media-file-grid-content')
+            @include('filament-media::livewire.partials.media-file-list-content')
 
             {{-- Context menu dropdown (single instance) --}}
             @include('filament-media::livewire.partials.media-file-context-menu')

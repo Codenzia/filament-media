@@ -1,4 +1,22 @@
 <div>
+    {{-- Layout Toggle --}}
+    @if ($showLayoutToggle)
+        <div class="flex items-center justify-end mb-4">
+            <div class="inline-flex items-center rounded-lg bg-gray-100 dark:bg-gray-800 p-0.5">
+                <button type="button" wire:click="setLayout('grid')"
+                    class="p-1.5 rounded-md transition-colors {{ $layout === 'grid' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}"
+                    title="{{ trans('filament-media::media.grid_view') }}">
+                    <x-heroicon-m-squares-2x2 class="w-4 h-4" />
+                </button>
+                <button type="button" wire:click="setLayout('list')"
+                    class="p-1.5 rounded-md transition-colors {{ $layout === 'list' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}"
+                    title="{{ trans('filament-media::media.list_view') }}">
+                    <x-heroicon-m-list-bullet class="w-4 h-4" />
+                </button>
+            </div>
+        </div>
+    @endif
+
     @if ($this->files->count() > 0)
         <div x-data="{
             contextMenu: { show: false, x: 0, y: 0, item: null },
@@ -26,7 +44,12 @@
                 this.contextMenu.show = false;
             },
         }">
-            @include('filament-media::livewire.partials.media-file-grid-content')
+            {{-- Grid or List content --}}
+            @if ($layout === 'list')
+                @include('filament-media::livewire.partials.media-file-list-content')
+            @else
+                @include('filament-media::livewire.partials.media-file-grid-content')
+            @endif
 
             {{-- Context menu dropdown (single instance) --}}
             @include('filament-media::livewire.partials.media-file-context-menu')

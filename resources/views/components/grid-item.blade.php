@@ -124,11 +124,22 @@
         <p class="text-xs font-medium text-gray-900 dark:text-white truncate" title="{{ $item['name'] }}">
             {{ $item['name'] }}
         </p>
-        @if (isset($item['size']) && $item['size'])
-            <p class="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">
-                {{ $item['size'] }}
-            </p>
-        @endif
+        <div class="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400 leading-tight">
+            @if (isset($item['size']) && $item['size'])
+                <span>{{ $item['size'] }}</span>
+            @else
+                <span></span>
+            @endif
+            @if ($isFolder && isset($item['total_file_count']) && $item['total_file_count'] !== null)
+                <span>
+                    @if (isset($item['filtered_file_count']) && $item['filtered_file_count'] !== $item['total_file_count'])
+                        {{ trans('filament-media::media.filtered_file_count', ['filtered' => $item['filtered_file_count'], 'total' => $item['total_file_count']]) }}
+                    @else
+                        {{ trans('filament-media::media.folder_file_count', ['count' => $item['total_file_count']]) }}
+                    @endif
+                </span>
+            @endif
+        </div>
     </div>
 
     {{-- Quick Action Buttons (visible on hover) --}}

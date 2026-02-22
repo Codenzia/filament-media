@@ -57,10 +57,13 @@ class Media extends Page
     public bool $isLoading = false;
     public $uploadedFiles = [];
 
-    // Pagination
-    public int $perPage = 30;
+    // Pagination (overridden from config in mount)
+    public int $perPage = 200;
     public int $currentPage = 1;
     public int $refreshKey = 0;
+    public bool $hasMorePages = false;
+    public int $totalFileCount = 0;
+    public int $displayedFileCount = 0;
 
     public static function getNavigationIcon(): string|\BackedEnum|null
     {

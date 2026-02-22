@@ -24,9 +24,15 @@ return [
     |--------------------------------------------------------------------------
     | Pagination
     |--------------------------------------------------------------------------
+    |
+    | Controls how many files load per batch. If the total file count in a
+    | folder is within this limit, everything loads at once. When the total
+    | exceeds it, infinite scroll loads additional batches automatically
+    | as the user scrolls down.
+    |
     */
     'pagination' => [
-        'per_page' => 30,
+        'per_page' => 200,
     ],
 
     /*
@@ -201,6 +207,18 @@ return [
             ],
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Auto-Resolve Folders
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, files created without an explicit folder_id will
+    | have their folder automatically resolved from the URL path.
+    | E.g. url "avatars/photo.jpg" creates an "Avatars" folder.
+    |
+    */
+    'auto_resolve_folders' => true,
 
     'default_upload_folder' => '',
     'default_upload_url' => '',

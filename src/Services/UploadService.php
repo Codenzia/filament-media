@@ -3,8 +3,8 @@
 namespace Codenzia\FilamentMedia\Services;
 
 use Codenzia\FilamentMedia\Events\MediaFileUploaded;
+use Codenzia\FilamentMedia\Exceptions\MediaUploadException;
 use Codenzia\FilamentMedia\Helpers\BaseHelper;
-use Codenzia\FilamentMedia\Http\Resources\FileResource;
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
 use Illuminate\Http\UploadedFile;
@@ -22,6 +22,8 @@ use Throwable;
 /**
  * Orchestrates file uploads from multiple sources (form input, URL, path, blob, editor),
  * handling validation, SSRF protection, folder resolution, and storage delegation.
+ *
+ * All public upload methods return MediaFile directly and throw MediaUploadException on failure.
  */
 class UploadService
 {
@@ -32,13 +34,18 @@ class UploadService
         protected UploadsManager $uploadManager
     ) {}
 
+    /**
+     * Upload a file from a form input.
+     *
+     * @throws MediaUploadException
+     */
     public function handleUpload(
         ?UploadedFile $fileUpload,
         int|string|null $folderId = 0,
         ?string $folderSlug = null,
         bool $skipValidation = false,
         string $visibility = 'public'
-    ): array {
+    ): MediaFile {
         $request = request();
 
         if ($uploadPath = $request->input('path')) {
@@ -46,73 +53,87 @@ class UploadService
         }
 
         if (! $fileUpload) {
-            return $this->error(trans('filament-media::media.can_not_detect_file_type'));
+            throw MediaUploadException::noFileDetected();
         }
 
         if (! $this->isChunkUploadEnabled()) {
-            $validationError = $this->validateUpload($fileUpload, $skipValidation);
-            if ($validationError) {
-                return $validationError;
-            }
+            $this->validateUpload($fileUpload, $skipValidation);
         }
 
         return $this->storeFile($fileUpload, $folderId, $folderSlug, $skipValidation, $visibility);
     }
 
+    /**
+     * Download a file from a URL and upload it.
+     *
+     * @throws MediaUploadException
+     */
     public function uploadFromUrl(
         string $url,
         int|string $folderId = 0,
         ?string $folderSlug = null,
         ?string $defaultMimetype = null
-    ): ?array {
+    ): MediaFile {
         if (empty($url)) {
-            return $this->error(trans('filament-media::media.url_invalid'));
+            throw MediaUploadException::invalidUrl($url);
         }
 
         $ssrfError = $this->validateUrlForSsrf($url);
         if ($ssrfError) {
-            return $this->error($ssrfError);
+            throw MediaUploadException::ssrfBlocked($ssrfError);
         }
 
         try {
             $response = Http::timeout(30)->get($url);
 
             if ($response->failed() || ! $response->body()) {
-                return $this->error(
-                    $response->reason() ?: trans('filament-media::media.unable_download_image_from', ['url' => $url])
+                throw MediaUploadException::networkError(
+                    $url,
+                    $response->reason() ?: ''
                 );
             }
 
             $contents = $response->body();
+        } catch (MediaUploadException $e) {
+            throw $e;
         } catch (Throwable $e) {
             logger()->error('Failed to download file from URL', ['url' => $url, 'error' => $e->getMessage()]);
 
-            return $this->error($e->getMessage() ?: trans('filament-media::media.validation.upload_network_error'));
+            throw MediaUploadException::networkError(
+                $url,
+                $e->getMessage() ?: trans('filament-media::media.validation.upload_network_error')
+            );
         }
 
         $tempPath = tempnam(sys_get_temp_dir(), 'media_');
         if ($tempPath === false || file_put_contents($tempPath, $contents) === false) {
             @unlink($tempPath);
 
-            return $this->error(trans('filament-media::media.unable_to_create_temp_file'));
+            throw MediaUploadException::tempFileError();
         }
 
-        $fileUpload = $this->newUploadedFile($tempPath, $defaultMimetype);
-        $result = $this->handleUpload($fileUpload, $folderId, $folderSlug);
+        try {
+            $fileUpload = $this->newUploadedFile($tempPath, $defaultMimetype);
 
-        @unlink($tempPath);
-
-        return $result;
+            return $this->handleUpload($fileUpload, $folderId, $folderSlug);
+        } finally {
+            @unlink($tempPath);
+        }
     }
 
+    /**
+     * Upload a file from a local path.
+     *
+     * @throws MediaUploadException
+     */
     public function uploadFromPath(
         string $path,
         int|string $folderId = 0,
         ?string $folderSlug = null,
         ?string $defaultMimetype = null
-    ): array {
+    ): MediaFile {
         if (empty($path)) {
-            return $this->error(trans('filament-media::media.path_invalid'));
+            throw MediaUploadException::invalidPath();
         }
 
         $fileUpload = $this->newUploadedFile($path, $defaultMimetype);
@@ -120,17 +141,28 @@ class UploadService
         return $this->handleUpload($fileUpload, $folderId, $folderSlug);
     }
 
+    /**
+     * Upload a file from a blob.
+     *
+     * @throws MediaUploadException
+     */
     public function uploadFromBlob(
         UploadedFile $path,
         ?string $fileName = null,
         int|string $folderId = 0,
         ?string $folderSlug = null,
-    ): array {
+    ): MediaFile {
         $fileUpload = new UploadedFile($path, $fileName ?: Str::uuid());
 
         return $this->handleUpload($fileUpload, $folderId, $folderSlug, true);
     }
 
+    /**
+     * Upload a file from a CKEditor request.
+     * Returns an HTTP response (CKEditor callback or JSON) — this is the one
+     * method that does NOT follow the throw-on-error pattern because it must
+     * return CKEditor-specific response formats.
+     */
     public function uploadFromEditor(
         $request,
         int|string|null $folderId = 0,
@@ -165,10 +197,9 @@ class UploadService
         }
 
         $folderName = $folderName ?: $request->input('upload_type');
-        $result = $this->handleUpload($request->file($fileInput), $folderId, $folderName);
 
-        if (! $result['error']) {
-            $file = $result['data'];
+        try {
+            $file = $this->handleUpload($request->file($fileInput), $folderId, $folderName);
 
             if (! $request->input('CKEditorFuncNum')) {
                 return response()->json([
@@ -182,22 +213,22 @@ class UploadService
                 '<script>window.parent.CKEDITOR.tools.callFunction("' . $request->input('CKEditorFuncNum') .
                 '", "' . $this->urlService->url($file->url) . '", "");</script>'
             )->header('Content-Type', 'text/html');
+        } catch (MediaUploadException $e) {
+            $errorMessage = $e->getMessage();
+
+            if (! $request->input('CKEditorFuncNum')) {
+                return response()->json([
+                    'uploaded' => 0,
+                    'error' => ['message' => $errorMessage],
+                ], 422);
+            }
+
+            return response(
+                '<script>window.parent.CKEDITOR.tools.callFunction(' .
+                json_encode($request->input('CKEditorFuncNum')) . ', "", ' .
+                json_encode($errorMessage) . ');</script>'
+            )->header('Content-Type', 'text/html');
         }
-
-        $errorMessage = Arr::get($result, 'message', 'Upload failed');
-
-        if (! $request->input('CKEditorFuncNum')) {
-            return response()->json([
-                'uploaded' => 0,
-                'error' => ['message' => $errorMessage],
-            ], 422);
-        }
-
-        return response(
-            '<script>window.parent.CKEDITOR.tools.callFunction(' .
-            json_encode($request->input('CKEditorFuncNum')) . ', "", ' .
-            json_encode($errorMessage) . ');</script>'
-        )->header('Content-Type', 'text/html');
     }
 
     public function getMaxSize(): int
@@ -260,7 +291,7 @@ class UploadService
         if ($ip === $host && ! filter_var($host, FILTER_VALIDATE_IP)) {
             logger()->warning('SSRF check: Could not resolve hostname', ['url' => $url, 'host' => $host]);
 
-            return null;
+            return trans('filament-media::media.url_invalid');
         }
 
         if (! filter_var($ip, FILTER_VALIDATE_IP)) {
@@ -295,7 +326,10 @@ class UploadService
         return null;
     }
 
-    protected function validateUpload(UploadedFile $fileUpload, bool $skipValidation): ?array
+    /**
+     * @throws MediaUploadException
+     */
+    protected function validateUpload(UploadedFile $fileUpload, bool $skipValidation): void
     {
         if (! $skipValidation) {
             $validator = Validator::make(['uploaded_file' => $fileUpload], [
@@ -309,34 +343,35 @@ class UploadService
             ]);
 
             if ($validator->fails()) {
-                return $this->error($validator->getMessageBag()->first());
+                throw MediaUploadException::validationFailed($validator->getMessageBag()->first());
             }
         }
 
         $maxUploadFilesizeAllowed = \setting('max_upload_filesize');
         if ($maxUploadFilesizeAllowed && ($fileUpload->getSize() / 1024) / 1024 > (float) $maxUploadFilesizeAllowed) {
-            return $this->error(trans('filament-media::media.file_too_big_readable_size', [
-                'size' => BaseHelper::humanFilesize($maxUploadFilesizeAllowed * 1024 * 1024),
-            ]));
+            throw MediaUploadException::fileTooLarge(
+                BaseHelper::humanFilesize($maxUploadFilesizeAllowed * 1024 * 1024)
+            );
         }
 
         $maxSize = $this->getServerConfigMaxUploadFileSize();
         if ($fileUpload->getSize() / 1024 > (int) $maxSize) {
-            return $this->error(trans('filament-media::media.file_too_big_readable_size', [
-                'size' => BaseHelper::humanFilesize($maxSize * 1024),
-            ]));
+            throw MediaUploadException::fileTooLarge(
+                BaseHelper::humanFilesize($maxSize * 1024)
+            );
         }
-
-        return null;
     }
 
+    /**
+     * @throws MediaUploadException
+     */
     protected function storeFile(
         UploadedFile $fileUpload,
         int|string|null $folderId,
         ?string $folderSlug,
         bool $skipValidation,
         string $visibility
-    ): array {
+    ): MediaFile {
         $allowedMimeTypes = $this->getConfig('allowed_mime_types');
 
         try {
@@ -345,7 +380,7 @@ class UploadService
             );
 
             if (! $skipValidation && ! in_array($fileExtension, explode(',', $allowedMimeTypes))) {
-                return $this->error(trans('filament-media::media.validation.uploaded_file_invalid_type'));
+                throw MediaUploadException::invalidFileType();
             }
 
             $folderId = $this->resolveFolder($folderId, $folderSlug);
@@ -385,18 +420,21 @@ class UploadService
 
             $this->imageService->generateThumbnails($file, $fileUpload);
 
-            return [
-                'error' => false,
-                'data' => new FileResource($file),
-            ];
+            return $file;
+        } catch (MediaUploadException $e) {
+            throw $e;
         } catch (UnableToWriteFile $e) {
             $message = $this->storageDriver->isUsingCloud()
                 ? $e->getMessage()
                 : trans('filament-media::media.unable_to_write', ['folder' => $this->storageDriver->getUploadPath()]);
 
-            return $this->error($message);
+            throw MediaUploadException::unableToWrite($message);
         } catch (Throwable $e) {
-            return $this->error($e->getMessage() ?: trans('filament-media::media.validation.upload_network_error'));
+            throw new MediaUploadException(
+                $e->getMessage() ?: trans('filament-media::media.validation.upload_network_error'),
+                0,
+                $e
+            );
         }
     }
 
@@ -455,11 +493,19 @@ class UploadService
     {
         $mimeType = $this->urlService->getMimeType($path) ?: $defaultMimeType;
 
+        // For temp files (e.g. from URL downloads), detect MIME type from contents
+        // since the file extension is meaningless (.tmp on Windows, none on Linux).
+        if (! $mimeType && file_exists($path)) {
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->file($path) ?: $defaultMimeType;
+        }
+
         $fileName = File::name($path);
         $fileExtension = File::extension($path);
 
-        if (empty($fileExtension) && $mimeType) {
-            $fileExtension = Arr::first((new MimeTypes)->getExtensions($mimeType));
+        // Temp files have meaningless extensions (.tmp) — derive from MIME type instead
+        if ($mimeType && (empty($fileExtension) || $fileExtension === 'tmp')) {
+            $fileExtension = Arr::first((new MimeTypes)->getExtensions($mimeType)) ?: $fileExtension;
         }
 
         return new UploadedFile($path, $fileName . '.' . $fileExtension, $mimeType, null, true);
@@ -487,11 +533,6 @@ class UploadService
         }
 
         return round($size);
-    }
-
-    protected function error(string $message): array
-    {
-        return ['error' => true, 'message' => $message];
     }
 
     protected function getConfig(?string $key = null, mixed $default = null): mixed

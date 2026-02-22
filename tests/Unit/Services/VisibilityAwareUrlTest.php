@@ -1,6 +1,7 @@
 <?php
 
 use Codenzia\FilamentMedia\Models\MediaFile;
+use Codenzia\FilamentMedia\Support\MediaHash;
 use Codenzia\FilamentMedia\Models\MediaFolder;
 use Codenzia\FilamentMedia\Services\MediaUrlService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -34,7 +35,7 @@ describe('MediaUrlService - visibilityAwareUrl', function () {
         ]);
 
         $url = $this->service->visibilityAwareUrl($file);
-        $expectedHash = sha1($file->id);
+        $expectedHash = MediaHash::generate($file->id);
 
         expect($url)->toContain('/media/private/')
             ->and($url)->toContain($expectedHash)
@@ -63,7 +64,7 @@ describe('MediaUrlService - visibilityAwareUrl', function () {
         $file = MediaFile::factory()->private()->create();
 
         $url = $this->service->visibilityAwareUrl($file);
-        $expectedHash = sha1($file->id);
+        $expectedHash = MediaHash::generate($file->id);
 
         expect($url)->toContain($expectedHash);
     });

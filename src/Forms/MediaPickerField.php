@@ -3,11 +3,19 @@
 namespace Codenzia\FilamentMedia\Forms;
 
 use Closure;
+use Codenzia\FilamentMedia\Models\MediaFile;
 use Filament\Forms\Components\Field;
 
 /**
  * Custom Filament form field that opens a media picker modal for selecting
  * files from the media library with support for type filtering and multiple selection.
+ *
+ * Use ->relationship() to auto-hydrate and auto-save via the model's HasMediaFiles morph
+ * relationship. Supports both single and multiple file selection:
+ *
+ *     MediaPickerField::make('avatar')->relationship()->imageOnly()
+ *     MediaPickerField::make('images')->relationship()->multiple()->maxFiles(10)
+ *     MediaPickerField::make('docs')->relationship('documents')  // uses documents() scope
  */
 class MediaPickerField extends Field
 {
@@ -22,6 +30,8 @@ class MediaPickerField extends Field
     protected ?string $directory = null;
 
     protected ?string $collection = null;
+
+    protected ?string $relationshipScope = null;
 
     public function multiple(bool $multiple = true): static
     {
@@ -85,6 +95,75 @@ class MediaPickerField extends Field
         ];
 
         return $this;
+    }
+
+    /**
+     * Enable automatic morph relationship hydration and saving.
+     *
+     * When called, the field will:
+     * - On load: populate from the model's morph relationship (files(), images(), etc.)
+     * - On save: sync selected media file IDs via HasMediaFiles::syncMediaByIds()
+     *
+     * The model must use the HasMediaFiles trait.
+     *
+     * @param  string|null  $scope  The relationship method to use (e.g. 'images', 'videos', 'documents').
+     *                              Defaults to 'images' for imageOnly, otherwise 'files'.
+     */
+    public function relationship(?string $scope = null): static
+    {
+        $this->relationshipScope = $scope ?? '';
+
+        $this->dehydrated(false);
+
+        $this->afterStateHydrated(function (MediaPickerField $component, $record): void {
+            if (! $record) {
+                return;
+            }
+
+            $scopeMethod = $this->resolveRelationshipScope();
+            $query = $record->{$scopeMethod}();
+
+            if ($this->isMultiple) {
+                $component->state($query->pluck('id')->toArray());
+            } else {
+                $component->state($query->first()?->getKey());
+            }
+        });
+
+        $this->saveRelationshipsUsing(function (MediaPickerField $component, $record, $state): void {
+            if (! $record) {
+                return;
+            }
+
+            $ids = $this->isMultiple
+                ? (is_array($state) ? array_filter($state) : [])
+                : ($state ? [$state] : []);
+
+            $record->syncMediaByIds($ids);
+        });
+
+        return $this;
+    }
+
+    /**
+     * Determine which relationship scope to use for hydration.
+     */
+    protected function resolveRelationshipScope(): string
+    {
+        if ($this->relationshipScope) {
+            return $this->relationshipScope;
+        }
+
+        // Auto-detect from accepted file types
+        if (in_array('image/*', $this->acceptedFileTypes)) {
+            return 'images';
+        }
+
+        if (in_array('video/*', $this->acceptedFileTypes)) {
+            return 'videos';
+        }
+
+        return 'files';
     }
 
     public function isMultiple(): bool

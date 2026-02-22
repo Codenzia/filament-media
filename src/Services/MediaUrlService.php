@@ -4,6 +4,7 @@ namespace Codenzia\FilamentMedia\Services;
 
 use Codenzia\FilamentMedia\Helpers\BaseHelper;
 use Codenzia\FilamentMedia\Models\MediaFile;
+use Codenzia\FilamentMedia\Support\MediaHash;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -65,7 +66,7 @@ class MediaUrlService
         }
 
         $id = $file->getKey();
-        $hash = sha1($id);
+        $hash = MediaHash::generate($id);
 
         return route('media.private.url', compact('hash', 'id'));
     }

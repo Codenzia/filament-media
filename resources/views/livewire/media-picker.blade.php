@@ -5,6 +5,7 @@
 <div
     x-data="{
         viewMode: @entangle('viewMode'),
+        isDropZone: false,
     }"
     class="flex flex-col h-[70vh] bg-white dark:bg-gray-900 rounded-xl overflow-hidden"
 >
@@ -31,6 +32,26 @@
             <option value="video">{{ trans('filament-media::media.video') }}</option>
             <option value="document">{{ trans('filament-media::media.document') }}</option>
         </select>
+
+        {{-- Upload Button --}}
+        <button
+            type="button"
+            x-on:click="$dispatch('open-upload-modal', { folderId: {{ $this->folderId }} })"
+            class="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-400 hover:text-primary-600 hover:border-primary-300 dark:hover:text-primary-400 dark:hover:border-primary-600 transition-colors"
+            title="{{ trans('filament-media::media.upload') }}"
+        >
+            <x-filament::icon icon="heroicon-m-arrow-up-tray" class="w-4 h-4" />
+        </button>
+
+        {{-- Refresh Button --}}
+        <button
+            type="button"
+            wire:click="refresh"
+            class="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-400 hover:text-primary-600 hover:border-primary-300 dark:hover:text-primary-400 dark:hover:border-primary-600 transition-colors"
+            title="{{ trans('filament-media::media.refresh') }}"
+        >
+            <x-filament::icon icon="heroicon-m-arrow-path" class="w-4 h-4" />
+        </button>
 
         {{-- View Mode Toggle --}}
         <div class="flex items-center rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
@@ -70,7 +91,42 @@
     </div>
 
     {{-- Content Area --}}
-    <div class="flex-1 overflow-y-auto p-4">
+    <div
+        class="flex-1 overflow-y-auto p-4 relative"
+        x-on:dragover="
+            if ($event.dataTransfer.types.includes('Files')) {
+                $event.preventDefault();
+                isDropZone = true;
+                $event.dataTransfer.dropEffect = 'copy';
+            }
+        "
+        x-on:dragleave="isDropZone = false"
+        x-on:drop.prevent="
+            isDropZone = false;
+            if ($event.dataTransfer.files.length > 0) {
+                $dispatch('upload-dropped-files', { folderId: {{ $this->folderId }}, files: $event.dataTransfer.files });
+            }
+        "
+    >
+        {{-- Drop Overlay --}}
+        <div
+            x-show="isDropZone"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="absolute inset-0 z-20 bg-primary-50/90 dark:bg-primary-900/50 border-2 border-dashed border-primary-500 rounded-lg flex items-center justify-center pointer-events-none"
+        >
+            <div class="text-center">
+                <x-filament::icon icon="heroicon-o-cloud-arrow-up" class="w-12 h-12 text-primary-500 mx-auto mb-2" />
+                <p class="text-sm font-medium text-primary-700 dark:text-primary-300">
+                    {{ trans('filament-media::media.drop_files_to_upload') }}
+                </p>
+            </div>
+        </div>
+
         @if($folders->isEmpty() && $files->isEmpty())
             <div class="flex flex-col items-center justify-center h-full text-gray-900 dark:text-gray-400">
                 <x-filament::icon icon="heroicon-o-folder-open" class="w-12 h-12 mb-2" />
@@ -112,9 +168,9 @@
                             </div>
                         @endif
 
-                        <div class="w-full aspect-square rounded bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden">
+                        <div class="w-full aspect-square rounded bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden p-1">
                             @if($canThumb)
-                                <img src="{{ $file->url }}" alt="{{ $file->name }}" class="w-full h-full object-cover" />
+                                <img src="{{ $file->preview_url }}" alt="{{ $file->name }}" class="max-w-full max-h-full object-contain" />
                             @else
                                 @php
                                     $icon = match($file->type) {
@@ -189,6 +245,9 @@
             @endif
         @endif
     </div>
+
+    {{-- Upload Modal --}}
+    @livewire('filament-media::upload-modal', [], key('picker-upload-modal'))
 
     {{-- Footer --}}
     <div class="flex-shrink-0 flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">

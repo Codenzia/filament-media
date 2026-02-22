@@ -112,7 +112,15 @@
     {{-- Type Column --}}
     <div class="hidden sm:block col-span-2 text-sm text-gray-500 dark:text-gray-400">
         @if ($isFolder)
-            {{ trans('filament-media::media.folder') }}
+            @if (isset($item['total_file_count']) && $item['total_file_count'] !== null)
+                @if (isset($item['filtered_file_count']) && $item['filtered_file_count'] !== $item['total_file_count'])
+                    {{ trans('filament-media::media.filtered_file_count', ['filtered' => $item['filtered_file_count'], 'total' => $item['total_file_count']]) }}
+                @else
+                    {{ trans('filament-media::media.folder_file_count', ['count' => $item['total_file_count']]) }}
+                @endif
+            @else
+                {{ trans('filament-media::media.folder') }}
+            @endif
         @else
             {{ strtoupper($item['type'] ?? 'File') }}
         @endif

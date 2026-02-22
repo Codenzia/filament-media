@@ -5,18 +5,16 @@ namespace Codenzia\FilamentMedia\Livewire;
 use Illuminate\Contracts\View\View;
 
 /**
- * Livewire component that displays a grid of media files attached to a model.
+ * Livewire component that displays media files in a list/table layout.
  *
  * Provides a full context menu with Filament Actions (rename, tags, metadata,
  * visibility, etc.) by reusing the same action traits as the main Media page.
  * The parent model must use the HasMediaFiles trait.
  */
-class MediaFileGrid extends MediaFileBase
+class MediaFileList extends MediaFileBase
 {
-    public string $columns = 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
-
     public function render(): View
     {
-        return view('filament-media::livewire.media-file-grid');
+        return view('filament-media::livewire.media-file-list');
     }
 }

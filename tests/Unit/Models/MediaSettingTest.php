@@ -143,6 +143,9 @@ describe('MediaSetting Factory States', function () {
 
 describe('MediaSetting System Settings', function () {
     it('filters to system settings with scopeSystem', function () {
+        // Count any system settings created by migrations
+        $existingCount = MediaSetting::system()->count();
+
         // Create a system setting (no user_id, no media_id)
         MediaSetting::factory()->create([
             'key' => 'system-setting',
@@ -168,8 +171,8 @@ describe('MediaSetting System Settings', function () {
 
         $systemSettings = MediaSetting::system()->get();
 
-        expect($systemSettings)->toHaveCount(1)
-            ->and($systemSettings->first()->key)->toBe('system-setting');
+        expect($systemSettings)->toHaveCount($existingCount + 1)
+            ->and($systemSettings->pluck('key'))->toContain('system-setting');
     });
 
     it('can get system setting with getSystemSetting', function () {

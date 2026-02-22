@@ -2,6 +2,7 @@
 
 use Codenzia\FilamentMedia\FilamentMedia;
 use Codenzia\FilamentMedia\Models\MediaFile;
+use Codenzia\FilamentMedia\Support\MediaHash;
 use Codenzia\FilamentMedia\Models\MediaFolder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -107,7 +108,7 @@ describe('MediaFile Model', function () {
 
         expect($file->indirect_url)->toBeString()
             ->and($file->indirect_url)->toContain('media/private')
-            ->and($file->indirect_url)->toContain(sha1($file->id));
+            ->and($file->indirect_url)->toContain(MediaHash::generate($file->id));
     });
 
     it('returns preview_url with storage URL for public image', function () {
@@ -130,7 +131,7 @@ describe('MediaFile Model', function () {
 
         expect($file->preview_url)->toBeString()
             ->and($file->preview_url)->toContain('media/private')
-            ->and($file->preview_url)->toContain(sha1($file->id));
+            ->and($file->preview_url)->toContain(MediaHash::generate($file->id));
     });
 
     it('returns preview_url with private route for private video', function () {
@@ -176,7 +177,7 @@ describe('MediaFile Model', function () {
         $file = MediaFile::factory()->private()->create();
 
         $indirectUrl = $file->indirect_url;
-        $expectedHash = sha1($file->id);
+        $expectedHash = MediaHash::generate($file->id);
 
         expect($indirectUrl)->toContain($expectedHash)
             ->and($indirectUrl)->toContain((string) $file->id);
