@@ -360,6 +360,34 @@ MediaPickerField::make('contracts')
     ->collection('legal'),
 ```
 
+#### Direct Upload
+
+By default, the field shows a single "Browse Media" button that opens the full media library picker. Enable `directUpload()` to add a quick "Upload File" option alongside it — the button becomes a dropdown with both choices:
+
+```php
+MediaPickerField::make('featured_image')
+    ->imageOnly()
+    ->directUpload(),
+```
+
+The upload zone supports drag-and-drop and uses the same upload endpoint as the media library. Uploaded files are saved to the root folder and the field state is updated automatically.
+
+To enable direct upload globally for all `MediaPickerField` instances, set the config default:
+
+```php
+// config/media.php
+'picker' => [
+    'direct_upload' => true,
+],
+```
+
+You can still override the global default per-field:
+
+```php
+// Disable direct upload for a specific field even when the global default is true
+MediaPickerField::make('logo')->directUpload(false),
+```
+
 | Method | Description |
 |--------|-------------|
 | `multiple()` | Allow selecting multiple files |
@@ -370,6 +398,7 @@ MediaPickerField::make('contracts')
 | `maxFiles(int)` | Limit selections |
 | `directory(string)` | Default upload directory |
 | `collection(string)` | Auto-assign collection |
+| `directUpload(bool)` | Show inline upload option alongside media browser (default: `false`, or from config) |
 
 ## Livewire Components
 

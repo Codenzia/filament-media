@@ -4,6 +4,7 @@ namespace Codenzia\FilamentMedia\Forms;
 
 use Closure;
 use Codenzia\FilamentMedia\Models\MediaFile;
+use Codenzia\FilamentMedia\Services\UploadService;
 use Filament\Forms\Components\Field;
 
 /**
@@ -32,6 +33,8 @@ class MediaPickerField extends Field
     protected ?string $collection = null;
 
     protected ?string $relationshipScope = null;
+
+    protected ?bool $directUpload = null;
 
     public function multiple(bool $multiple = true): static
     {
@@ -66,6 +69,33 @@ class MediaPickerField extends Field
         $this->collection = $collection;
 
         return $this;
+    }
+
+    /**
+     * Enable or disable direct file upload alongside the media browser button.
+     * When enabled, the "Browse Media" button becomes a dropdown with "Browse Media"
+     * and "Upload File" options. Pass null to use the global config default.
+     */
+    public function directUpload(bool $allow = true): static
+    {
+        $this->directUpload = $allow;
+
+        return $this;
+    }
+
+    public function isDirectUploadEnabled(): bool
+    {
+        return $this->directUpload ?? config('media.picker.direct_upload', false);
+    }
+
+    public function getUploadUrl(): string
+    {
+        return route('media.files.upload');
+    }
+
+    public function getMaxUploadSize(): int
+    {
+        return app(UploadService::class)->getMaxSize();
     }
 
     public function imageOnly(): static

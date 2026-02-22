@@ -297,6 +297,7 @@ return [
         'default_view' => 'grid',
         'show_upload' => true,
         'show_folders' => true,
+        'direct_upload' => false,
     ],
 
     /*
