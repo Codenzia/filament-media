@@ -226,8 +226,16 @@ return [
     'generate_thumbnails_chunk_limit' => 50,
 
     'folder_colors' => [
-        '#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6',
-        '#1abc9c', '#34495e', '#e67e22', '#27ae60', '#c0392b',
+        '#3498db',
+        '#2ecc71',
+        '#e74c3c',
+        '#f39c12',
+        '#9b59b6',
+        '#1abc9c',
+        '#34495e',
+        '#e67e22',
+        '#27ae60',
+        '#c0392b',
     ],
 
     'use_storage_symlink' => false,
@@ -306,6 +314,27 @@ return [
         // - integratedLinks:    Thumbnail preview + text links below, drag & drop
         // - integratedDropdown: Thumbnail preview + dropdown button below, drag & drop
         'display_style' => 'compact',
+
+        // Chip size preset for compact and dropdown styles: 'xs', 'sm', 'md', 'lg', 'xl', '2xl'.
+        // Controls thumbnail size, text size, and spacing within the file chips.
+        'chip_size' => 'sm',
+
+        // Preview container width (CSS value, e.g. '12rem', '256px'). Used by thumbnail, integratedLinks, integratedDropdown styles.
+        // Set to null to let the container take its natural/parent width.
+        'preview_width' => '12rem',
+
+        // Preview container height (CSS value, e.g. '8rem', '128px'). When null, the container uses aspect-square.
+        // Set to a height class (e.g. '8rem') for non-square preview areas like banners.
+        'preview_height' => null,
+
+        // Lightbox (full-screen image preview) max dimensions.
+        // Set to a CSS value (e.g. '800px', '50vw') to constrain the preview image.
+        // Null = image fills the available viewport (default).
+        'lightbox_max_width' => null,
+        'lightbox_max_height' => null,
+
+        // Lightbox backdrop opacity (0-100). 0 = fully transparent, 100 = fully opaque.
+        'lightbox_opacity' => 90,
     ],
 
     /*

@@ -39,6 +39,24 @@ class MediaPickerField extends Field
     /** @var string|null Display style. Null = use config default. */
     protected ?string $displayStyle = null;
 
+    /** @var string|null Preview container width (CSS value, e.g. '16rem', '256px'). Null = use config default. */
+    protected ?string $previewWidth = null;
+
+    /** @var string|null Preview container height (CSS value, e.g. '8rem', '128px'). Null = aspect-square. */
+    protected ?string $previewHeight = null;
+
+    /** @var string|null Chip size preset: 'xs', 'sm', 'md', 'lg', 'xl', '2xl'. Null = use config default. */
+    protected ?string $chipSize = null;
+
+    /** @var string|null Lightbox max width (CSS value, e.g. '800px', '50vw'). Null = use config default. */
+    protected ?string $lightboxMaxWidth = null;
+
+    /** @var string|null Lightbox max height (CSS value, e.g. '600px', '80vh'). Null = use config default. */
+    protected ?string $lightboxMaxHeight = null;
+
+    /** @var int|null Lightbox backdrop opacity (0-100). Null = use config default. */
+    protected ?int $lightboxOpacity = null;
+
     /** @var string[]|null Override: ONLY these extensions allowed (ignores global config) */
     protected ?array $allowedFileTypesOnly = null;
 
@@ -110,6 +128,9 @@ class MediaPickerField extends Field
     /** @var string[] Valid display style values */
     protected const DISPLAY_STYLES = ['compact', 'dropdown', 'thumbnail', 'integratedLinks', 'integratedDropdown'];
 
+    /** @var string[] Valid chip size presets */
+    protected const CHIP_SIZES = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
+
     /**
      * Set the visual display style for the picker field.
      *
@@ -143,6 +164,189 @@ class MediaPickerField extends Field
         return in_array($configDefault, self::DISPLAY_STYLES)
             ? $configDefault
             : 'compact';
+    }
+
+    /**
+     * Set the preview container width (CSS value, e.g. '16rem', '256px').
+     * When only width is set, the container remains aspect-square.
+     */
+    public function previewWidth(string $value): static
+    {
+        $this->previewWidth = $value;
+
+        return $this;
+    }
+
+    /**
+     * Set the preview container height (CSS value, e.g. '8rem', '128px').
+     * Setting a height removes the default aspect-square constraint.
+     */
+    public function previewHeight(string $value): static
+    {
+        $this->previewHeight = $value;
+
+        return $this;
+    }
+
+    /**
+     * Get the inline style string for the preview container dimensions.
+     * Returns CSS properties like "width: 12rem" or "width: 16rem; height: 8rem".
+     */
+    public function getPreviewSizeStyle(): string
+    {
+        $width = $this->previewWidth ?? config('media.picker.preview_width', '12rem');
+        $height = $this->previewHeight ?? config('media.picker.preview_height');
+
+        $styles = [];
+
+        if ($width) {
+            $styles[] = "width: {$width}";
+        }
+
+        if ($height) {
+            $styles[] = "height: {$height}";
+        }
+
+        return implode('; ', $styles);
+    }
+
+    /**
+     * Whether the preview container should use aspect-square (true when no explicit height is set).
+     */
+    public function shouldUseAspectSquare(): bool
+    {
+        $height = $this->previewHeight ?? config('media.picker.preview_height');
+
+        return $height === null;
+    }
+
+    /**
+     * Get inline style for preview width only (used for matching button width in integratedDropdown).
+     */
+    public function getPreviewWidthStyle(): string
+    {
+        $width = $this->previewWidth ?? config('media.picker.preview_width', '12rem');
+
+        return $width ? "width: {$width}" : '';
+    }
+
+    /**
+     * Set the chip size preset for compact and dropdown display styles.
+     *
+     * Controls thumbnail size, text size, and spacing within the file chips.
+     * - 'xs':  Tiny        — 20px thumbnails, 12px text
+     * - 'sm':  Small       — 32px thumbnails, 14px text (default)
+     * - 'md':  Medium      — 48px thumbnails, 14px text
+     * - 'lg':  Large       — 64px thumbnails, 16px text
+     * - 'xl':  Extra large — 80px thumbnails, 18px text
+     * - '2xl': Huge        — 96px thumbnails, 20px text
+     */
+    public function chipSize(string $size): static
+    {
+        if (! in_array($size, self::CHIP_SIZES)) {
+            throw new \InvalidArgumentException(
+                "Invalid chip size '{$size}'. Use: " . implode(', ', array_map(fn ($s) => "'{$s}'", self::CHIP_SIZES)) . '.'
+            );
+        }
+
+        $this->chipSize = $size;
+
+        return $this;
+    }
+
+    public function getChipSize(): string
+    {
+        if ($this->chipSize !== null) {
+            return $this->chipSize;
+        }
+
+        $configDefault = config('media.picker.chip_size', 'sm');
+
+        return in_array($configDefault, self::CHIP_SIZES)
+            ? $configDefault
+            : 'sm';
+    }
+
+    /**
+     * Get the CSS dimensions for chip elements based on the chip size preset.
+     *
+     * @return array{thumb: string, icon: string, fontSize: string, maxName: string}
+     */
+    public function getChipDimensions(): array
+    {
+        return match ($this->getChipSize()) {
+            'xs' => ['thumb' => '1.25rem', 'icon' => '0.625rem', 'fontSize' => '0.75rem', 'maxName' => '150px'],
+            'md' => ['thumb' => '3rem', 'icon' => '1.25rem', 'fontSize' => '0.875rem', 'maxName' => '200px'],
+            'lg' => ['thumb' => '4rem', 'icon' => '1.5rem', 'fontSize' => '1rem', 'maxName' => '250px'],
+            'xl' => ['thumb' => '5rem', 'icon' => '2rem', 'fontSize' => '1.125rem', 'maxName' => '300px'],
+            '2xl' => ['thumb' => '6rem', 'icon' => '2.5rem', 'fontSize' => '1.25rem', 'maxName' => '350px'],
+            default => ['thumb' => '2rem', 'icon' => '1rem', 'fontSize' => '0.875rem', 'maxName' => '200px'],
+        };
+    }
+
+    /**
+     * Set the lightbox max width (CSS value, e.g. '800px', '50vw').
+     * When null, the image fills the available viewport width.
+     */
+    public function lightboxMaxWidth(string $value): static
+    {
+        $this->lightboxMaxWidth = $value;
+
+        return $this;
+    }
+
+    /**
+     * Set the lightbox max height (CSS value, e.g. '600px', '80vh').
+     * When null, the image fills the available viewport height.
+     */
+    public function lightboxMaxHeight(string $value): static
+    {
+        $this->lightboxMaxHeight = $value;
+
+        return $this;
+    }
+
+    /**
+     * Get the inline style string for the lightbox image constraints.
+     * Returns empty string when using defaults (full viewport).
+     */
+    public function getLightboxStyle(): string
+    {
+        $maxWidth = $this->lightboxMaxWidth ?? config('media.picker.lightbox_max_width');
+        $maxHeight = $this->lightboxMaxHeight ?? config('media.picker.lightbox_max_height');
+
+        $styles = [];
+
+        if ($maxWidth) {
+            $styles[] = "max-width: {$maxWidth}";
+        }
+
+        if ($maxHeight) {
+            $styles[] = "max-height: {$maxHeight}";
+        }
+
+        return implode('; ', $styles);
+    }
+
+    /**
+     * Set the lightbox backdrop opacity (0-100).
+     * 0 = fully transparent, 100 = fully opaque. Default: 80.
+     */
+    public function lightboxOpacity(int $percent): static
+    {
+        $this->lightboxOpacity = max(0, min(100, $percent));
+
+        return $this;
+    }
+
+    /**
+     * Get the lightbox backdrop opacity as a decimal (0.0 - 1.0).
+     */
+    public function getLightboxOpacity(): float
+    {
+        $percent = $this->lightboxOpacity ?? config('media.picker.lightbox_opacity', 80);
+
+        return max(0, min(100, (int) $percent)) / 100;
     }
 
     public function imageOnly(): static

@@ -458,6 +458,114 @@ To set a global default for all fields:
 
 Per-field values always override the config default.
 
+#### Preview Size
+
+Control the dimensions of the thumbnail preview container (used by `thumbnail`, `integratedLinks`, and `integratedDropdown` styles). The image itself always maintains its natural aspect ratio via `object-contain`.
+
+```php
+// Square 256px (aspect-square kept when only width is set)
+MediaPickerField::make('logo')
+    ->displayStyle('integratedDropdown')
+    ->previewWidth('16rem'),
+
+// Rectangle 256x128px (aspect-square removed when height is set)
+MediaPickerField::make('banner')
+    ->displayStyle('integratedDropdown')
+    ->previewWidth('16rem')
+    ->previewHeight('8rem'),
+
+// Only change height, keep default width
+MediaPickerField::make('icon')
+    ->displayStyle('thumbnail')
+    ->previewHeight('6rem'),
+```
+
+Default: `12rem` width with `aspect-square` (192x192px). Any CSS length value works (`rem`, `px`, `%`, etc.). Global defaults can be set in config:
+
+```php
+// config/media.php
+'picker' => [
+    'preview_width' => '12rem',    // CSS value, e.g. '12rem', '256px'
+    'preview_height' => null,       // null = aspect-square, or e.g. '8rem'
+],
+```
+
+#### Chip Size
+
+Control the size of the file chips used in `compact` and `dropdown` display styles. This affects the thumbnail size, icon size, and text size within each chip.
+
+```php
+MediaPickerField::make('avatar')
+    ->displayStyle('dropdown')
+    ->chipSize('lg'),    // 64px thumbnails, 16px text
+
+MediaPickerField::make('documents')
+    ->displayStyle('compact')
+    ->chipSize('xs'),    // 20px thumbnails, 12px text
+```
+
+Available sizes:
+
+| Size | Thumbnail | Text | Description |
+|------|-----------|------|-------------|
+| `xs` | 20px | 12px | Tiny — minimal footprint |
+| `sm` | 32px | 14px | Small — default |
+| `md` | 48px | 14px | Medium — easier to see previews |
+| `lg` | 64px | 16px | Large — prominent file display |
+| `xl` | 80px | 18px | Extra large — visual emphasis |
+| `2xl` | 96px | 20px | Huge — maximum preview size |
+
+Global default can be set in config:
+
+```php
+// config/media.php
+'picker' => [
+    'chip_size' => 'sm',    // 'xs', 'sm', 'md', 'lg', 'xl', '2xl'
+],
+```
+
+#### Lightbox Size
+
+Control the maximum dimensions of the full-screen image preview (lightbox) that appears when clicking a thumbnail. By default, the image fills the available viewport.
+
+```php
+// Constrain the lightbox to a smaller area
+MediaPickerField::make('avatar')
+    ->displayStyle('thumbnail')
+    ->lightboxMaxWidth('600px')
+    ->lightboxMaxHeight('400px'),
+```
+
+Global defaults can be set in config:
+
+```php
+// config/media.php
+'picker' => [
+    'lightbox_max_width' => null,     // null = full viewport, or e.g. '800px', '50vw'
+    'lightbox_max_height' => null,    // null = full viewport, or e.g. '600px', '80vh'
+],
+```
+
+#### Lightbox Opacity
+
+Control the backdrop opacity of the lightbox overlay. The value is a percentage from 0 (fully transparent) to 100 (fully opaque). Default: 80.
+
+```php
+// More opaque backdrop
+MediaPickerField::make('avatar')
+    ->displayStyle('thumbnail')
+    ->lightboxOpacity(95),
+```
+
+Global default can be set in config:
+
+```php
+// config/media.php
+'picker' => [
+    'lightbox_opacity' => 80,  // 0 = transparent, 100 = fully opaque
+],
+```
+
 | Method | Description |
 |--------|-------------|
 | `multiple()` | Allow selecting multiple files |
@@ -472,6 +580,12 @@ Per-field values always override the config default.
 | `collection(string)` | Auto-assign collection |
 | `directUpload(bool)` | Show inline upload option alongside media browser (default: `false`, or from config) |
 | `displayStyle(string)` | Visual style: `'compact'`, `'dropdown'`, `'thumbnail'`, `'integratedLinks'`, or `'integratedDropdown'` (default: `'compact'`, or from config) |
+| `previewWidth(string)` | Preview container width as CSS value, e.g. `'16rem'`, `'256px'` (default: `'12rem'`, or from config) |
+| `previewHeight(string)` | Preview container height as CSS value, e.g. `'8rem'`, `'128px'`. Setting height removes aspect-square (default: `null` / aspect-square, or from config) |
+| `chipSize(string)` | Chip size preset: `'xs'`, `'sm'`, `'md'`, `'lg'`, `'xl'`, `'2xl'`. Controls thumbnail, icon, and text size in compact/dropdown styles (default: `'sm'`, or from config) |
+| `lightboxMaxWidth(string)` | Lightbox image max width as CSS value, e.g. `'800px'`, `'50vw'` (default: `null` / full viewport, or from config) |
+| `lightboxMaxHeight(string)` | Lightbox image max height as CSS value, e.g. `'600px'`, `'80vh'` (default: `null` / full viewport, or from config) |
+| `lightboxOpacity(int)` | Lightbox backdrop opacity as percentage 0–100 (default: `80`, or from config) |
 
 ## Livewire Components
 

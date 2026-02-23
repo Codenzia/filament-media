@@ -318,6 +318,286 @@ describe('MediaPickerField displayStyle()', function () {
     });
 });
 
+describe('MediaPickerField previewWidth() and previewHeight()', function () {
+    it('defaults to width 12rem with aspect-square', function () {
+        $field = MediaPickerField::make('media');
+
+        expect($field->getPreviewSizeStyle())->toBe('width: 12rem')
+            ->and($field->shouldUseAspectSquare())->toBeTrue()
+            ->and($field->getPreviewWidthStyle())->toBe('width: 12rem');
+    });
+
+    it('width only keeps aspect-square', function () {
+        $field = MediaPickerField::make('media')->previewWidth('16rem');
+
+        expect($field->getPreviewSizeStyle())->toBe('width: 16rem')
+            ->and($field->shouldUseAspectSquare())->toBeTrue()
+            ->and($field->getPreviewWidthStyle())->toBe('width: 16rem');
+    });
+
+    it('height only removes aspect-square and uses default width', function () {
+        $field = MediaPickerField::make('media')->previewHeight('8rem');
+
+        expect($field->getPreviewSizeStyle())->toBe('width: 12rem; height: 8rem')
+            ->and($field->shouldUseAspectSquare())->toBeFalse()
+            ->and($field->getPreviewWidthStyle())->toBe('width: 12rem');
+    });
+
+    it('null config width with height returns height only', function () {
+        config()->set('media.picker.preview_width', null);
+        config()->set('media.picker.preview_height', '8rem');
+
+        $field = MediaPickerField::make('media');
+
+        expect($field->getPreviewSizeStyle())->toBe('height: 8rem')
+            ->and($field->shouldUseAspectSquare())->toBeFalse()
+            ->and($field->getPreviewWidthStyle())->toBe('');
+    });
+
+    it('both width and height removes aspect-square', function () {
+        $field = MediaPickerField::make('media')
+            ->previewWidth('16rem')
+            ->previewHeight('8rem');
+
+        expect($field->getPreviewSizeStyle())->toBe('width: 16rem; height: 8rem')
+            ->and($field->shouldUseAspectSquare())->toBeFalse()
+            ->and($field->getPreviewWidthStyle())->toBe('width: 16rem');
+    });
+
+    it('respects config defaults', function () {
+        config()->set('media.picker.preview_width', '16rem');
+        config()->set('media.picker.preview_height', '6rem');
+
+        $field = MediaPickerField::make('media');
+
+        expect($field->getPreviewSizeStyle())->toBe('width: 16rem; height: 6rem')
+            ->and($field->shouldUseAspectSquare())->toBeFalse()
+            ->and($field->getPreviewWidthStyle())->toBe('width: 16rem');
+    });
+
+    it('explicit values override config', function () {
+        config()->set('media.picker.preview_width', '16rem');
+        config()->set('media.picker.preview_height', '6rem');
+
+        $field = MediaPickerField::make('media')
+            ->previewWidth('8rem')
+            ->previewHeight('12rem');
+
+        expect($field->getPreviewSizeStyle())->toBe('width: 8rem; height: 12rem')
+            ->and($field->getPreviewWidthStyle())->toBe('width: 8rem');
+    });
+
+    it('supports chaining with other methods', function () {
+        $field = MediaPickerField::make('media')
+            ->displayStyle('integratedDropdown')
+            ->previewWidth('16rem')
+            ->previewHeight('8rem')
+            ->imageOnly();
+
+        expect($field->getPreviewSizeStyle())->toBe('width: 16rem; height: 8rem')
+            ->and($field->getDisplayStyle())->toBe('integratedDropdown')
+            ->and($field->getAcceptedFileTypes())->toBe(['image/*']);
+    });
+
+    it('accepts pixel values', function () {
+        $field = MediaPickerField::make('media')
+            ->previewWidth('256px')
+            ->previewHeight('128px');
+
+        expect($field->getPreviewSizeStyle())->toBe('width: 256px; height: 128px');
+    });
+});
+
+describe('MediaPickerField chipSize()', function () {
+    it('defaults to sm', function () {
+        $field = MediaPickerField::make('media');
+
+        expect($field->getChipSize())->toBe('sm');
+    });
+
+    it('can be set to xs', function () {
+        $field = MediaPickerField::make('media')->chipSize('xs');
+
+        expect($field->getChipSize())->toBe('xs');
+    });
+
+    it('can be set to md', function () {
+        $field = MediaPickerField::make('media')->chipSize('md');
+
+        expect($field->getChipSize())->toBe('md');
+    });
+
+    it('can be set to lg', function () {
+        $field = MediaPickerField::make('media')->chipSize('lg');
+
+        expect($field->getChipSize())->toBe('lg');
+    });
+
+    it('throws exception for invalid chipSize', function () {
+        MediaPickerField::make('media')->chipSize('invalid');
+    })->throws(\InvalidArgumentException::class);
+
+    it('respects config default', function () {
+        config()->set('media.picker.chip_size', 'lg');
+
+        $field = MediaPickerField::make('media');
+
+        expect($field->getChipSize())->toBe('lg');
+    });
+
+    it('explicit value overrides config', function () {
+        config()->set('media.picker.chip_size', 'lg');
+
+        $field = MediaPickerField::make('media')->chipSize('xs');
+
+        expect($field->getChipSize())->toBe('xs');
+    });
+
+    it('falls back to sm for invalid config value', function () {
+        config()->set('media.picker.chip_size', 'invalid');
+
+        $field = MediaPickerField::make('media');
+
+        expect($field->getChipSize())->toBe('sm');
+    });
+
+    it('can be set to xl', function () {
+        $field = MediaPickerField::make('media')->chipSize('xl');
+
+        expect($field->getChipSize())->toBe('xl');
+    });
+
+    it('can be set to 2xl', function () {
+        $field = MediaPickerField::make('media')->chipSize('2xl');
+
+        expect($field->getChipSize())->toBe('2xl');
+    });
+
+    it('returns correct dimensions for each size', function () {
+        $xs = MediaPickerField::make('media')->chipSize('xs')->getChipDimensions();
+        $sm = MediaPickerField::make('media')->chipSize('sm')->getChipDimensions();
+        $md = MediaPickerField::make('media')->chipSize('md')->getChipDimensions();
+        $lg = MediaPickerField::make('media')->chipSize('lg')->getChipDimensions();
+        $xl = MediaPickerField::make('media')->chipSize('xl')->getChipDimensions();
+        $xxl = MediaPickerField::make('media')->chipSize('2xl')->getChipDimensions();
+
+        expect($xs['thumb'])->toBe('1.25rem')
+            ->and($sm['thumb'])->toBe('2rem')
+            ->and($md['thumb'])->toBe('3rem')
+            ->and($lg['thumb'])->toBe('4rem')
+            ->and($xl['thumb'])->toBe('5rem')
+            ->and($xxl['thumb'])->toBe('6rem');
+    });
+
+    it('supports chaining with other methods', function () {
+        $field = MediaPickerField::make('media')
+            ->displayStyle('dropdown')
+            ->chipSize('lg')
+            ->imageOnly();
+
+        expect($field->getChipSize())->toBe('lg')
+            ->and($field->getDisplayStyle())->toBe('dropdown')
+            ->and($field->getAcceptedFileTypes())->toBe(['image/*']);
+    });
+});
+
+describe('MediaPickerField lightboxMaxWidth() and lightboxMaxHeight()', function () {
+    it('defaults to empty string (full viewport)', function () {
+        $field = MediaPickerField::make('media');
+
+        expect($field->getLightboxStyle())->toBe('');
+    });
+
+    it('sets max width only', function () {
+        $field = MediaPickerField::make('media')->lightboxMaxWidth('800px');
+
+        expect($field->getLightboxStyle())->toBe('max-width: 800px');
+    });
+
+    it('sets max height only', function () {
+        $field = MediaPickerField::make('media')->lightboxMaxHeight('80vh');
+
+        expect($field->getLightboxStyle())->toBe('max-height: 80vh');
+    });
+
+    it('sets both max width and height', function () {
+        $field = MediaPickerField::make('media')
+            ->lightboxMaxWidth('800px')
+            ->lightboxMaxHeight('600px');
+
+        expect($field->getLightboxStyle())->toBe('max-width: 800px; max-height: 600px');
+    });
+
+    it('respects config defaults', function () {
+        config()->set('media.picker.lightbox_max_width', '1024px');
+        config()->set('media.picker.lightbox_max_height', '80vh');
+
+        $field = MediaPickerField::make('media');
+
+        expect($field->getLightboxStyle())->toBe('max-width: 1024px; max-height: 80vh');
+    });
+
+    it('explicit values override config', function () {
+        config()->set('media.picker.lightbox_max_width', '1024px');
+        config()->set('media.picker.lightbox_max_height', '80vh');
+
+        $field = MediaPickerField::make('media')
+            ->lightboxMaxWidth('500px')
+            ->lightboxMaxHeight('50vh');
+
+        expect($field->getLightboxStyle())->toBe('max-width: 500px; max-height: 50vh');
+    });
+
+    it('supports chaining with other methods', function () {
+        $field = MediaPickerField::make('media')
+            ->displayStyle('thumbnail')
+            ->lightboxMaxWidth('800px')
+            ->imageOnly();
+
+        expect($field->getLightboxStyle())->toBe('max-width: 800px')
+            ->and($field->getDisplayStyle())->toBe('thumbnail')
+            ->and($field->getAcceptedFileTypes())->toBe(['image/*']);
+    });
+});
+
+describe('MediaPickerField lightboxOpacity()', function () {
+    it('defaults to 0.8', function () {
+        $field = MediaPickerField::make('media');
+
+        expect($field->getLightboxOpacity())->toBe(0.8);
+    });
+
+    it('can be set to a custom value', function () {
+        $field = MediaPickerField::make('media')->lightboxOpacity(50);
+
+        expect($field->getLightboxOpacity())->toBe(0.5);
+    });
+
+    it('clamps to 0-100 range', function () {
+        $low = MediaPickerField::make('media')->lightboxOpacity(-10);
+        $high = MediaPickerField::make('media')->lightboxOpacity(150);
+
+        expect($low->getLightboxOpacity())->toBe(0.0)
+            ->and($high->getLightboxOpacity())->toBe(1.0);
+    });
+
+    it('respects config default', function () {
+        config()->set('media.picker.lightbox_opacity', 60);
+
+        $field = MediaPickerField::make('media');
+
+        expect($field->getLightboxOpacity())->toBe(0.6);
+    });
+
+    it('explicit value overrides config', function () {
+        config()->set('media.picker.lightbox_opacity', 60);
+
+        $field = MediaPickerField::make('media')->lightboxOpacity(90);
+
+        expect($field->getLightboxOpacity())->toBe(0.9);
+    });
+});
+
 describe('MediaPickerField fluent interface', function () {
     it('supports method chaining', function () {
         $field = MediaPickerField::make('media')

@@ -14,6 +14,12 @@
     $effectiveExtensions = $getEffectiveExtensions();
     $extensionsSig = $getEffectiveExtensionsSignature();
     $displayStyle = $getDisplayStyle();
+    $previewStyle = $getPreviewSizeStyle();
+    $aspectSquare = $shouldUseAspectSquare();
+    $previewWidthStyle = $getPreviewWidthStyle();
+    $chipDim = $getChipDimensions();
+    $lightboxStyle = $getLightboxStyle();
+    $lightboxOpacity = $getLightboxOpacity();
     $firstFile = $files->first();
 @endphp
 
@@ -111,324 +117,37 @@
         class="space-y-3"
     >
         {{-- ====================================================================
-             COMPACT STYLE: Button + chip-style file list (original/default)
+             COMPACT STYLE: Text links + chip-style file list (default)
              ==================================================================== --}}
         @if($displayStyle === 'compact')
-            {{-- Selected Files --}}
-            @if(!empty($fileIds))
-                <div class="flex flex-wrap gap-2">
-                    @foreach($fileIds as $fileId)
-                        @php $file = $files->get($fileId); @endphp
-                        @if($file)
-                            <div class="group relative flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                                {{-- Thumbnail or Icon (clickable for preview) --}}
-                                @if($file->canGenerateThumbnails() && $urlService->fileExists($file->url))
-                                    <button type="button" x-on:click="previewUrl = '{{ $file->preview_url }}'" class="cursor-pointer shrink-0">
-                                        <img src="{{ $file->preview_url }}" alt="{{ $file->name }}" class="max-w-8 max-h-8 rounded object-contain hover:ring-2 hover:ring-primary-500 transition-shadow" />
-                                    </button>
-                                @else
-                                    @php
-                                        $icon = match($file->type) {
-                                            'image' => 'heroicon-o-photo',
-                                            'video' => 'heroicon-o-film',
-                                            'audio' => 'heroicon-o-musical-note',
-                                            default => 'heroicon-o-document',
-                                        };
-                                    @endphp
-                                    <div class="w-8 h-8 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                                        <x-filament::icon :icon="$icon" class="w-4 h-4 text-gray-900 dark:text-gray-400" />
-                                    </div>
-                                @endif
+            @include('filament-media::forms.partials.chip-file-list')
 
-                                <span class="text-sm text-gray-700 dark:text-gray-300 truncate max-w-[200px]">
-                                    {{ $file->name }}
-                                </span>
-
-                                {{-- Remove Button --}}
-                                @unless($disabled)
-                                    <button
-                                        type="button"
-                                        x-on:click="removeFile({{ $file->id }})"
-                                        class="ml-1 p-0.5 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                                        title="{{ trans('filament-media::media.remove_file') }}"
-                                    >
-                                        <x-filament::icon icon="heroicon-m-x-mark" class="w-4 h-4" />
-                                    </button>
-                                @endunless
-                            </div>
-                        @endif
-                    @endforeach
-                </div>
-            @else
-                <p class="text-sm text-gray-400 italic" x-show="!showUploader">{{ trans('filament-media::media.no_file_selected') }}</p>
-            @endif
-
-            {{-- Browse / Upload Links --}}
             @unless($disabled)
-                <div class="flex items-center gap-2">
-                    <button type="button" x-on:click="showPicker = true" class="text-sm text-primary-500 hover:text-primary-600 font-medium hover:underline cursor-pointer">
-                        {{ trans('filament-media::media.browse_media') }}
-                    </button>
-                    @if($directUpload)
-                        <span class="text-xs text-gray-400">{{ trans('filament-media::media.or') }}</span>
-                        <button type="button" x-on:click="$refs.compactUploadInput.click()" class="text-sm text-primary-500 hover:text-primary-600 font-medium hover:underline cursor-pointer">
-                            {{ trans('filament-media::media.upload_file') }}
-                        </button>
-                        <input
-                            type="file"
-                            class="hidden"
-                            x-ref="compactUploadInput"
-                            x-on:change="handleDirectUpload($event.target.files); $event.target.value = '';"
-                            {{ $isMultiple ? 'multiple' : '' }}
-                            @if(!empty($getAcceptedFileTypes()))
-                                accept="{{ implode(',', $getAcceptedFileTypes()) }}"
-                            @endif
-                        />
-                    @endif
-                </div>
+                @include('filament-media::forms.partials.action-links', ['inputRef' => 'compactUploadInput'])
             @endunless
 
         {{-- ====================================================================
-             DROPDOWN STYLE: Button with dropdown for browse/upload (old compact)
+             DROPDOWN STYLE: Button with dropdown for browse/upload
              ==================================================================== --}}
         @elseif($displayStyle === 'dropdown')
-            {{-- Selected Files (same chip list as compact) --}}
-            @if(!empty($fileIds))
-                <div class="flex flex-wrap gap-2">
-                    @foreach($fileIds as $fileId)
-                        @php $file = $files->get($fileId); @endphp
-                        @if($file)
-                            <div class="group relative flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                                @if($file->canGenerateThumbnails() && $urlService->fileExists($file->url))
-                                    <button type="button" x-on:click="previewUrl = '{{ $file->preview_url }}'" class="cursor-pointer shrink-0">
-                                        <img src="{{ $file->preview_url }}" alt="{{ $file->name }}" class="max-w-8 max-h-8 rounded object-contain hover:ring-2 hover:ring-primary-500 transition-shadow" />
-                                    </button>
-                                @else
-                                    @php
-                                        $icon = match($file->type) {
-                                            'image' => 'heroicon-o-photo',
-                                            'video' => 'heroicon-o-film',
-                                            'audio' => 'heroicon-o-musical-note',
-                                            default => 'heroicon-o-document',
-                                        };
-                                    @endphp
-                                    <div class="w-8 h-8 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                                        <x-filament::icon :icon="$icon" class="w-4 h-4 text-gray-900 dark:text-gray-400" />
-                                    </div>
-                                @endif
+            <div class="inline-flex flex-col gap-3">
+                @include('filament-media::forms.partials.chip-file-list', ['stretchItems' => true])
 
-                                <span class="text-sm text-gray-700 dark:text-gray-300 truncate max-w-[200px]">
-                                    {{ $file->name }}
-                                </span>
-
-                                @unless($disabled)
-                                    <button
-                                        type="button"
-                                        x-on:click="removeFile({{ $file->id }})"
-                                        class="ml-1 p-0.5 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                                        title="{{ trans('filament-media::media.remove_file') }}"
-                                    >
-                                        <x-filament::icon icon="heroicon-m-x-mark" class="w-4 h-4" />
-                                    </button>
-                                @endunless
-                            </div>
-                        @endif
-                    @endforeach
-                </div>
-            @else
-                <p class="text-sm text-gray-400 italic" x-show="!showUploader">{{ trans('filament-media::media.no_file_selected') }}</p>
-            @endif
-
-            {{-- Dropdown Button --}}
-            @unless($disabled)
-                @include('filament-media::forms.partials.browse-button')
-            @endunless
+                @unless($disabled)
+                    @include('filament-media::forms.partials.browse-button', ['inputRef' => 'dropdownUploadInput', 'fullWidth' => true])
+                @endunless
+            </div>
 
         {{-- ====================================================================
-             THUMBNAIL STYLE: Visual preview card, click to browse
+             THUMBNAIL STYLE: Visual preview card, click to browse, drag & drop
              ==================================================================== --}}
         @elseif($displayStyle === 'thumbnail')
             @if(!$isMultiple && $firstFile)
-                {{-- Single file: large thumbnail card with drag-to-replace --}}
-                <div class="group relative w-48">
-                    <div
-                        x-on:dragover.prevent="isDragging = true; $event.dataTransfer.dropEffect = 'copy'"
-                        x-on:dragleave.prevent="isDragging = false"
-                        x-on:drop.prevent="handleDrop($event.dataTransfer.files)"
-                        :class="isDragging ? 'border-primary-500 ring-2 ring-primary-500/30' : 'border-gray-200 dark:border-gray-700'"
-                        class="relative overflow-hidden rounded-lg border-2 bg-gray-100 dark:bg-gray-800 aspect-square transition-colors"
-                    >
-                        @if($firstFile->canGenerateThumbnails() && $urlService->fileExists($firstFile->url))
-                            <img
-                                src="{{ $firstFile->preview_url }}"
-                                alt="{{ $firstFile->name }}"
-                                class="w-full h-full object-contain cursor-pointer"
-                                x-on:click="previewUrl = '{{ $firstFile->preview_url }}'"
-                            />
-                        @else
-                            @php
-                                $icon = match($firstFile->type) {
-                                    'image' => 'heroicon-o-photo',
-                                    'video' => 'heroicon-o-film',
-                                    'audio' => 'heroicon-o-musical-note',
-                                    default => 'heroicon-o-document',
-                                };
-                            @endphp
-                            <div class="w-full h-full flex flex-col items-center justify-center gap-2">
-                                <x-filament::icon :icon="$icon" class="w-12 h-12 text-gray-400 dark:text-gray-500" />
-                                <span class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[160px] px-2">{{ $firstFile->name }}</span>
-                            </div>
-                        @endif
-
-                        {{-- Upload progress overlay --}}
-                        @include('filament-media::forms.partials.upload-progress-overlay')
-
-                        {{-- Hover overlay with actions --}}
-                        @unless($disabled)
-                            <div x-show="!isUploading" class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                                <button
-                                    type="button"
-                                    x-on:click="showPicker = true"
-                                    class="p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
-                                    title="{{ trans('filament-media::media.javascript.change_image') }}"
-                                >
-                                    <x-filament::icon icon="heroicon-m-arrow-path" class="w-5 h-5" />
-                                </button>
-                                <button
-                                    type="button"
-                                    x-on:click="removeFile({{ $firstFile->id }})"
-                                    class="p-2 rounded-full bg-white/20 text-white hover:bg-red-500/80 transition-colors"
-                                    title="{{ trans('filament-media::media.remove_file') }}"
-                                >
-                                    <x-filament::icon icon="heroicon-m-trash" class="w-5 h-5" />
-                                </button>
-                            </div>
-                        @endunless
-                    </div>
-                </div>
+                @include('filament-media::forms.partials.thumbnail-single', ['overlayStyle' => 'hover'])
             @elseif($isMultiple && !empty($fileIds))
-                {{-- Multiple files: thumbnail grid --}}
-                <div class="flex flex-wrap gap-3">
-                    @foreach($fileIds as $fileId)
-                        @php $file = $files->get($fileId); @endphp
-                        @if($file)
-                            <div class="group relative w-24">
-                                <div class="relative overflow-hidden rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 aspect-square">
-                                    @if($file->canGenerateThumbnails() && $urlService->fileExists($file->url))
-                                        <img
-                                            src="{{ $file->preview_url }}"
-                                            alt="{{ $file->name }}"
-                                            class="w-full h-full object-contain cursor-pointer"
-                                            x-on:click="previewUrl = '{{ $file->preview_url }}'"
-                                        />
-                                    @else
-                                        @php
-                                            $icon = match($file->type) {
-                                                'image' => 'heroicon-o-photo',
-                                                'video' => 'heroicon-o-film',
-                                                'audio' => 'heroicon-o-musical-note',
-                                                default => 'heroicon-o-document',
-                                            };
-                                        @endphp
-                                        <div class="w-full h-full flex items-center justify-center">
-                                            <x-filament::icon :icon="$icon" class="w-8 h-8 text-gray-400 dark:text-gray-500" />
-                                        </div>
-                                    @endif
-
-                                    {{-- Remove button overlay --}}
-                                    @unless($disabled)
-                                        <button
-                                            type="button"
-                                            x-on:click="removeFile({{ $file->id }})"
-                                            class="absolute top-1 end-1 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 hover:bg-red-500/80 transition-all"
-                                            title="{{ trans('filament-media::media.remove_file') }}"
-                                        >
-                                            <x-filament::icon icon="heroicon-m-x-mark" class="w-3.5 h-3.5" />
-                                        </button>
-                                    @endunless
-                                </div>
-                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate text-center">{{ $file->name }}</p>
-                            </div>
-                        @endif
-                    @endforeach
-
-                    {{-- Add more button with drag-and-drop --}}
-                    @unless($disabled)
-                        <div class="w-24">
-                            <div
-                                x-on:click="showPicker = true"
-                                x-on:dragover.prevent="isDragging = true; $event.dataTransfer.dropEffect = 'copy'"
-                                x-on:dragleave.prevent="isDragging = false"
-                                x-on:drop.prevent="handleDrop($event.dataTransfer.files)"
-                                :class="isDragging ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50'"
-                                class="relative w-full aspect-square rounded-lg border-2 border-dashed hover:border-primary-400 dark:hover:border-primary-500 flex items-center justify-center transition-colors cursor-pointer"
-                            >
-                                {{-- Upload progress overlay --}}
-                                @include('filament-media::forms.partials.upload-progress-overlay')
-
-                                <x-filament::icon icon="heroicon-m-plus" x-show="!isDragging && !isUploading" class="w-6 h-6 text-gray-400 dark:text-gray-500" />
-                                <x-filament::icon icon="heroicon-o-cloud-arrow-up" x-show="isDragging && !isUploading" x-cloak class="w-6 h-6 text-primary-500" />
-                            </div>
-                        </div>
-                    @endunless
-                </div>
+                @include('filament-media::forms.partials.thumbnail-grid')
             @else
-                {{-- Empty state: placeholder card with drag-and-drop --}}
-                @unless($disabled)
-                    <div
-                        x-on:dragover.prevent="isDragging = true; $event.dataTransfer.dropEffect = 'copy'"
-                        x-on:dragleave.prevent="isDragging = false"
-                        x-on:drop.prevent="handleDrop($event.dataTransfer.files)"
-                        :class="isDragging ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50'"
-                        class="relative w-48 aspect-square rounded-lg border-2 border-dashed hover:border-primary-400 dark:hover:border-primary-500 flex flex-col items-center justify-center gap-2 transition-colors"
-                    >
-                        {{-- Upload progress overlay --}}
-                        @include('filament-media::forms.partials.upload-progress-overlay')
-
-                        {{-- Drag-over state --}}
-                        <template x-if="isDragging && !isUploading">
-                            <div class="flex flex-col items-center gap-2">
-                                <x-filament::icon icon="heroicon-o-cloud-arrow-up" class="w-12 h-12 text-primary-500" />
-                                <span class="text-sm text-primary-500 font-medium">
-                                    {{ trans('filament-media::media.direct_upload_drop_short') }}
-                                </span>
-                            </div>
-                        </template>
-
-                        {{-- Default state --}}
-                        <template x-if="!isDragging && !isUploading">
-                            <div class="flex flex-col items-center gap-2">
-                                <x-filament::icon icon="heroicon-o-photo" class="w-12 h-12 text-gray-300 dark:text-gray-600" />
-                                <div class="flex flex-col items-center gap-0.5">
-                                    <button type="button" x-on:click="showPicker = true" class="text-sm text-primary-500 hover:text-primary-600 font-medium hover:underline cursor-pointer">
-                                        {{ trans('filament-media::media.browse_media') }}
-                                    </button>
-                                    @if($directUpload)
-                                        <span class="text-xs text-gray-400">{{ trans('filament-media::media.or') }}</span>
-                                        <button type="button" x-on:click="$refs.thumbnailUploadInput.click()" class="text-sm text-primary-500 hover:text-primary-600 font-medium hover:underline cursor-pointer">
-                                            {{ trans('filament-media::media.upload_file') }}
-                                        </button>
-                                        <input
-                                            type="file"
-                                            class="hidden"
-                                            x-ref="thumbnailUploadInput"
-                                            x-on:change="handleDirectUpload($event.target.files); $event.target.value = '';"
-                                            {{ $isMultiple ? 'multiple' : '' }}
-                                            @if(!empty($getAcceptedFileTypes()))
-                                                accept="{{ implode(',', $getAcceptedFileTypes()) }}"
-                                            @endif
-                                        />
-                                    @endif
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                @else
-                    <div class="w-48 aspect-square rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 flex flex-col items-center justify-center gap-2">
-                        <x-filament::icon icon="heroicon-o-photo" class="w-12 h-12 text-gray-300 dark:text-gray-600" />
-                        <span class="text-sm text-gray-400 italic">{{ trans('filament-media::media.no_file_selected') }}</span>
-                    </div>
-                @endunless
+                @include('filament-media::forms.partials.thumbnail-empty', ['inputRef' => 'thumbnailUploadInput'])
             @endif
 
         {{-- ====================================================================
@@ -436,183 +155,16 @@
              ==================================================================== --}}
         @elseif($displayStyle === 'integratedLinks')
             <div class="space-y-3">
-                {{-- Thumbnail preview area with drag & drop --}}
                 @if(!$isMultiple && $firstFile)
-                    <div class="group relative w-48">
-                        <div
-                            x-on:dragover.prevent="isDragging = true; $event.dataTransfer.dropEffect = 'copy'"
-                            x-on:dragleave.prevent="isDragging = false"
-                            x-on:drop.prevent="handleDrop($event.dataTransfer.files)"
-                            :class="isDragging ? 'border-primary-500 ring-2 ring-primary-500/30' : 'border-gray-200 dark:border-gray-700'"
-                            class="relative overflow-hidden rounded-lg border-2 bg-gray-100 dark:bg-gray-800 aspect-square transition-colors"
-                        >
-                            @if($firstFile->canGenerateThumbnails() && $urlService->fileExists($firstFile->url))
-                                <img
-                                    src="{{ $firstFile->preview_url }}"
-                                    alt="{{ $firstFile->name }}"
-                                    class="w-full h-full object-contain cursor-pointer"
-                                    x-on:click="previewUrl = '{{ $firstFile->preview_url }}'"
-                                />
-                            @else
-                                @php
-                                    $icon = match($firstFile->type) {
-                                        'image' => 'heroicon-o-photo',
-                                        'video' => 'heroicon-o-film',
-                                        'audio' => 'heroicon-o-musical-note',
-                                        default => 'heroicon-o-document',
-                                    };
-                                @endphp
-                                <div class="w-full h-full flex flex-col items-center justify-center gap-2">
-                                    <x-filament::icon :icon="$icon" class="w-12 h-12 text-gray-400 dark:text-gray-500" />
-                                    <span class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[160px] px-2">{{ $firstFile->name }}</span>
-                                </div>
-                            @endif
-
-                            {{-- Upload progress overlay --}}
-                            @include('filament-media::forms.partials.upload-progress-overlay')
-
-                            {{-- Remove overlay --}}
-                            @unless($disabled)
-                                <button
-                                    type="button"
-                                    x-show="!isUploading"
-                                    x-on:click="removeFile({{ $firstFile->id }})"
-                                    class="absolute top-2 end-2 p-1.5 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 hover:bg-red-500/80 transition-all"
-                                    title="{{ trans('filament-media::media.remove_file') }}"
-                                >
-                                    <x-filament::icon icon="heroicon-m-x-mark" class="w-4 h-4" />
-                                </button>
-                            @endunless
-                        </div>
-                    </div>
+                    @include('filament-media::forms.partials.thumbnail-single', ['overlayStyle' => 'remove'])
                 @elseif($isMultiple && !empty($fileIds))
-                    {{-- Multiple files: thumbnail grid --}}
-                    <div class="flex flex-wrap gap-3">
-                        @foreach($fileIds as $fileId)
-                            @php $file = $files->get($fileId); @endphp
-                            @if($file)
-                                <div class="group relative w-24">
-                                    <div class="relative overflow-hidden rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 aspect-square">
-                                        @if($file->canGenerateThumbnails() && $urlService->fileExists($file->url))
-                                            <img
-                                                src="{{ $file->preview_url }}"
-                                                alt="{{ $file->name }}"
-                                                class="w-full h-full object-contain cursor-pointer"
-                                                x-on:click="previewUrl = '{{ $file->preview_url }}'"
-                                            />
-                                        @else
-                                            @php
-                                                $icon = match($file->type) {
-                                                    'image' => 'heroicon-o-photo',
-                                                    'video' => 'heroicon-o-film',
-                                                    'audio' => 'heroicon-o-musical-note',
-                                                    default => 'heroicon-o-document',
-                                                };
-                                            @endphp
-                                            <div class="w-full h-full flex items-center justify-center">
-                                                <x-filament::icon :icon="$icon" class="w-8 h-8 text-gray-400 dark:text-gray-500" />
-                                            </div>
-                                        @endif
-
-                                        {{-- Remove button overlay --}}
-                                        @unless($disabled)
-                                            <button
-                                                type="button"
-                                                x-on:click="removeFile({{ $file->id }})"
-                                                class="absolute top-1 end-1 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 hover:bg-red-500/80 transition-all"
-                                                title="{{ trans('filament-media::media.remove_file') }}"
-                                            >
-                                                <x-filament::icon icon="heroicon-m-x-mark" class="w-3.5 h-3.5" />
-                                            </button>
-                                        @endunless
-                                    </div>
-                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate text-center">{{ $file->name }}</p>
-                                </div>
-                            @endif
-                        @endforeach
-
-                        {{-- Add more button with drag-and-drop --}}
-                        @unless($disabled)
-                            <div class="w-24">
-                                <div
-                                    x-on:click="showPicker = true"
-                                    x-on:dragover.prevent="isDragging = true; $event.dataTransfer.dropEffect = 'copy'"
-                                    x-on:dragleave.prevent="isDragging = false"
-                                    x-on:drop.prevent="handleDrop($event.dataTransfer.files)"
-                                    :class="isDragging ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50'"
-                                    class="relative w-full aspect-square rounded-lg border-2 border-dashed hover:border-primary-400 dark:hover:border-primary-500 flex items-center justify-center transition-colors cursor-pointer"
-                                >
-                                    {{-- Upload progress overlay --}}
-                                    @include('filament-media::forms.partials.upload-progress-overlay')
-
-                                    <x-filament::icon icon="heroicon-m-plus" x-show="!isDragging && !isUploading" class="w-6 h-6 text-gray-400 dark:text-gray-500" />
-                                    <x-filament::icon icon="heroicon-o-cloud-arrow-up" x-show="isDragging && !isUploading" x-cloak class="w-6 h-6 text-primary-500" />
-                                </div>
-                            </div>
-                        @endunless
-                    </div>
+                    @include('filament-media::forms.partials.thumbnail-grid')
                 @else
-                    {{-- Empty state: placeholder with drag-and-drop --}}
-                    @unless($disabled)
-                        <div
-                            x-on:dragover.prevent="isDragging = true; $event.dataTransfer.dropEffect = 'copy'"
-                            x-on:dragleave.prevent="isDragging = false"
-                            x-on:drop.prevent="handleDrop($event.dataTransfer.files)"
-                            :class="isDragging ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50'"
-                            class="relative w-48 aspect-square rounded-lg border-2 border-dashed hover:border-primary-400 dark:hover:border-primary-500 flex flex-col items-center justify-center gap-2 transition-colors"
-                        >
-                            {{-- Upload progress overlay --}}
-                            @include('filament-media::forms.partials.upload-progress-overlay')
-
-                            {{-- Drag-over state --}}
-                            <template x-if="isDragging && !isUploading">
-                                <div class="flex flex-col items-center gap-2">
-                                    <x-filament::icon icon="heroicon-o-cloud-arrow-up" class="w-12 h-12 text-primary-500" />
-                                    <span class="text-sm text-primary-500 font-medium">
-                                        {{ trans('filament-media::media.direct_upload_drop_short') }}
-                                    </span>
-                                </div>
-                            </template>
-
-                            {{-- Default state --}}
-                            <template x-if="!isDragging && !isUploading">
-                                <div class="flex flex-col items-center gap-2">
-                                    <x-filament::icon icon="heroicon-o-photo" class="w-12 h-12 text-gray-300 dark:text-gray-600" />
-                                    <span class="text-sm text-gray-400 italic">{{ trans('filament-media::media.no_file_selected') }}</span>
-                                </div>
-                            </template>
-                        </div>
-                    @else
-                        <div class="w-48 aspect-square rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 flex flex-col items-center justify-center gap-2">
-                            <x-filament::icon icon="heroicon-o-photo" class="w-12 h-12 text-gray-300 dark:text-gray-600" />
-                            <span class="text-sm text-gray-400 italic">{{ trans('filament-media::media.no_file_selected') }}</span>
-                        </div>
-                    @endunless
+                    @include('filament-media::forms.partials.thumbnail-empty', ['inputRef' => 'intLinksEmptyInput', 'showActions' => false])
                 @endif
 
-                {{-- Text links below --}}
                 @unless($disabled)
-                    <div class="flex items-center gap-2">
-                        <button type="button" x-on:click="showPicker = true" class="text-sm text-primary-500 hover:text-primary-600 font-medium hover:underline cursor-pointer">
-                            {{ trans('filament-media::media.browse_media') }}
-                        </button>
-                        @if($directUpload)
-                            <span class="text-xs text-gray-400">{{ trans('filament-media::media.or') }}</span>
-                            <button type="button" x-on:click="$refs.intLinksUploadInput.click()" class="text-sm text-primary-500 hover:text-primary-600 font-medium hover:underline cursor-pointer">
-                                {{ trans('filament-media::media.upload_file') }}
-                            </button>
-                            <input
-                                type="file"
-                                class="hidden"
-                                x-ref="intLinksUploadInput"
-                                x-on:change="handleDirectUpload($event.target.files); $event.target.value = '';"
-                                {{ $isMultiple ? 'multiple' : '' }}
-                                @if(!empty($getAcceptedFileTypes()))
-                                    accept="{{ implode(',', $getAcceptedFileTypes()) }}"
-                                @endif
-                            />
-                        @endif
-                    </div>
+                    @include('filament-media::forms.partials.action-links', ['inputRef' => 'intLinksUploadInput'])
                 @endunless
             </div>
 
@@ -621,163 +173,18 @@
              ==================================================================== --}}
         @elseif($displayStyle === 'integratedDropdown')
             <div class="space-y-3">
-                {{-- Thumbnail preview area with drag & drop --}}
                 @if(!$isMultiple && $firstFile)
-                    <div class="group relative w-48">
-                        <div
-                            x-on:dragover.prevent="isDragging = true; $event.dataTransfer.dropEffect = 'copy'"
-                            x-on:dragleave.prevent="isDragging = false"
-                            x-on:drop.prevent="handleDrop($event.dataTransfer.files)"
-                            :class="isDragging ? 'border-primary-500 ring-2 ring-primary-500/30' : 'border-gray-200 dark:border-gray-700'"
-                            class="relative overflow-hidden rounded-lg border-2 bg-gray-100 dark:bg-gray-800 aspect-square transition-colors"
-                        >
-                            @if($firstFile->canGenerateThumbnails() && $urlService->fileExists($firstFile->url))
-                                <img
-                                    src="{{ $firstFile->preview_url }}"
-                                    alt="{{ $firstFile->name }}"
-                                    class="w-full h-full object-contain cursor-pointer"
-                                    x-on:click="previewUrl = '{{ $firstFile->preview_url }}'"
-                                />
-                            @else
-                                @php
-                                    $icon = match($firstFile->type) {
-                                        'image' => 'heroicon-o-photo',
-                                        'video' => 'heroicon-o-film',
-                                        'audio' => 'heroicon-o-musical-note',
-                                        default => 'heroicon-o-document',
-                                    };
-                                @endphp
-                                <div class="w-full h-full flex flex-col items-center justify-center gap-2">
-                                    <x-filament::icon :icon="$icon" class="w-12 h-12 text-gray-400 dark:text-gray-500" />
-                                    <span class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[160px] px-2">{{ $firstFile->name }}</span>
-                                </div>
-                            @endif
-
-                            {{-- Upload progress overlay --}}
-                            @include('filament-media::forms.partials.upload-progress-overlay')
-
-                            {{-- Remove overlay --}}
-                            @unless($disabled)
-                                <button
-                                    type="button"
-                                    x-show="!isUploading"
-                                    x-on:click="removeFile({{ $firstFile->id }})"
-                                    class="absolute top-2 end-2 p-1.5 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 hover:bg-red-500/80 transition-all"
-                                    title="{{ trans('filament-media::media.remove_file') }}"
-                                >
-                                    <x-filament::icon icon="heroicon-m-x-mark" class="w-4 h-4" />
-                                </button>
-                            @endunless
-                        </div>
-                    </div>
+                    @include('filament-media::forms.partials.thumbnail-single', ['overlayStyle' => 'remove'])
                 @elseif($isMultiple && !empty($fileIds))
-                    {{-- Multiple files: thumbnail grid --}}
-                    <div class="flex flex-wrap gap-3">
-                        @foreach($fileIds as $fileId)
-                            @php $file = $files->get($fileId); @endphp
-                            @if($file)
-                                <div class="group relative w-24">
-                                    <div class="relative overflow-hidden rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 aspect-square">
-                                        @if($file->canGenerateThumbnails() && $urlService->fileExists($file->url))
-                                            <img
-                                                src="{{ $file->preview_url }}"
-                                                alt="{{ $file->name }}"
-                                                class="w-full h-full object-contain cursor-pointer"
-                                                x-on:click="previewUrl = '{{ $file->preview_url }}'"
-                                            />
-                                        @else
-                                            @php
-                                                $icon = match($file->type) {
-                                                    'image' => 'heroicon-o-photo',
-                                                    'video' => 'heroicon-o-film',
-                                                    'audio' => 'heroicon-o-musical-note',
-                                                    default => 'heroicon-o-document',
-                                                };
-                                            @endphp
-                                            <div class="w-full h-full flex items-center justify-center">
-                                                <x-filament::icon :icon="$icon" class="w-8 h-8 text-gray-400 dark:text-gray-500" />
-                                            </div>
-                                        @endif
-
-                                        {{-- Remove button overlay --}}
-                                        @unless($disabled)
-                                            <button
-                                                type="button"
-                                                x-on:click="removeFile({{ $file->id }})"
-                                                class="absolute top-1 end-1 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 hover:bg-red-500/80 transition-all"
-                                                title="{{ trans('filament-media::media.remove_file') }}"
-                                            >
-                                                <x-filament::icon icon="heroicon-m-x-mark" class="w-3.5 h-3.5" />
-                                            </button>
-                                        @endunless
-                                    </div>
-                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate text-center">{{ $file->name }}</p>
-                                </div>
-                            @endif
-                        @endforeach
-
-                        {{-- Add more button with drag-and-drop --}}
-                        @unless($disabled)
-                            <div class="w-24">
-                                <div
-                                    x-on:click="showPicker = true"
-                                    x-on:dragover.prevent="isDragging = true; $event.dataTransfer.dropEffect = 'copy'"
-                                    x-on:dragleave.prevent="isDragging = false"
-                                    x-on:drop.prevent="handleDrop($event.dataTransfer.files)"
-                                    :class="isDragging ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50'"
-                                    class="relative w-full aspect-square rounded-lg border-2 border-dashed hover:border-primary-400 dark:hover:border-primary-500 flex items-center justify-center transition-colors cursor-pointer"
-                                >
-                                    {{-- Upload progress overlay --}}
-                                    @include('filament-media::forms.partials.upload-progress-overlay')
-
-                                    <x-filament::icon icon="heroicon-m-plus" x-show="!isDragging && !isUploading" class="w-6 h-6 text-gray-400 dark:text-gray-500" />
-                                    <x-filament::icon icon="heroicon-o-cloud-arrow-up" x-show="isDragging && !isUploading" x-cloak class="w-6 h-6 text-primary-500" />
-                                </div>
-                            </div>
-                        @endunless
-                    </div>
+                    @include('filament-media::forms.partials.thumbnail-grid')
                 @else
-                    {{-- Empty state: placeholder with drag-and-drop --}}
-                    @unless($disabled)
-                        <div
-                            x-on:dragover.prevent="isDragging = true; $event.dataTransfer.dropEffect = 'copy'"
-                            x-on:dragleave.prevent="isDragging = false"
-                            x-on:drop.prevent="handleDrop($event.dataTransfer.files)"
-                            :class="isDragging ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50'"
-                            class="relative w-48 aspect-square rounded-lg border-2 border-dashed hover:border-primary-400 dark:hover:border-primary-500 flex flex-col items-center justify-center gap-2 transition-colors"
-                        >
-                            {{-- Upload progress overlay --}}
-                            @include('filament-media::forms.partials.upload-progress-overlay')
-
-                            {{-- Drag-over state --}}
-                            <template x-if="isDragging && !isUploading">
-                                <div class="flex flex-col items-center gap-2">
-                                    <x-filament::icon icon="heroicon-o-cloud-arrow-up" class="w-12 h-12 text-primary-500" />
-                                    <span class="text-sm text-primary-500 font-medium">
-                                        {{ trans('filament-media::media.direct_upload_drop_short') }}
-                                    </span>
-                                </div>
-                            </template>
-
-                            {{-- Default state --}}
-                            <template x-if="!isDragging && !isUploading">
-                                <div class="flex flex-col items-center gap-2">
-                                    <x-filament::icon icon="heroicon-o-photo" class="w-12 h-12 text-gray-300 dark:text-gray-600" />
-                                    <span class="text-sm text-gray-400 italic">{{ trans('filament-media::media.no_file_selected') }}</span>
-                                </div>
-                            </template>
-                        </div>
-                    @else
-                        <div class="w-48 aspect-square rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 flex flex-col items-center justify-center gap-2">
-                            <x-filament::icon icon="heroicon-o-photo" class="w-12 h-12 text-gray-300 dark:text-gray-600" />
-                            <span class="text-sm text-gray-400 italic">{{ trans('filament-media::media.no_file_selected') }}</span>
-                        </div>
-                    @endunless
+                    @include('filament-media::forms.partials.thumbnail-empty', ['inputRef' => 'intDropEmptyInput', 'showActions' => false])
                 @endif
 
-                {{-- Dropdown button below --}}
                 @unless($disabled)
-                    @include('filament-media::forms.partials.browse-button')
+                    <div style="{{ $previewWidthStyle }}">
+                        @include('filament-media::forms.partials.browse-button', ['inputRef' => 'intDropUploadInput', 'fullWidth' => true])
+                    </div>
                 @endunless
             </div>
         @endif
@@ -869,7 +276,8 @@
             x-transition:leave="ease-in duration-150"
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80"
+            style="background-color: rgba(0, 0, 0, {{ $lightboxOpacity }})"
+            class="fixed inset-0 z-50 flex items-center justify-center p-6"
             x-on:click.self="previewUrl = null"
             x-on:keydown.escape.window="previewUrl = null"
         >
@@ -877,7 +285,7 @@
                 class="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors">
                 <x-filament::icon icon="heroicon-m-x-mark" class="w-6 h-6" />
             </button>
-            <img :src="previewUrl" alt="Preview" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain" />
+            <img :src="previewUrl" alt="Preview" @if($lightboxStyle) style="{{ $lightboxStyle }}" @endif class="max-w-full max-h-full rounded-lg shadow-2xl object-contain" />
         </div>
 
         {{-- ====================================================================
