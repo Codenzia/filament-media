@@ -10,6 +10,9 @@
     $files = MediaFile::withoutGlobalScopes()->whereIn('id', $fileIds)->get()->keyBy('id');
     $urlService = app(MediaUrlService::class);
     $directUpload = $isDirectUploadEnabled();
+    $disabled = $isDisabled();
+    $effectiveExtensions = $getEffectiveExtensions();
+    $extensionsSig = $getEffectiveExtensionsSignature();
 @endphp
 
 <x-dynamic-component :component="$getFieldWrapperView()" :field="$field">
@@ -50,7 +53,8 @@
                 const uploader = new window.FilamentMedia.UploadService({
                     uploadUrl: '{{ $getUploadUrl() }}',
                     maxFileSize: {{ $getMaxUploadSize() }},
-                    allowedTypes: @js(FilamentMedia::getAllowedMimeTypesString())
+                    allowedTypes: @js($effectiveExtensions ?? FilamentMedia::getAllowedMimeTypesString()),
+                    allowedTypesSig: @js($extensionsSig)
                 });
 
                 this.isUploading = true;
@@ -124,15 +128,17 @@
                                 {{ $file->name }}
                             </span>
 
-                            {{-- Remove Button --}}
-                            <button
-                                type="button"
-                                x-on:click="removeFile({{ $file->id }})"
-                                class="ml-1 p-0.5 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                                title="{{ trans('filament-media::media.remove_file') }}"
-                            >
-                                <x-filament::icon icon="heroicon-m-x-mark" class="w-4 h-4" />
-                            </button>
+                            {{-- Remove Button (hidden in view/disabled mode) --}}
+                            @unless($disabled)
+                                <button
+                                    type="button"
+                                    x-on:click="removeFile({{ $file->id }})"
+                                    class="ml-1 p-0.5 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                    title="{{ trans('filament-media::media.remove_file') }}"
+                                >
+                                    <x-filament::icon icon="heroicon-m-x-mark" class="w-4 h-4" />
+                                </button>
+                            @endunless
                         </div>
                     @endif
                 @endforeach
@@ -141,7 +147,8 @@
             <p class="text-sm text-gray-400 italic" x-show="!showUploader">{{ trans('filament-media::media.no_file_selected') }}</p>
         @endif
 
-        {{-- Browse / Upload Buttons --}}
+        {{-- Browse / Upload Buttons (hidden in view/disabled mode) --}}
+        @unless($disabled)
         @if($directUpload)
             <x-filament::dropdown placement="bottom-start" teleport>
                 <x-slot name="trigger">
@@ -171,7 +178,6 @@
                 {{ trans('filament-media::media.browse_media') }}
             </x-filament::button>
         @endif
-
         {{-- Inline Upload Zone --}}
         <div
             x-show="showUploader"
@@ -242,6 +248,7 @@
                 <x-filament::icon icon="heroicon-m-x-mark" class="w-4 h-4" />
             </button>
         </div>
+        @endunless
 
         {{-- Image Preview Lightbox --}}
         <div
@@ -265,6 +272,7 @@
         </div>
 
         {{-- Picker Modal Overlay --}}
+        @unless($disabled)
         <div
             x-show="showPicker"
             x-cloak
@@ -295,8 +303,11 @@
                     'collection' => $getCollection(),
                     'directory' => $getDirectory(),
                     'fieldId' => $fieldId,
+                    'allowedExtensions' => $effectiveExtensions,
+                    'allowedExtensionsSig' => $extensionsSig,
                 ], key('media-picker-' . $fieldId))
             </div>
         </div>
+        @endunless
     </div>
 </x-dynamic-component>

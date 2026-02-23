@@ -8,6 +8,7 @@ use Codenzia\FilamentMedia\Pages\Concerns\HasMediaHelpers;
 use Codenzia\FilamentMedia\Pages\Concerns\InteractsWithMediaEvents;
 use Codenzia\FilamentMedia\Pages\Concerns\InteractsWithMediaQueries;
 use Codenzia\FilamentMedia\Pages\Concerns\InteractsWithMediaState;
+use Codenzia\FilamentMedia\Pages\Concerns\HasConditionalPageShield;
 use Filament\Pages\Page;
 use Livewire\Attributes\Url;
 use Livewire\WithFileUploads;
@@ -20,6 +21,7 @@ use Livewire\WithFileUploads;
  */
 class Media extends Page
 {
+    use HasConditionalPageShield;
     use WithFileUploads;
     use HasMediaHelpers;
     use InteractsWithMediaQueries;

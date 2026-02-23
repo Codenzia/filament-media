@@ -388,13 +388,33 @@ You can still override the global default per-field:
 MediaPickerField::make('logo')->directUpload(false),
 ```
 
+#### Per-Field File Type Control
+
+By default, uploads are validated against the global `allowed_mime_types` in `config/media.php`. Two methods let you customize this per field:
+
+```php
+// Add extra extensions to the global list for this field only
+// (e.g., .ico is not in the global list, but favicons need it)
+MediaPickerField::make('favicon')
+    ->imageOnly()
+    ->includeFileTypes(['ico']),
+
+// Restrict to ONLY these extensions, ignoring the global config entirely
+MediaPickerField::make('contract')
+    ->allowedFileTypesOnly(['pdf', 'docx']),
+```
+
+Both methods enforce validation on both client-side (browser) and server-side (upload endpoint). Server-side overrides are protected with HMAC-SHA256 signatures to prevent tampering.
+
 | Method | Description |
 |--------|-------------|
 | `multiple()` | Allow selecting multiple files |
 | `imageOnly()` | Restrict to images |
 | `videoOnly()` | Restrict to videos |
 | `documentOnly()` | Restrict to documents |
-| `acceptedFileTypes(array)` | Custom MIME types |
+| `acceptedFileTypes(array)` | Custom MIME types for picker filtering |
+| `includeFileTypes(array)` | Add extra file extensions to the global allowed list for this field |
+| `allowedFileTypesOnly(array)` | Restrict uploads to ONLY these file extensions (ignores global config) |
 | `maxFiles(int)` | Limit selections |
 | `directory(string)` | Default upload directory |
 | `collection(string)` | Auto-assign collection |

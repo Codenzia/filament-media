@@ -20,6 +20,12 @@ class UploadModal extends Component
     public bool $isOpen = false;
     public int $folderId = 0;
 
+    /** Per-field allowed extensions override (comma-separated), or null for global default. */
+    public ?string $allowedExtensions = null;
+
+    /** HMAC signature to verify allowedExtensions wasn't tampered client-side. */
+    public ?string $allowedExtensionsSig = null;
+
     /** @var array<string, array{name: string, size: int, status: string, progress: int, error: ?string}> */
     public array $uploadQueue = [];
 
@@ -28,9 +34,13 @@ class UploadModal extends Component
 
     protected int $maxFilesPerUpload = 50;
 
-    public function mount(): void
-    {
+    public function mount(
+        ?string $allowedExtensions = null,
+        ?string $allowedExtensionsSig = null,
+    ): void {
         $this->folderId = 0;
+        $this->allowedExtensions = $allowedExtensions;
+        $this->allowedExtensionsSig = $allowedExtensionsSig;
     }
 
     #[On('open-upload-modal')]

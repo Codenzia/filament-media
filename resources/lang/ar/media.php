@@ -195,6 +195,7 @@ return [
     'validation' => [
         'uploaded_file_required' => 'يرجى اختيار ملف للرفع.',
         'uploaded_file_invalid_type' => 'نوع الملف غير مسموح به. يرجى رفع ملف بصيغة صالحة.',
+        'uploaded_file_invalid_type_with_list' => 'نوع الملف غير مسموح به. الأنواع المسموحة: :types',
         'uploaded_file_too_large' => 'الملف كبير جدًا. يرجى اختيار ملف أصغر.',
         'uploaded_file_corrupted' => 'يبدو أن الملف تالف أو غير صالح. يرجى محاولة رفع ملف آخر.',
         'upload_network_error' => 'فشل الرفع بسبب مشاكل في الشبكة. يرجى التحقق من اتصالك والمحاولة مرة أخرى.',

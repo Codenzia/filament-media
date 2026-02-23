@@ -192,6 +192,7 @@ return [
     'validation' => [
         'uploaded_file_required' => 'Please select a file to upload.',
         'uploaded_file_invalid_type' => 'The file type is not allowed. Please upload a valid file format.',
+        'uploaded_file_invalid_type_with_list' => 'The file type is not allowed. Allowed types: :types',
         'uploaded_file_too_large' => 'The file is too large. Please choose a smaller file.',
         'uploaded_file_corrupted' => 'The file appears to be corrupted or invalid. Please try uploading a different file.',
         'upload_network_error' => 'Upload failed due to network issues. Please check your connection and try again.',

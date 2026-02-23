@@ -9,7 +9,8 @@
             uploadUrl: @js($this->getUploadUrl()),
             folderId: @entangle('folderId'),
             maxSize: {{ $this->getMaxSize() }},
-            allowedTypes: @js(FilamentMedia::getAllowedMimeTypesString())
+            allowedTypes: @js($this->allowedExtensions ?? FilamentMedia::getAllowedMimeTypesString()),
+            allowedTypesSig: @js($this->allowedExtensionsSig)
         })"
         x-modelable="open"
         x-model="$wire.isOpen"
@@ -80,7 +81,7 @@
                             multiple
                             x-on:change="handleFileSelect($event)"
                             class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            accept="{{ FilamentMedia::getAllowedMimeTypesString() }}"
+                            accept="{{ $this->allowedExtensions ? '.' . str_replace(',', ',.', $this->allowedExtensions) : FilamentMedia::getAllowedMimeTypesString() }}"
                         />
 
                         <div class="pointer-events-none">

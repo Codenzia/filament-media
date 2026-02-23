@@ -36,6 +36,12 @@ class MediaPickerField extends Field
 
     protected ?bool $directUpload = null;
 
+    /** @var string[]|null Override: ONLY these extensions allowed (ignores global config) */
+    protected ?array $allowedFileTypesOnly = null;
+
+    /** @var string[]|null Merge: additional extensions added to global config */
+    protected ?array $includedFileTypes = null;
+
     public function multiple(bool $multiple = true): static
     {
         $this->isMultiple = $multiple;
@@ -219,6 +225,64 @@ class MediaPickerField extends Field
     public function getCollection(): ?string
     {
         return $this->collection;
+    }
+
+    /**
+     * Restrict uploads to ONLY these file extensions (ignores global config).
+     *
+     * @param  string[]  $extensions  e.g. ['pdf', 'docx']
+     */
+    public function allowedFileTypesOnly(array $extensions): static
+    {
+        $this->allowedFileTypesOnly = array_map('strtolower', $extensions);
+
+        return $this;
+    }
+
+    /**
+     * Add extra file extensions to the global allowed list for this field.
+     *
+     * @param  string[]  $extensions  e.g. ['ico', 'svg']
+     */
+    public function includeFileTypes(array $extensions): static
+    {
+        $this->includedFileTypes = array_map('strtolower', $extensions);
+
+        return $this;
+    }
+
+    /**
+     * Compute the effective allowed extensions for this field.
+     * Returns a comma-separated string, or null to use global default.
+     */
+    public function getEffectiveExtensions(): ?string
+    {
+        if ($this->allowedFileTypesOnly !== null) {
+            return implode(',', $this->allowedFileTypesOnly);
+        }
+
+        if ($this->includedFileTypes !== null) {
+            $global = app(UploadService::class)->getAllowedMimeTypes();
+            $merged = array_unique(array_merge($global, $this->includedFileTypes));
+
+            return implode(',', $merged);
+        }
+
+        return null;
+    }
+
+    /**
+     * Generate an HMAC signature for the effective extensions to prevent client-side tampering.
+     */
+    public function getEffectiveExtensionsSignature(): ?string
+    {
+        $extensions = $this->getEffectiveExtensions();
+
+        if ($extensions === null) {
+            return null;
+        }
+
+        return hash_hmac('sha256', $extensions, config('app.key'));
     }
 
     protected function setUp(): void

@@ -247,7 +247,10 @@
     </div>
 
     {{-- Upload Modal --}}
-    @livewire('filament-media::upload-modal', [], key('picker-upload-modal'))
+    @livewire('filament-media::upload-modal', [
+        'allowedExtensions' => $this->allowedExtensions,
+        'allowedExtensionsSig' => $this->allowedExtensionsSig,
+    ], key('picker-upload-modal'))
 
     {{-- Footer --}}
     <div class="flex-shrink-0 flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">

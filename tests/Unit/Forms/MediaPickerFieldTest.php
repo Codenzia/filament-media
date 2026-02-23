@@ -118,6 +118,89 @@ describe('MediaPickerField directory and collection', function () {
     });
 });
 
+describe('MediaPickerField per-field file type overrides', function () {
+    it('allowedFileTypesOnly returns only specified extensions', function () {
+        $field = MediaPickerField::make('media')
+            ->allowedFileTypesOnly(['pdf', 'docx']);
+
+        expect($field->getEffectiveExtensions())->toBe('pdf,docx');
+    });
+
+    it('allowedFileTypesOnly normalizes extensions to lowercase', function () {
+        $field = MediaPickerField::make('media')
+            ->allowedFileTypesOnly(['PDF', 'DOCX', 'Ico']);
+
+        expect($field->getEffectiveExtensions())->toBe('pdf,docx,ico');
+    });
+
+    it('includeFileTypes merges with global config', function () {
+        $field = MediaPickerField::make('media')
+            ->includeFileTypes(['ico', 'svg']);
+
+        $effective = $field->getEffectiveExtensions();
+
+        // Should contain the global types plus 'ico' and 'svg'
+        expect($effective)->toContain('ico')
+            ->and($effective)->toContain('svg')
+            ->and($effective)->toContain('jpg');
+    });
+
+    it('includeFileTypes does not duplicate existing extensions', function () {
+        $field = MediaPickerField::make('media')
+            ->includeFileTypes(['jpg', 'ico']);
+
+        $extensions = explode(',', $field->getEffectiveExtensions());
+
+        // 'jpg' should appear only once
+        $jpgCount = count(array_filter($extensions, fn ($ext) => $ext === 'jpg'));
+        expect($jpgCount)->toBe(1);
+    });
+
+    it('returns null for effective extensions when no override is set', function () {
+        $field = MediaPickerField::make('media');
+
+        expect($field->getEffectiveExtensions())->toBeNull();
+    });
+
+    it('generates HMAC signature for effective extensions', function () {
+        $field = MediaPickerField::make('media')
+            ->allowedFileTypesOnly(['pdf', 'docx']);
+
+        $sig = $field->getEffectiveExtensionsSignature();
+        $expected = hash_hmac('sha256', 'pdf,docx', config('app.key'));
+
+        expect($sig)->toBe($expected);
+    });
+
+    it('returns null signature when no override is set', function () {
+        $field = MediaPickerField::make('media');
+
+        expect($field->getEffectiveExtensionsSignature())->toBeNull();
+    });
+
+    it('allowedFileTypesOnly takes priority over includeFileTypes', function () {
+        $field = MediaPickerField::make('media')
+            ->includeFileTypes(['ico'])
+            ->allowedFileTypesOnly(['pdf', 'docx']);
+
+        // allowedFileTypesOnly should win (it's checked first)
+        expect($field->getEffectiveExtensions())->toBe('pdf,docx');
+    });
+
+    it('supports chaining with other methods', function () {
+        $field = MediaPickerField::make('media')
+            ->imageOnly()
+            ->includeFileTypes(['ico'])
+            ->directUpload()
+            ->maxFiles(5);
+
+        expect($field->getAcceptedFileTypes())->toBe(['image/*'])
+            ->and($field->getEffectiveExtensions())->toContain('ico')
+            ->and($field->isDirectUploadEnabled())->toBeTrue()
+            ->and($field->getMaxFiles())->toBe(5);
+    });
+});
+
 describe('MediaPickerField fluent interface', function () {
     it('supports method chaining', function () {
         $field = MediaPickerField::make('media')

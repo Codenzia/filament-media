@@ -173,6 +173,7 @@ document.addEventListener('alpine:init', () => {
         folderId: config.folderId,
         maxSize: config.maxSize,
         allowedTypes: config.allowedTypes,
+        allowedTypesSig: config.allowedTypesSig || null,
         uploader: null,
 
         init() {
@@ -180,7 +181,8 @@ document.addEventListener('alpine:init', () => {
             this.uploader = new window.FilamentMedia.UploadService({
                 uploadUrl: this.uploadUrl,
                 maxFileSize: this.maxSize,
-                allowedTypes: this.allowedTypes
+                allowedTypes: this.allowedTypes,
+                allowedTypesSig: this.allowedTypesSig
             });
         },
 

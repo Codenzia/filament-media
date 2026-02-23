@@ -20,11 +20,13 @@ export class UploadService {
      * @param {string} options.uploadUrl - The upload endpoint URL
      * @param {number} options.maxFileSize - Maximum file size in bytes (default: 10MB)
      * @param {string} options.allowedTypes - Comma-separated list of allowed extensions
+     * @param {string|null} options.allowedTypesSig - HMAC signature for per-field extension overrides
      */
     constructor(options = {}) {
         this.uploadUrl = options.uploadUrl || '/media/files/upload';
         this.maxFileSize = options.maxFileSize || 10 * 1024 * 1024; // 10MB default
         this.allowedTypes = options.allowedTypes || '*';
+        this.allowedTypesSig = options.allowedTypesSig || null;
         this.csrfToken = null;
         this.activeUploads = new Map();
     }
@@ -105,6 +107,12 @@ export class UploadService {
         const formData = new FormData();
         formData.append('file[]', file);
         formData.append('folder_id', folderId);
+
+        // Include per-field extension overrides with signature for server verification
+        if (this.allowedTypesSig && this.allowedTypes && this.allowedTypes !== '*') {
+            formData.append('allowed_extensions', this.allowedTypes);
+            formData.append('allowed_extensions_sig', this.allowedTypesSig);
+        }
 
         // Create XHR request
         const xhr = new XMLHttpRequest();

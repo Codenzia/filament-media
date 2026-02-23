@@ -15,8 +15,14 @@ class MediaUploadException extends \RuntimeException
         return new static(trans('filament-media::media.can_not_detect_file_type'));
     }
 
-    public static function invalidFileType(): static
+    public static function invalidFileType(?string $allowedTypes = null): static
     {
+        if ($allowedTypes) {
+            return new static(trans('filament-media::media.validation.uploaded_file_invalid_type_with_list', [
+                'types' => $allowedTypes,
+            ]));
+        }
+
         return new static(trans('filament-media::media.validation.uploaded_file_invalid_type'));
     }
 

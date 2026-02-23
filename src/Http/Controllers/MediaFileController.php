@@ -32,7 +32,13 @@ class MediaFileController extends Controller
                 return FilamentMedia::responseError(__('filament-media::media.no_file_uploaded'));
             }
 
-            $mediaFile = $uploadService->handleUpload($file, $request->input('folder_id', 0));
+            $allowedExtensions = $this->resolveAllowedExtensions($request);
+
+            $mediaFile = $uploadService->handleUpload(
+                $file,
+                $request->input('folder_id', 0),
+                allowedExtensions: $allowedExtensions,
+            );
             $urlService = app(MediaUrlService::class);
 
             return FilamentMedia::responseSuccess([
@@ -44,6 +50,28 @@ class MediaFileController extends Controller
         } catch (Throwable $exception) {
             return FilamentMedia::responseError($exception->getMessage());
         }
+    }
+
+    /**
+     * Verify and extract per-field allowed extension overrides from the request.
+     * Returns null if no override is present or signature verification fails.
+     */
+    protected function resolveAllowedExtensions(Request $request): ?string
+    {
+        $extensions = $request->input('allowed_extensions');
+        $sig = $request->input('allowed_extensions_sig');
+
+        if (! $extensions || ! $sig) {
+            return null;
+        }
+
+        $expected = hash_hmac('sha256', $extensions, config('app.key'));
+
+        if (! hash_equals($expected, $sig)) {
+            return null; // Signature mismatch — fall back to global config
+        }
+
+        return $extensions;
     }
 
     protected function isChunkedUpload(Request $request): bool

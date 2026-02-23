@@ -42,13 +42,21 @@ class MediaPicker extends Component
 
     public string $fieldId = '';
 
+    /** Per-field allowed extensions override (comma-separated), or null for global default. */
+    public ?string $allowedExtensions = null;
+
+    /** HMAC signature to verify allowedExtensions wasn't tampered client-side. */
+    public ?string $allowedExtensionsSig = null;
+
     public function mount(
         bool $multiple = false,
         array $acceptedFileTypes = [],
         int $maxFiles = 0,
         ?string $collection = null,
         ?string $directory = null,
-        string $fieldId = ''
+        string $fieldId = '',
+        ?string $allowedExtensions = null,
+        ?string $allowedExtensionsSig = null,
     ): void {
         $this->multiple = $multiple;
         $this->acceptedFileTypes = $acceptedFileTypes;
@@ -56,6 +64,8 @@ class MediaPicker extends Component
         $this->collection = $collection;
         $this->directory = $directory;
         $this->fieldId = $fieldId;
+        $this->allowedExtensions = $allowedExtensions;
+        $this->allowedExtensionsSig = $allowedExtensionsSig;
         $this->viewMode = config('media.picker.default_view', 'grid');
     }
 

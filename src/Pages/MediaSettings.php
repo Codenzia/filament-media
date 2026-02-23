@@ -2,7 +2,6 @@
 
 namespace Codenzia\FilamentMedia\Pages;
 
-use Codenzia\FilamentMedia\Facades\FilamentMedia;
 use Codenzia\FilamentMedia\Helpers\BaseHelper;
 use Codenzia\FilamentMedia\Models\MediaSetting;
 use Codenzia\FilamentMedia\Services\OrphanScanService;
@@ -16,9 +15,11 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
+use Codenzia\FilamentMedia\Pages\Concerns\HasConditionalPageShield;
 use Filament\Pages\Page;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 
 /**
@@ -29,6 +30,7 @@ use Filament\Schemas\Schema;
  */
 class MediaSettings extends Page implements HasForms
 {
+    use HasConditionalPageShield;
     use InteractsWithForms;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
@@ -78,28 +80,6 @@ class MediaSettings extends Page implements HasForms
     public function getTitle(): string
     {
         return trans('filament-media::media.settings.title');
-    }
-
-    /**
-     * Check if user has permission to access settings.
-     */
-    public static function canAccess(): bool
-    {
-        // Check for custom permission if configured
-        if (FilamentMedia::hasPermission('settings.access')) {
-            return true;
-        }
-
-        // Check config for who can access settings
-        $accessLevel = FilamentMedia::getConfig('settings.access', 'all');
-
-        if ($accessLevel === 'super_admin') {
-            // Check if user is super admin (implementation depends on your auth setup)
-            return auth()->user()?->hasRole('super_admin') ?? false;
-        }
-
-        // Default: allow all authenticated admin users
-        return true;
     }
 
     public function mount(): void
@@ -169,194 +149,191 @@ class MediaSettings extends Page implements HasForms
     {
         return $schema
             ->components([
-                // Storage Configuration Section
-                Section::make(trans('filament-media::media.settings.storage'))
-                    ->description(trans('filament-media::media.settings.storage_description'))
-                    ->schema([
-                        Select::make('storage_driver')
-                            ->label(trans('filament-media::media.settings.storage_driver'))
-                            ->options([
-                                'public' => trans('filament-media::media.settings.driver_public'),
-                                'local' => trans('filament-media::media.settings.driver_local'),
-                                's3' => 'Amazon S3',
-                                'r2' => 'Cloudflare R2',
-                                'do_spaces' => 'DigitalOcean Spaces',
-                                'wasabi' => 'Wasabi',
-                                'backblaze' => 'Backblaze B2',
-                            ])
-                            ->default('public')
-                            ->live()
-                            ->helperText(trans('filament-media::media.settings.storage_driver_help')),
-
-                        TextEntry::make('cloud_credentials_notice')
-                            ->state(trans('filament-media::media.settings.cloud_credentials_notice'))
-                            ->visible(fn ($get) => in_array($get('storage_driver'), ['s3', 'r2', 'do_spaces', 'wasabi', 'backblaze']))
-                            ->extraAttributes(['class' => 'text-warning-600 dark:text-warning-400']),
-                        Grid::make(2)
-                            ->schema([
-                                TextInput::make('s3_bucket')
-                                    ->label(trans('filament-media::media.settings.bucket_name'))
-                                    ->visible(fn($get) => in_array($get('storage_driver'), ['s3', 'r2', 'do_spaces', 'wasabi', 'backblaze'])),
-
-                                TextInput::make('s3_region')
-                                    ->label(trans('filament-media::media.settings.region'))
-                                    ->visible(fn($get) => in_array($get('storage_driver'), ['s3', 'do_spaces'])),
-                            ]),
-
-                        TextInput::make('s3_cdn_url')
-                            ->label(trans('filament-media::media.settings.cdn_url'))
-                            ->url()
-                            ->placeholder('https://cdn.example.com')
-                            ->visible(fn($get) => in_array($get('storage_driver'), ['s3', 'r2', 'do_spaces', 'wasabi', 'backblaze']))
-                            ->helperText(trans('filament-media::media.settings.cdn_url_help')),
-
-                        Toggle::make('custom_upload_path')
-                            ->label(trans('filament-media::media.settings.custom_upload_path'))
-                            ->live(),
-
-                        TextInput::make('upload_path')
-                            ->label(trans('filament-media::media.settings.upload_path'))
-                            ->placeholder('media')
-                            ->visible(fn($get) => $get('custom_upload_path'))
-                            ->helperText(trans('filament-media::media.settings.upload_path_help')),
-
-                        Toggle::make('use_symlink')
-                            ->label(trans('filament-media::media.settings.use_symlink'))
-                            ->helperText(trans('filament-media::media.settings.use_symlink_help')),
-                    ])
-                    ->collapsible(),
-
-                // Allowed File Types Section
-                Section::make(trans('filament-media::media.settings.file_types'))
-                    ->description(trans('filament-media::media.settings.file_types_description'))
-                    ->schema([
-                        TagsInput::make('allowed_extensions')
-                            ->label(trans('filament-media::media.settings.allowed_extensions'))
-                            ->placeholder(trans('filament-media::media.settings.add_extension'))
-                            ->helperText(trans('filament-media::media.settings.allowed_extensions_help'))
-                            ->separator(','),
-
-                        TextInput::make('max_file_size')
-                            ->label(trans('filament-media::media.settings.max_file_size'))
-                            ->numeric()
-                            ->suffix('MB')
-                            ->default(10)
-                            ->minValue(1)
-                            ->maxValue(1024)
-                            ->helperText(trans('filament-media::media.settings.max_file_size_help')),
-                    ])
-                    ->collapsible(),
-
-                // Thumbnails Section
-                Section::make(trans('filament-media::media.settings.thumbnails'))
-                    ->description(trans('filament-media::media.settings.thumbnails_description'))
-                    ->schema([
-                        Toggle::make('generate_thumbnails')
-                            ->label(trans('filament-media::media.settings.generate_thumbnails'))
-                            ->live(),
-
-                        Repeater::make('thumbnail_sizes')
-                            ->label(trans('filament-media::media.settings.thumbnail_sizes'))
-                            ->visible(fn($get) => $get('generate_thumbnails'))
-                            ->schema([
-                                TextInput::make('name')
-                                    ->label(trans('filament-media::media.settings.size_name'))
-                                    ->required()
-                                    ->maxLength(50),
-                                Grid::make(2)
-                                    ->schema([
-                                        TextInput::make('width')
-                                            ->label(trans('filament-media::media.settings.width'))
-                                            ->numeric()
-                                            ->required()
-                                            ->suffix('px'),
-                                        TextInput::make('height')
-                                            ->label(trans('filament-media::media.settings.height'))
-                                            ->numeric()
-                                            ->required()
-                                            ->suffix('px'),
-                                    ]),
-                            ])
-                            ->columns(3)
-                            ->defaultItems(1)
-                            ->reorderable()
-                            ->addActionLabel(trans('filament-media::media.settings.add_size')),
-
-                        Select::make('image_library')
-                            ->label(trans('filament-media::media.settings.image_library'))
-                            ->options([
-                                'gd' => 'GD Library',
-                                'imagick' => 'ImageMagick',
-                            ])
-                            ->default('gd')
-                            ->helperText(trans('filament-media::media.settings.image_library_help')),
-                    ])
-                    ->collapsible()
-                    ->collapsed(),
-
-                // Watermark Section
-                Section::make(trans('filament-media::media.settings.watermark'))
-                    ->description(trans('filament-media::media.settings.watermark_description'))
-                    ->schema([
-                        Toggle::make('watermark_enabled')
-                            ->label(trans('filament-media::media.settings.enable_watermark'))
-                            ->live(),
-
-                        Grid::make(2)
-                            ->visible(fn($get) => $get('watermark_enabled'))
-                            ->schema([
-                                Select::make('watermark_position')
-                                    ->label(trans('filament-media::media.settings.watermark_position'))
+                Tabs::make('MediaSettings')
+                    ->vertical()
+                    ->tabs([
+                        // Storage Configuration
+                        Tab::make(trans('filament-media::media.settings.storage'))
+                            ->icon('heroicon-o-server-stack')
+                            ->components([
+                                Select::make('storage_driver')
+                                    ->label(trans('filament-media::media.settings.storage_driver'))
                                     ->options([
-                                        'top-left' => trans('filament-media::media.settings.position_top_left'),
-                                        'top-right' => trans('filament-media::media.settings.position_top_right'),
-                                        'bottom-left' => trans('filament-media::media.settings.position_bottom_left'),
-                                        'bottom-right' => trans('filament-media::media.settings.position_bottom_right'),
-                                        'center' => trans('filament-media::media.settings.position_center'),
+                                        'public' => trans('filament-media::media.settings.driver_public'),
+                                        'local' => trans('filament-media::media.settings.driver_local'),
+                                        's3' => 'Amazon S3',
+                                        'r2' => 'Cloudflare R2',
+                                        'do_spaces' => 'DigitalOcean Spaces',
+                                        'wasabi' => 'Wasabi',
+                                        'backblaze' => 'Backblaze B2',
                                     ])
-                                    ->default('bottom-right'),
+                                    ->default('public')
+                                    ->live()
+                                    ->helperText(trans('filament-media::media.settings.storage_driver_help')),
 
-                                TextInput::make('watermark_opacity')
-                                    ->label(trans('filament-media::media.settings.watermark_opacity'))
-                                    ->numeric()
-                                    ->suffix('%')
-                                    ->minValue(1)
-                                    ->maxValue(100)
-                                    ->default(70),
+                                TextEntry::make('cloud_credentials_notice')
+                                    ->state(trans('filament-media::media.settings.cloud_credentials_notice'))
+                                    ->visible(fn ($get) => in_array($get('storage_driver'), ['s3', 'r2', 'do_spaces', 'wasabi', 'backblaze']))
+                                    ->extraAttributes(['class' => 'text-warning-600 dark:text-warning-400']),
+                                Grid::make(2)
+                                    ->components([
+                                        TextInput::make('s3_bucket')
+                                            ->label(trans('filament-media::media.settings.bucket_name'))
+                                            ->visible(fn($get) => in_array($get('storage_driver'), ['s3', 'r2', 'do_spaces', 'wasabi', 'backblaze'])),
 
-                                TextInput::make('watermark_size')
-                                    ->label(trans('filament-media::media.settings.watermark_size'))
+                                        TextInput::make('s3_region')
+                                            ->label(trans('filament-media::media.settings.region'))
+                                            ->visible(fn($get) => in_array($get('storage_driver'), ['s3', 'do_spaces'])),
+                                    ]),
+
+                                TextInput::make('s3_cdn_url')
+                                    ->label(trans('filament-media::media.settings.cdn_url'))
+                                    ->url()
+                                    ->placeholder('https://cdn.example.com')
+                                    ->visible(fn($get) => in_array($get('storage_driver'), ['s3', 'r2', 'do_spaces', 'wasabi', 'backblaze']))
+                                    ->helperText(trans('filament-media::media.settings.cdn_url_help')),
+
+                                Toggle::make('custom_upload_path')
+                                    ->label(trans('filament-media::media.settings.custom_upload_path'))
+                                    ->live(),
+
+                                TextInput::make('upload_path')
+                                    ->label(trans('filament-media::media.settings.upload_path'))
+                                    ->placeholder('media')
+                                    ->visible(fn($get) => $get('custom_upload_path'))
+                                    ->helperText(trans('filament-media::media.settings.upload_path_help')),
+
+                                Toggle::make('use_symlink')
+                                    ->label(trans('filament-media::media.settings.use_symlink'))
+                                    ->helperText(trans('filament-media::media.settings.use_symlink_help')),
+                            ]),
+
+                        // Allowed File Types
+                        Tab::make(trans('filament-media::media.settings.file_types'))
+                            ->icon('heroicon-o-document')
+                            ->components([
+                                TagsInput::make('allowed_extensions')
+                                    ->label(trans('filament-media::media.settings.allowed_extensions'))
+                                    ->placeholder(trans('filament-media::media.settings.add_extension'))
+                                    ->helperText(trans('filament-media::media.settings.allowed_extensions_help'))
+                                    ->separator(','),
+
+                                TextInput::make('max_file_size')
+                                    ->label(trans('filament-media::media.settings.max_file_size'))
                                     ->numeric()
-                                    ->suffix('%')
-                                    ->minValue(1)
-                                    ->maxValue(100)
+                                    ->suffix('MB')
                                     ->default(10)
-                                    ->helperText(trans('filament-media::media.settings.watermark_size_help')),
+                                    ->minValue(1)
+                                    ->maxValue(1024)
+                                    ->helperText(trans('filament-media::media.settings.max_file_size_help')),
+                            ]),
+
+                        // Thumbnails
+                        Tab::make(trans('filament-media::media.settings.thumbnails'))
+                            ->icon('heroicon-o-photo')
+                            ->components([
+                                Toggle::make('generate_thumbnails')
+                                    ->label(trans('filament-media::media.settings.generate_thumbnails'))
+                                    ->live(),
+
+                                Repeater::make('thumbnail_sizes')
+                                    ->label(trans('filament-media::media.settings.thumbnail_sizes'))
+                                    ->visible(fn($get) => $get('generate_thumbnails'))
+                                    ->schema([
+                                        TextInput::make('name')
+                                            ->label(trans('filament-media::media.settings.size_name'))
+                                            ->required()
+                                            ->maxLength(50),
+                                        Grid::make(2)
+                                            ->components([
+                                                TextInput::make('width')
+                                                    ->label(trans('filament-media::media.settings.width'))
+                                                    ->numeric()
+                                                    ->required()
+                                                    ->suffix('px'),
+                                                TextInput::make('height')
+                                                    ->label(trans('filament-media::media.settings.height'))
+                                                    ->numeric()
+                                                    ->required()
+                                                    ->suffix('px'),
+                                            ]),
+                                    ])
+                                    ->columns(3)
+                                    ->defaultItems(1)
+                                    ->reorderable()
+                                    ->addActionLabel(trans('filament-media::media.settings.add_size')),
+
+                                Select::make('image_library')
+                                    ->label(trans('filament-media::media.settings.image_library'))
+                                    ->options([
+                                        'gd' => 'GD Library',
+                                        'imagick' => 'ImageMagick',
+                                    ])
+                                    ->default('gd')
+                                    ->helperText(trans('filament-media::media.settings.image_library_help')),
+                            ]),
+
+                        // Watermark
+                        Tab::make(trans('filament-media::media.settings.watermark'))
+                            ->icon('heroicon-o-shield-check')
+                            ->components([
+                                Toggle::make('watermark_enabled')
+                                    ->label(trans('filament-media::media.settings.enable_watermark'))
+                                    ->live(),
+
+                                Grid::make(2)
+                                    ->visible(fn($get) => $get('watermark_enabled'))
+                                    ->components([
+                                        Select::make('watermark_position')
+                                            ->label(trans('filament-media::media.settings.watermark_position'))
+                                            ->options([
+                                                'top-left' => trans('filament-media::media.settings.position_top_left'),
+                                                'top-right' => trans('filament-media::media.settings.position_top_right'),
+                                                'bottom-left' => trans('filament-media::media.settings.position_bottom_left'),
+                                                'bottom-right' => trans('filament-media::media.settings.position_bottom_right'),
+                                                'center' => trans('filament-media::media.settings.position_center'),
+                                            ])
+                                            ->default('bottom-right'),
+
+                                        TextInput::make('watermark_opacity')
+                                            ->label(trans('filament-media::media.settings.watermark_opacity'))
+                                            ->numeric()
+                                            ->suffix('%')
+                                            ->minValue(1)
+                                            ->maxValue(100)
+                                            ->default(70),
+
+                                        TextInput::make('watermark_size')
+                                            ->label(trans('filament-media::media.settings.watermark_size'))
+                                            ->numeric()
+                                            ->suffix('%')
+                                            ->minValue(1)
+                                            ->maxValue(100)
+                                            ->default(10)
+                                            ->helperText(trans('filament-media::media.settings.watermark_size_help')),
+                                    ]),
+                            ]),
+
+                        // Chunk Upload
+                        Tab::make(trans('filament-media::media.settings.chunk_upload'))
+                            ->icon('heroicon-o-arrow-up-tray')
+                            ->components([
+                                Toggle::make('chunk_enabled')
+                                    ->label(trans('filament-media::media.settings.enable_chunk_upload'))
+                                    ->live(),
+
+                                TextInput::make('chunk_size')
+                                    ->label(trans('filament-media::media.settings.chunk_size'))
+                                    ->visible(fn($get) => $get('chunk_enabled'))
+                                    ->numeric()
+                                    ->suffix('MB')
+                                    ->default(1)
+                                    ->minValue(1)
+                                    ->maxValue(100)
+                                    ->helperText(trans('filament-media::media.settings.chunk_size_help')),
                             ]),
                     ])
-                    ->collapsible()
-                    ->collapsed(),
-
-                // Chunk Upload Section
-                Section::make(trans('filament-media::media.settings.chunk_upload'))
-                    ->description(trans('filament-media::media.settings.chunk_upload_description'))
-                    ->schema([
-                        Toggle::make('chunk_enabled')
-                            ->label(trans('filament-media::media.settings.enable_chunk_upload'))
-                            ->live(),
-
-                        TextInput::make('chunk_size')
-                            ->label(trans('filament-media::media.settings.chunk_size'))
-                            ->visible(fn($get) => $get('chunk_enabled'))
-                            ->numeric()
-                            ->suffix('MB')
-                            ->default(1)
-                            ->minValue(1)
-                            ->maxValue(100)
-                            ->helperText(trans('filament-media::media.settings.chunk_size_help')),
-                    ])
-                    ->collapsible()
-                    ->collapsed(),
+                    ->columnSpanFull(),
             ])
             ->statePath('data');
     }

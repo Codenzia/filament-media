@@ -37,6 +37,8 @@ class UploadService
     /**
      * Upload a file from a form input.
      *
+     * @param  string|null  $allowedExtensions  Per-field extension override (comma-separated), or null for global default
+     *
      * @throws MediaUploadException
      */
     public function handleUpload(
@@ -44,7 +46,8 @@ class UploadService
         int|string|null $folderId = 0,
         ?string $folderSlug = null,
         bool $skipValidation = false,
-        string $visibility = 'public'
+        string $visibility = 'public',
+        ?string $allowedExtensions = null,
     ): MediaFile {
         $request = request();
 
@@ -60,7 +63,7 @@ class UploadService
             $this->validateUpload($fileUpload, $skipValidation);
         }
 
-        return $this->storeFile($fileUpload, $folderId, $folderSlug, $skipValidation, $visibility);
+        return $this->storeFile($fileUpload, $folderId, $folderSlug, $skipValidation, $visibility, $allowedExtensions);
     }
 
     /**
@@ -363,6 +366,8 @@ class UploadService
     }
 
     /**
+     * @param  string|null  $allowedExtensions  Per-field extension override (comma-separated), or null for global default
+     *
      * @throws MediaUploadException
      */
     protected function storeFile(
@@ -370,17 +375,20 @@ class UploadService
         int|string|null $folderId,
         ?string $folderSlug,
         bool $skipValidation,
-        string $visibility
+        string $visibility,
+        ?string $allowedExtensions = null,
     ): MediaFile {
-        $allowedMimeTypes = $this->getConfig('allowed_mime_types');
+        $effectiveTypes = $allowedExtensions ?? $this->getConfig('allowed_mime_types');
 
         try {
             $fileExtension = strtolower(
                 $fileUpload->getClientOriginalExtension() ?: $fileUpload->guessExtension()
             );
 
-            if (! $skipValidation && ! in_array($fileExtension, explode(',', $allowedMimeTypes))) {
-                throw MediaUploadException::invalidFileType();
+            $allowedList = array_map('trim', explode(',', $effectiveTypes));
+
+            if (! $skipValidation && ! in_array($fileExtension, $allowedList)) {
+                throw MediaUploadException::invalidFileType($effectiveTypes);
             }
 
             $folderId = $this->resolveFolder($folderId, $folderSlug);
