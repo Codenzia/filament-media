@@ -406,6 +406,58 @@ MediaPickerField::make('contract')
 
 Both methods enforce validation on both client-side (browser) and server-side (upload endpoint). Server-side overrides are protected with HMAC-SHA256 signatures to prevent tampering.
 
+#### Display Styles
+
+The field supports five visual styles via `displayStyle()`:
+
+```php
+// Compact (default): Text links for browse/upload with chip-style file list
+MediaPickerField::make('document')
+    ->documentOnly()
+    ->displayStyle('compact'),
+
+// Dropdown: Button with dropdown menu for browse/upload options
+MediaPickerField::make('document')
+    ->documentOnly()
+    ->directUpload()
+    ->displayStyle('dropdown'),
+
+// Thumbnail: Visual preview card — click to browse, hover for actions, drag & drop
+MediaPickerField::make('featured_image')
+    ->imageOnly()
+    ->displayStyle('thumbnail'),
+
+// Integrated Links: Thumbnail preview + text links below, drag & drop
+MediaPickerField::make('avatar')
+    ->imageOnly()
+    ->displayStyle('integratedLinks'),
+
+// Integrated Dropdown: Thumbnail preview + dropdown button below, drag & drop
+MediaPickerField::make('logo')
+    ->imageOnly()
+    ->directUpload()
+    ->displayStyle('integratedDropdown'),
+```
+
+| Style | Best for | Drag & Drop | Description |
+|-------|----------|:-----------:|-------------|
+| `compact` | Documents, mixed files | No | Text links + chip list with small icons |
+| `dropdown` | Documents, mixed files | No | Dropdown button + chip list with small icons |
+| `thumbnail` | Images, visual content | Yes | Large preview card, hover overlay with change/remove actions |
+| `integratedLinks` | Images + text links | Yes | Thumbnail preview area with text links below |
+| `integratedDropdown` | Images + dropdown button | Yes | Thumbnail preview area with dropdown button below |
+
+To set a global default for all fields:
+
+```php
+// config/media.php
+'picker' => [
+    'display_style' => 'integratedLinks',
+],
+```
+
+Per-field values always override the config default.
+
 | Method | Description |
 |--------|-------------|
 | `multiple()` | Allow selecting multiple files |
@@ -419,6 +471,7 @@ Both methods enforce validation on both client-side (browser) and server-side (u
 | `directory(string)` | Default upload directory |
 | `collection(string)` | Auto-assign collection |
 | `directUpload(bool)` | Show inline upload option alongside media browser (default: `false`, or from config) |
+| `displayStyle(string)` | Visual style: `'compact'`, `'dropdown'`, `'thumbnail'`, `'integratedLinks'`, or `'integratedDropdown'` (default: `'compact'`, or from config) |
 
 ## Livewire Components
 

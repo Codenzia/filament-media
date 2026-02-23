@@ -369,6 +369,7 @@ return [
     'no_file_selected' => 'لم يتم اختيار ملف',
     'upload_file' => 'رفع ملف',
     'direct_upload_drop' => 'أسقط الملف هنا أو انقر للتصفح',
+    'direct_upload_drop_short' => 'أسقط الملف هنا',
     'direct_upload_success' => 'تم رفع الملف بنجاح.',
 
     // الظهور

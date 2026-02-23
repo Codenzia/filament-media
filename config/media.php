@@ -298,6 +298,14 @@ return [
         'show_upload' => true,
         'show_folders' => true,
         'direct_upload' => false,
+
+        // Display style for MediaPickerField: 'compact', 'dropdown', 'thumbnail', 'integratedLinks', or 'integratedDropdown'
+        // - compact:            Text links for browse/upload with chip-style file list (default)
+        // - dropdown:           Button with dropdown menu for browse/upload options
+        // - thumbnail:          Visual preview card, click to browse, drag & drop
+        // - integratedLinks:    Thumbnail preview + text links below, drag & drop
+        // - integratedDropdown: Thumbnail preview + dropdown button below, drag & drop
+        'display_style' => 'compact',
     ],
 
     /*

@@ -201,6 +201,123 @@ describe('MediaPickerField per-field file type overrides', function () {
     });
 });
 
+describe('MediaPickerField displayStyle()', function () {
+    it('defaults to compact from config', function () {
+        config()->set('media.picker.display_style', 'compact');
+
+        $field = MediaPickerField::make('media');
+
+        expect($field->getDisplayStyle())->toBe('compact');
+    });
+
+    it('respects config default when not explicitly set', function () {
+        config()->set('media.picker.display_style', 'thumbnail');
+
+        $field = MediaPickerField::make('media');
+
+        expect($field->getDisplayStyle())->toBe('thumbnail');
+    });
+
+    it('respects integratedLinks config default', function () {
+        config()->set('media.picker.display_style', 'integratedLinks');
+
+        $field = MediaPickerField::make('media');
+
+        expect($field->getDisplayStyle())->toBe('integratedLinks');
+    });
+
+    it('respects integratedDropdown config default', function () {
+        config()->set('media.picker.display_style', 'integratedDropdown');
+
+        $field = MediaPickerField::make('media');
+
+        expect($field->getDisplayStyle())->toBe('integratedDropdown');
+    });
+
+    it('can be set to compact', function () {
+        $field = MediaPickerField::make('media')->displayStyle('compact');
+
+        expect($field->getDisplayStyle())->toBe('compact');
+    });
+
+    it('can be set to thumbnail', function () {
+        $field = MediaPickerField::make('media')->displayStyle('thumbnail');
+
+        expect($field->getDisplayStyle())->toBe('thumbnail');
+    });
+
+    it('can be set to integratedLinks', function () {
+        $field = MediaPickerField::make('media')->displayStyle('integratedLinks');
+
+        expect($field->getDisplayStyle())->toBe('integratedLinks');
+    });
+
+    it('can be set to integratedDropdown', function () {
+        $field = MediaPickerField::make('media')->displayStyle('integratedDropdown');
+
+        expect($field->getDisplayStyle())->toBe('integratedDropdown');
+    });
+
+    it('can be set to dropdown', function () {
+        $field = MediaPickerField::make('media')->displayStyle('dropdown');
+
+        expect($field->getDisplayStyle())->toBe('dropdown');
+    });
+
+    it('respects dropdown config default', function () {
+        config()->set('media.picker.display_style', 'dropdown');
+
+        $field = MediaPickerField::make('media');
+
+        expect($field->getDisplayStyle())->toBe('dropdown');
+    });
+
+    it('explicit value overrides config default', function () {
+        config()->set('media.picker.display_style', 'thumbnail');
+
+        $field = MediaPickerField::make('media')->displayStyle('compact');
+
+        expect($field->getDisplayStyle())->toBe('compact');
+    });
+
+    it('falls back to compact for invalid config value', function () {
+        config()->set('media.picker.display_style', 'invalid');
+
+        $field = MediaPickerField::make('media');
+
+        expect($field->getDisplayStyle())->toBe('compact');
+    });
+
+    it('throws exception for invalid displayStyle argument', function () {
+        MediaPickerField::make('media')->displayStyle('invalid');
+    })->throws(\InvalidArgumentException::class);
+
+    it('throws exception for old integrated value', function () {
+        MediaPickerField::make('media')->displayStyle('integrated');
+    })->throws(\InvalidArgumentException::class);
+
+    it('supports chaining with other methods', function () {
+        $field = MediaPickerField::make('media')
+            ->displayStyle('thumbnail')
+            ->imageOnly()
+            ->multiple()
+            ->maxFiles(5);
+
+        expect($field->getDisplayStyle())->toBe('thumbnail')
+            ->and($field->getAcceptedFileTypes())->toBe(['image/*'])
+            ->and($field->isMultiple())->toBeTrue()
+            ->and($field->getMaxFiles())->toBe(5);
+    });
+
+    it('falls back to compact when config key is missing', function () {
+        config()->set('media.picker.display_style', null);
+
+        $field = MediaPickerField::make('media');
+
+        expect($field->getDisplayStyle())->toBe('compact');
+    });
+});
+
 describe('MediaPickerField fluent interface', function () {
     it('supports method chaining', function () {
         $field = MediaPickerField::make('media')

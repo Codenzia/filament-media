@@ -369,6 +369,7 @@ return [
     'no_file_selected' => 'No file selected',
     'upload_file' => 'Upload File',
     'direct_upload_drop' => 'Drop file here or click to browse',
+    'direct_upload_drop_short' => 'Drop file here',
     'direct_upload_success' => 'File uploaded successfully.',
 
     // Visibility

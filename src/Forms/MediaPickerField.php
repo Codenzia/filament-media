@@ -36,6 +36,9 @@ class MediaPickerField extends Field
 
     protected ?bool $directUpload = null;
 
+    /** @var string|null Display style. Null = use config default. */
+    protected ?string $displayStyle = null;
+
     /** @var string[]|null Override: ONLY these extensions allowed (ignores global config) */
     protected ?array $allowedFileTypesOnly = null;
 
@@ -102,6 +105,44 @@ class MediaPickerField extends Field
     public function getMaxUploadSize(): int
     {
         return app(UploadService::class)->getMaxSize();
+    }
+
+    /** @var string[] Valid display style values */
+    protected const DISPLAY_STYLES = ['compact', 'dropdown', 'thumbnail', 'integratedLinks', 'integratedDropdown'];
+
+    /**
+     * Set the visual display style for the picker field.
+     *
+     * - 'compact':            Text links for browse/upload with chip-style file list (default)
+     * - 'dropdown':           Button with dropdown menu for browse/upload options
+     * - 'thumbnail':          Visual preview card, click to browse, drag & drop
+     * - 'integratedLinks':    Thumbnail preview + text links below, drag & drop
+     * - 'integratedDropdown': Thumbnail preview + dropdown button below, drag & drop
+     */
+    public function displayStyle(string $style): static
+    {
+        if (! in_array($style, self::DISPLAY_STYLES)) {
+            throw new \InvalidArgumentException(
+                "Invalid display style '{$style}'. Use: " . implode(', ', array_map(fn ($s) => "'{$s}'", self::DISPLAY_STYLES)) . '.'
+            );
+        }
+
+        $this->displayStyle = $style;
+
+        return $this;
+    }
+
+    public function getDisplayStyle(): string
+    {
+        if ($this->displayStyle !== null) {
+            return $this->displayStyle;
+        }
+
+        $configDefault = config('media.picker.display_style', 'compact');
+
+        return in_array($configDefault, self::DISPLAY_STYLES)
+            ? $configDefault
+            : 'compact';
     }
 
     public function imageOnly(): static
