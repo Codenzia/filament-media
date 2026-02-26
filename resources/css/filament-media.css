@@ -2,6 +2,10 @@
  * Filament Media Manager CSS
  */
 
+@import "tailwindcss";
+@source "../views/**/*.blade.php";
+@source "../../src/**/*.php";
+
 /* ===========================
    CSS Custom Properties
    =========================== */
@@ -15,10 +19,10 @@
     --fm-text-muted: #9ca3af;
     --fm-icon-color: #111827;
     --fm-border-color: #e5e7eb;
-    --fm-border-focus: rgb(var(--primary-500));
+    --fm-border-focus: var(--primary-500);
     --fm-item-bg: #ffffff;
     --fm-item-hover-bg: #f9fafb;
-    --fm-item-selected-bg: rgba(var(--primary-500), 0.1);
+    --fm-item-selected-bg: color-mix(in oklab, var(--primary-500) 10%, transparent);
     --fm-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --fm-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --fm-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -42,7 +46,7 @@
     --fm-border-color: #475569;
     --fm-item-bg: #1e293b;
     --fm-item-hover-bg: #334155;
-    --fm-item-selected-bg: rgba(var(--primary-500), 0.2);
+    --fm-item-selected-bg: color-mix(in oklab, var(--primary-500) 20%, transparent);
     --fm-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.3);
     --fm-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
     --fm-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
@@ -158,9 +162,9 @@
 }
 
 @keyframes fm-select-glow {
-    0% { box-shadow: 0 0 0 0 rgba(var(--primary-500), 0.4); }
-    70% { box-shadow: 0 0 0 8px rgba(var(--primary-500), 0); }
-    100% { box-shadow: 0 0 0 0 rgba(var(--primary-500), 0); }
+    0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary-500) 40%, transparent); }
+    70% { box-shadow: 0 0 0 8px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 .fm-list-view {
@@ -254,14 +258,14 @@
    =========================== */
 
 .fm-upload-btn {
-    background: linear-gradient(135deg, rgb(var(--primary-500)) 0%, rgb(var(--primary-600)) 100%);
-    box-shadow: 0 4px 14px 0 rgba(var(--primary-500), 0.3);
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+    box-shadow: 0 4px 14px 0 color-mix(in oklab, var(--primary-500) 30%, transparent);
     transition: all 0.2s ease-out;
 }
 
 .fm-upload-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px 0 rgba(var(--primary-500), 0.4);
+    box-shadow: 0 6px 20px 0 color-mix(in oklab, var(--primary-500) 40%, transparent);
 }
 
 .fm-upload-btn:active {
@@ -301,7 +305,7 @@
    =========================== */
 
 .fm-drag-over {
-    outline: 2px dashed rgb(var(--primary-500));
+    outline: 2px dashed var(--primary-500);
     outline-offset: -2px;
     background-color: var(--fm-item-selected-bg);
 }
@@ -495,7 +499,7 @@
 .fm-item:focus-visible,
 button:focus-visible,
 a:focus-visible {
-    outline: 2px solid rgb(var(--primary-500));
+    outline: 2px solid var(--primary-500);
     outline-offset: 2px;
 }
 
@@ -505,6 +509,6 @@ a:focus-visible {
     }
 
     .fm-item.ring-2 {
-        ring-width: 3px;
+        outline-width: 3px;
     }
 }

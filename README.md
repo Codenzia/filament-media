@@ -1076,6 +1076,24 @@ protected $listen = [
 composer test
 ```
 
+## Image Gallery Component
+
+A standalone Alpine.js image gallery with lightbox, thumbnails, keyboard navigation, and RTL support. Works with any array of image URLs — no dependency on the media manager models.
+
+```blade
+<x-filament-media::image-gallery
+    :urls="$imageUrls"
+    :alt="$altText"
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `urls` | array | `[]` | Array of image URLs |
+| `alt` | string | `''` | Alt text for accessibility and lightbox title |
+
+Features: main image display, prev/next arrows, thumbnail strip, fullscreen lightbox overlay, keyboard navigation (arrow keys + Escape), image counter badge, RTL-aware arrow direction, no-images placeholder.
+
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for recent changes.
