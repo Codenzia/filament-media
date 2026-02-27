@@ -63,8 +63,10 @@ class MediaSettings extends Page implements HasForms
 
     public static function getNavigationGroup(): ?string
     {
-        return config('media.navigation.shared_group')
+        $group = config('media.navigation.shared_group')
             ?? config('media.navigation.settings.group');
+
+        return $group ? __($group) : null;
     }
 
     public static function getNavigationSort(): ?int
