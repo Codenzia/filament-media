@@ -15,7 +15,7 @@
         "issues": "https://github.com/codenzia/filament-media/issues",
         "source": "https://github.com/codenzia/filament-media"
     },
-    "license": "MIT",
+    "license": ["MIT", "proprietary"],
     "authors": [
         {
             "name": "Codenzia",
