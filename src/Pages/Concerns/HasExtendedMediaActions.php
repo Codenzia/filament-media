@@ -14,7 +14,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Infolists\Components\TextEntry;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -313,9 +313,9 @@ trait HasExtendedMediaActions
 
                 if ($fields->isEmpty()) {
                     return [
-                        TextEntry::make('no_fields')
+                        Placeholder::make('no_fields')
                             ->label('')
-                            ->state(trans('filament-media::media.no_metadata_fields')),
+                            ->content(trans('filament-media::media.no_metadata_fields')),
                     ];
                 }
 
@@ -431,9 +431,9 @@ trait HasExtendedMediaActions
 
                 if (empty($items) || ($items[0]['is_folder'] ?? false)) {
                     return [
-                        TextEntry::make('no_parent')
+                        Placeholder::make('no_parent')
                             ->label('')
-                            ->state(trans('filament-media::media.not_linked')),
+                            ->content(trans('filament-media::media.not_linked')),
                     ];
                 }
 
@@ -442,9 +442,9 @@ trait HasExtendedMediaActions
 
                 if (! $info) {
                     return [
-                        TextEntry::make('no_parent')
+                        Placeholder::make('no_parent')
                             ->label('')
-                            ->state(trans('filament-media::media.not_linked')),
+                            ->content(trans('filament-media::media.not_linked')),
                     ];
                 }
 

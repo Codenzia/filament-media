@@ -13,7 +13,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Infolists\Components\TextEntry;
+use Filament\Forms\Components\Placeholder;
 use Filament\Notifications\Notification;
 use Codenzia\FilamentMedia\Pages\Concerns\HasConditionalPageShield;
 use Filament\Pages\Page;
@@ -152,7 +152,6 @@ class MediaSettings extends Page implements HasForms
         return $schema
             ->components([
                 Tabs::make('MediaSettings')
-                    ->vertical()
                     ->tabs([
                         // Storage Configuration
                         Tab::make(trans('filament-media::media.settings.storage'))
@@ -173,8 +172,8 @@ class MediaSettings extends Page implements HasForms
                                     ->live()
                                     ->helperText(trans('filament-media::media.settings.storage_driver_help')),
 
-                                TextEntry::make('cloud_credentials_notice')
-                                    ->state(trans('filament-media::media.settings.cloud_credentials_notice'))
+                                Placeholder::make('cloud_credentials_notice')
+                                    ->content(trans('filament-media::media.settings.cloud_credentials_notice'))
                                     ->visible(fn ($get) => in_array($get('storage_driver'), ['s3', 'r2', 'do_spaces', 'wasabi', 'backblaze']))
                                     ->extraAttributes(['class' => 'text-warning-600 dark:text-warning-400']),
                                 Grid::make(2)
