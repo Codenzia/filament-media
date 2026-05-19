@@ -334,7 +334,7 @@ return [
         'lightbox_max_height' => null,
 
         // Lightbox backdrop opacity (0-100). 0 = fully transparent, 100 = fully opaque.
-        'lightbox_opacity' => 90,
+        'lightbox_opacity' => 80,
     ],
 
     /*
