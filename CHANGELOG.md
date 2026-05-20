@@ -14,3 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `media.picker.lightbox_opacity` default was set to `90` but the field's documented default and existing unit test both expected `80`. The mismatch was introduced in commit `cb2df3a` and unnoticed because the failing test had never run. Config value now matches the documented default of `80`.
 
 [Unreleased]: https://github.com/Codenzia/filament-media/commits/main
+
+## [0.1.0] - 2026-05-20
+
+### Added
+- First tracked release. Early beta. Earlier history not recorded in this changelog — see git log for changes prior to release-tracker adoption.
