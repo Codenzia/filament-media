@@ -101,13 +101,25 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
         // Register Livewire components
-        Livewire::component('filament-media::upload-modal', \Codenzia\FilamentMedia\Livewire\UploadModal::class);
-        Livewire::component('filament-media::preview-modal', \Codenzia\FilamentMedia\Livewire\PreviewModal::class);
-        Livewire::component('filament-media::media-picker', \Codenzia\FilamentMedia\Livewire\MediaPicker::class);
-        Livewire::component('filament-media::files-upload-widget', \Codenzia\FilamentMedia\Widgets\FilesUploadWidget::class);
-        Livewire::component('filament-media::media-file-grid', \Codenzia\FilamentMedia\Livewire\MediaFileGrid::class);
-        Livewire::component('filament-media::media-file-list', \Codenzia\FilamentMedia\Livewire\MediaFileList::class);
-        Livewire::component('filament-media::media-files', \Codenzia\FilamentMedia\Livewire\MediaFiles::class);
+        $components = [
+            'filament-media::upload-modal' => \Codenzia\FilamentMedia\Livewire\UploadModal::class,
+            'filament-media::preview-modal' => \Codenzia\FilamentMedia\Livewire\PreviewModal::class,
+            'filament-media::media-picker' => \Codenzia\FilamentMedia\Livewire\MediaPicker::class,
+            'filament-media::files-upload-widget' => \Codenzia\FilamentMedia\Widgets\FilesUploadWidget::class,
+            'filament-media::media-file-grid' => \Codenzia\FilamentMedia\Livewire\MediaFileGrid::class,
+            'filament-media::media-file-list' => \Codenzia\FilamentMedia\Livewire\MediaFileList::class,
+            'filament-media::media-files' => \Codenzia\FilamentMedia\Livewire\MediaFiles::class,
+        ];
+
+        foreach ($components as $alias => $class) {
+            Livewire::component($alias, $class);
+        }
+
+        // Livewire v4's Finder only checks registered namespaces for
+        // `ns::component` lookups, never classComponents entries.
+        if (method_exists(Livewire::getFacadeRoot(), 'resolveMissingComponent')) {
+            Livewire::resolveMissingComponent(fn (string $name): ?string => $components[$name] ?? null);
+        }
 
         // Assets
         FilamentAsset::register($this->getAssets(), $this->getAssetPackageName());
