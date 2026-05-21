@@ -2,6 +2,7 @@
 
 namespace Codenzia\FilamentMedia\Tests;
 
+use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
 use Codenzia\FilamentMedia\FilamentMediaServiceProvider;
 use Filament\Support\SupportServiceProvider;
@@ -38,9 +39,11 @@ class TestCase extends Orchestra
         return [
             // Livewire must be explicitly listed (its binding "livewire.finder"
             // doesn't survive Testbench's package:discover alone). Same for
-            // Blade Icons and Filament Support so tests that render
-            // <x-filament::icon> in views can resolve the view component.
+            // Blade Icons + Heroicons + Filament Support so tests that render
+            // <x-filament::icon> in views can resolve the view component and
+            // the underlying heroicon SVG set.
             BladeIconsServiceProvider::class,
+            BladeHeroiconsServiceProvider::class,
             LivewireServiceProvider::class,
             SupportServiceProvider::class,
             FilamentMediaServiceProvider::class,
