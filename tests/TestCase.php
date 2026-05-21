@@ -2,7 +2,9 @@
 
 namespace Codenzia\FilamentMedia\Tests;
 
+use BladeUI\Icons\BladeIconsServiceProvider;
 use Codenzia\FilamentMedia\FilamentMediaServiceProvider;
+use Filament\Support\SupportServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -35,9 +37,12 @@ class TestCase extends Orchestra
     {
         return [
             // Livewire must be explicitly listed (its binding "livewire.finder"
-            // doesn't survive Testbench's package:discover alone). Filament's
-            // own providers + Blade/Icons providers are auto-discovered.
+            // doesn't survive Testbench's package:discover alone). Same for
+            // Blade Icons and Filament Support so tests that render
+            // <x-filament::icon> in views can resolve the view component.
+            BladeIconsServiceProvider::class,
             LivewireServiceProvider::class,
+            SupportServiceProvider::class,
             FilamentMediaServiceProvider::class,
         ];
     }
