@@ -19,6 +19,8 @@ class MediaFileController extends Controller
 {
     public function postUpload(Request $request): JsonResponse
     {
+        abort_unless(auth()->user()?->can('upload_media'), 403);
+
         try {
             $uploadService = app(UploadService::class);
 
@@ -190,11 +192,15 @@ class MediaFileController extends Controller
 
     public function postUploadFromEditor(Request $request): JsonResponse
     {
+        abort_unless(auth()->user()?->can('upload_media'), 403);
+
         return app(UploadService::class)->uploadFromEditor($request);
     }
 
     public function postDownloadUrl(Request $request): JsonResponse
     {
+        abort_unless(auth()->user()?->can('upload_media'), 403);
+
         $validator = Validator::make($request->input(), [
             'url' => ['required', 'url'],
             'folderId' => ['nullable', 'integer'],

@@ -1,10 +1,15 @@
-# Filament Media Manager
+# Filament Media — Media Manager for Filament
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/codenzia/filament-media.svg?style=flat-square)](https://packagist.org/packages/codenzia/filament-media)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/codenzia/filament-media/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/codenzia/filament-media/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![Latest Version](https://img.shields.io/packagist/v/codenzia/filament-media.svg?style=flat-square)](https://packagist.org/packages/codenzia/filament-media)
+[![PHP Version](https://img.shields.io/packagist/php-v/codenzia/filament-media.svg?style=flat-square)](https://packagist.org/packages/codenzia/filament-media)
+[![Filament](https://img.shields.io/badge/Filament-v4%20%7C%20v5-f59e0b?style=flat-square)](https://filamentphp.com)
+[![Tests](https://img.shields.io/github/actions/workflow/status/codenzia/filament-media/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/codenzia/filament-media/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/codenzia/filament-media.svg?style=flat-square)](https://packagist.org/packages/codenzia/filament-media)
+[![License](https://img.shields.io/badge/license-MIT%20%7C%20Proprietary-blue?style=flat-square)](LICENSE.md)
 
-A full-featured Digital Asset Management plugin for Filament v4. Upload, organize, tag, version, and serve media files across local and cloud storage — with a modern UI, fine-grained access control, and a developer-friendly service architecture.
+A **full-featured Media Manager plugin for [Filament v4 and v5](https://filamentphp.com)**. Upload, organise, tag, version, and serve media files across local and cloud storage — with a modern UI, fine-grained access control, and a developer-friendly service architecture. The foundation that [`codenzia/filament-dam`](https://github.com/codenzia/filament-dam) builds its enterprise DAM features on top of.
+
+> **Try it live:** A working integration is included in the [Codenzia plugins demo](https://github.com/Codenzia/plugins-demo) at `/admin/demo/media`.
 
 ## Features
 
