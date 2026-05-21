@@ -1,7 +1,7 @@
 <?php
 
-use Codenzia\FilamentMedia\Models\MediaFileVersion;
 use Codenzia\FilamentMedia\Models\MediaFile;
+use Codenzia\FilamentMedia\Models\MediaFileVersion;
 
 beforeEach(function () {
     MediaFile::withoutGlobalScopes();

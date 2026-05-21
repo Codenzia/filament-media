@@ -2,10 +2,9 @@
 
 use Codenzia\FilamentMedia\Http\Resources\FileResource;
 use Codenzia\FilamentMedia\Models\MediaFile;
-use Codenzia\FilamentMedia\Support\MediaHash;
 use Codenzia\FilamentMedia\Models\MediaFolder;
 use Codenzia\FilamentMedia\Models\MediaTag;
-use Codenzia\FilamentMedia\Services\MediaUrlService;
+use Codenzia\FilamentMedia\Support\MediaHash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;

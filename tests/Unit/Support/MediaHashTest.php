@@ -49,7 +49,7 @@ describe('MediaHash', function () {
     it('produces different hash when app key changes', function () {
         $hash1 = MediaHash::generate(1);
 
-        config(['app.key' => 'base64:' . base64_encode(str_repeat('b', 32))]);
+        config(['app.key' => 'base64:'.base64_encode(str_repeat('b', 32))]);
 
         $hash2 = MediaHash::generate(1);
 

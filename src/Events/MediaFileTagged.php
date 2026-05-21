@@ -9,7 +9,5 @@ class MediaFileTagged
 {
     use Dispatchable;
 
-    public function __construct(public MediaFile $file, public array $tagIds)
-    {
-    }
+    public function __construct(public MediaFile $file, public array $tagIds) {}
 }

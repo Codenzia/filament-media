@@ -9,7 +9,5 @@ class MediaFileRenaming
 {
     use Dispatchable;
 
-    public function __construct(public MediaFile $file, public string $newName, public bool $renameOnDisk)
-    {
-    }
+    public function __construct(public MediaFile $file, public string $newName, public bool $renameOnDisk) {}
 }

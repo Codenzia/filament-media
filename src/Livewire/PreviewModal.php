@@ -18,21 +18,32 @@ use Livewire\Component;
 class PreviewModal extends Component
 {
     public bool $isOpen = false;
+
     public ?int $currentFileId = null;
 
     /** @var array<int> */
     public array $fileIds = [];
+
     public int $currentIndex = 0;
 
     public string $name = '';
+
     public string $url = '';
+
     public string $fullUrl = '';
+
     public string $mimeType = '';
+
     public string $size = '';
+
     public string $alt = '';
+
     public string $createdAt = '';
+
     public string $fileType = 'document';
+
     public bool $fileExists = true;
+
     public array $versions = [];
 
     #[On('open-preview-modal')]

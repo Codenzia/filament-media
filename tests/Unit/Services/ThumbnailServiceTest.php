@@ -9,13 +9,13 @@ beforeEach(function () {
 
 describe('ThumbnailService', function () {
     it('can be instantiated', function () {
-        $service = new ThumbnailService();
+        $service = new ThumbnailService;
 
         expect($service)->toBeInstanceOf(ThumbnailService::class);
     });
 
     it('can set image path', function () {
-        $service = new ThumbnailService();
+        $service = new ThumbnailService;
 
         $result = $service->setImage('test/image.jpg');
 
@@ -23,7 +23,7 @@ describe('ThumbnailService', function () {
     });
 
     it('can set size', function () {
-        $service = new ThumbnailService();
+        $service = new ThumbnailService;
 
         $result = $service->setSize(800, 600);
 
@@ -31,7 +31,7 @@ describe('ThumbnailService', function () {
     });
 
     it('can set coordinates', function () {
-        $service = new ThumbnailService();
+        $service = new ThumbnailService;
 
         $result = $service->setCoordinates(100, 200);
 
@@ -39,7 +39,7 @@ describe('ThumbnailService', function () {
     });
 
     it('can set destination path', function () {
-        $service = new ThumbnailService();
+        $service = new ThumbnailService;
 
         $result = $service->setDestinationPath('/path/to/destination');
 
@@ -47,7 +47,7 @@ describe('ThumbnailService', function () {
     });
 
     it('can set file name', function () {
-        $service = new ThumbnailService();
+        $service = new ThumbnailService;
 
         $result = $service->setFileName('output.jpg');
 
@@ -55,7 +55,7 @@ describe('ThumbnailService', function () {
     });
 
     it('returns fluent interface for chaining', function () {
-        $service = new ThumbnailService();
+        $service = new ThumbnailService;
 
         $result = $service
             ->setImage('test/image.jpg')
@@ -70,7 +70,7 @@ describe('ThumbnailService', function () {
 
 describe('ThumbnailService Validation', function () {
     it('throws exception when image is not set', function () {
-        $service = new ThumbnailService();
+        $service = new ThumbnailService;
 
         $service
             ->setSize(100, 100)
@@ -80,7 +80,7 @@ describe('ThumbnailService Validation', function () {
     })->throws(InvalidArgumentException::class, 'Image source is required');
 
     it('throws exception when destination path is not set', function () {
-        $service = new ThumbnailService();
+        $service = new ThumbnailService;
 
         $service
             ->setImage('test/image.jpg')
@@ -90,7 +90,7 @@ describe('ThumbnailService Validation', function () {
     })->throws(InvalidArgumentException::class, 'Destination path and filename are required');
 
     it('throws exception when file name is not set', function () {
-        $service = new ThumbnailService();
+        $service = new ThumbnailService;
 
         $service
             ->setImage('test/image.jpg')
@@ -113,7 +113,7 @@ describe('ThumbnailService Validation', function () {
         $tempFile = tempnam(sys_get_temp_dir(), 'test_');
         file_put_contents($tempFile, $imageContent);
 
-        $service = new ThumbnailService();
+        $service = new ThumbnailService;
 
         try {
             $service
@@ -141,17 +141,17 @@ describe('ThumbnailService Image Processing', function () {
         imagedestroy($img);
 
         $tempDir = sys_get_temp_dir();
-        $tempFile = $tempDir . '/test_source_' . uniqid() . '.jpg';
+        $tempFile = $tempDir.'/test_source_'.uniqid().'.jpg';
         file_put_contents($tempFile, $imageContent);
 
-        $service = new ThumbnailService();
+        $service = new ThumbnailService;
 
         $result = $service
             ->setImage($tempFile)
             ->setSize(50, 50)
             ->setCoordinates(0, 0)
             ->setDestinationPath($tempDir)
-            ->setFileName('test_output_' . uniqid() . '.jpg')
+            ->setFileName('test_output_'.uniqid().'.jpg')
             ->save('crop');
 
         expect($result)->toBeString()
@@ -174,16 +174,16 @@ describe('ThumbnailService Image Processing', function () {
         imagedestroy($img);
 
         $tempDir = sys_get_temp_dir();
-        $tempFile = $tempDir . '/test_resize_source_' . uniqid() . '.jpg';
+        $tempFile = $tempDir.'/test_resize_source_'.uniqid().'.jpg';
         file_put_contents($tempFile, $imageContent);
 
-        $service = new ThumbnailService();
+        $service = new ThumbnailService;
 
         $result = $service
             ->setImage($tempFile)
             ->setSize(100, 100)
             ->setDestinationPath($tempDir)
-            ->setFileName('test_resize_output_' . uniqid() . '.jpg')
+            ->setFileName('test_resize_output_'.uniqid().'.jpg')
             ->save('resize');
 
         expect($result)->toBeString()
@@ -206,12 +206,12 @@ describe('ThumbnailService Image Processing', function () {
         imagedestroy($img);
 
         $tempDir = sys_get_temp_dir();
-        $tempFile = $tempDir . '/test_thumb_source_' . uniqid() . '.jpg';
+        $tempFile = $tempDir.'/test_thumb_source_'.uniqid().'.jpg';
         file_put_contents($tempFile, $imageContent);
 
-        $destFile = $tempDir . '/test_thumb_output_' . uniqid() . '.jpg';
+        $destFile = $tempDir.'/test_thumb_output_'.uniqid().'.jpg';
 
-        $service = new ThumbnailService();
+        $service = new ThumbnailService;
         $result = $service->generateThumbnail($tempFile, '150x150', $destFile);
 
         expect($result)->toBeString()

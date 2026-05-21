@@ -2,6 +2,8 @@
 
 namespace Codenzia\FilamentMedia\Pages\Concerns;
 
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+
 /**
  * Conditionally applies FilamentShield's HasPageShield trait.
  *
@@ -9,10 +11,10 @@ namespace Codenzia\FilamentMedia\Pages\Concerns;
  * HasPageShield for permission enforcement. Otherwise, it's a no-op
  * so the package works without filament-shield as a dependency.
  */
-if (trait_exists(\BezhanSalleh\FilamentShield\Traits\HasPageShield::class)) {
+if (trait_exists(HasPageShield::class)) {
     trait HasConditionalPageShield
     {
-        use \BezhanSalleh\FilamentShield\Traits\HasPageShield;
+        use HasPageShield;
     }
 } else {
     trait HasConditionalPageShield

@@ -18,7 +18,7 @@ describe('StorageDriverService - getMediaDriver', function () {
         config()->set('media.disk', null);
         config()->set('filament-media.media.disk', null);
 
-        $service = new StorageDriverService();
+        $service = new StorageDriverService;
         $driver = $service->getMediaDriver();
 
         expect($driver)->toBe('public');
@@ -27,7 +27,7 @@ describe('StorageDriverService - getMediaDriver', function () {
     it('returns s3 when configured as s3', function () {
         config()->set('media.disk', 's3');
 
-        $service = new StorageDriverService();
+        $service = new StorageDriverService;
         $driver = $service->getMediaDriver();
 
         expect($driver)->toBe('s3');
@@ -38,7 +38,7 @@ describe('StorageDriverService - isUsingCloud', function () {
     it('returns true for s3 driver', function () {
         config()->set('media.disk', 's3');
 
-        $service = new StorageDriverService();
+        $service = new StorageDriverService;
 
         expect($service->isUsingCloud())->toBeTrue();
     });
@@ -46,7 +46,7 @@ describe('StorageDriverService - isUsingCloud', function () {
     it('returns true for r2 driver', function () {
         config()->set('media.disk', 'r2');
 
-        $service = new StorageDriverService();
+        $service = new StorageDriverService;
 
         expect($service->isUsingCloud())->toBeTrue();
     });
@@ -54,7 +54,7 @@ describe('StorageDriverService - isUsingCloud', function () {
     it('returns true for do_spaces driver', function () {
         config()->set('media.disk', 'do_spaces');
 
-        $service = new StorageDriverService();
+        $service = new StorageDriverService;
 
         expect($service->isUsingCloud())->toBeTrue();
     });
@@ -62,7 +62,7 @@ describe('StorageDriverService - isUsingCloud', function () {
     it('returns true for wasabi driver', function () {
         config()->set('media.disk', 'wasabi');
 
-        $service = new StorageDriverService();
+        $service = new StorageDriverService;
 
         expect($service->isUsingCloud())->toBeTrue();
     });
@@ -70,7 +70,7 @@ describe('StorageDriverService - isUsingCloud', function () {
     it('returns true for bunnycdn driver', function () {
         config()->set('media.disk', 'bunnycdn');
 
-        $service = new StorageDriverService();
+        $service = new StorageDriverService;
 
         expect($service->isUsingCloud())->toBeTrue();
     });
@@ -78,7 +78,7 @@ describe('StorageDriverService - isUsingCloud', function () {
     it('returns true for backblaze driver', function () {
         config()->set('media.disk', 'backblaze');
 
-        $service = new StorageDriverService();
+        $service = new StorageDriverService;
 
         expect($service->isUsingCloud())->toBeTrue();
     });
@@ -86,7 +86,7 @@ describe('StorageDriverService - isUsingCloud', function () {
     it('returns false for public driver', function () {
         config()->set('media.disk', 'public');
 
-        $service = new StorageDriverService();
+        $service = new StorageDriverService;
 
         expect($service->isUsingCloud())->toBeFalse();
     });
@@ -94,7 +94,7 @@ describe('StorageDriverService - isUsingCloud', function () {
     it('returns false for local driver', function () {
         config()->set('media.disk', 'local');
 
-        $service = new StorageDriverService();
+        $service = new StorageDriverService;
 
         expect($service->isUsingCloud())->toBeFalse();
     });

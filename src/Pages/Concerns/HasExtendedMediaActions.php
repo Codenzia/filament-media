@@ -13,8 +13,8 @@ use Codenzia\FilamentMedia\Services\VersionService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -70,7 +70,7 @@ trait HasExtendedMediaActions
                 $items = $arguments['items'] ?? [];
 
                 $fileIds = collect($items)
-                    ->filter(fn($item) => ! ($item['is_folder'] ?? false))
+                    ->filter(fn ($item) => ! ($item['is_folder'] ?? false))
                     ->pluck('id')
                     ->toArray();
 
@@ -229,7 +229,7 @@ trait HasExtendedMediaActions
                 $items = $arguments['items'] ?? [];
                 $tagService = app(TagService::class);
                 $fileIds = collect($items)
-                    ->filter(fn($item) => ! ($item['is_folder'] ?? false))
+                    ->filter(fn ($item) => ! ($item['is_folder'] ?? false))
                     ->pluck('id')
                     ->toArray();
 
@@ -302,7 +302,7 @@ trait HasExtendedMediaActions
                 $values = [];
 
                 foreach ($metadata as $field) {
-                    $values['metadata_' . $field->id] = $field->pivot->value;
+                    $values['metadata_'.$field->id] = $field->pivot->value;
                 }
 
                 return $values;
@@ -323,20 +323,20 @@ trait HasExtendedMediaActions
 
                 foreach ($fields as $field) {
                     $schema[] = match ($field->type) {
-                        'textarea' => Textarea::make('metadata_' . $field->id)
+                        'textarea' => Textarea::make('metadata_'.$field->id)
                             ->label($field->name)
                             ->required($field->is_required),
-                        'number' => TextInput::make('metadata_' . $field->id)
+                        'number' => TextInput::make('metadata_'.$field->id)
                             ->label($field->name)
                             ->numeric()
                             ->required($field->is_required),
-                        'select' => Select::make('metadata_' . $field->id)
+                        'select' => Select::make('metadata_'.$field->id)
                             ->label($field->name)
                             ->options($field->options ?? [])
                             ->required($field->is_required),
-                        'boolean' => Checkbox::make('metadata_' . $field->id)
+                        'boolean' => Checkbox::make('metadata_'.$field->id)
                             ->label($field->name),
-                        default => TextInput::make('metadata_' . $field->id)
+                        default => TextInput::make('metadata_'.$field->id)
                             ->label($field->name)
                             ->required($field->is_required),
                     };
@@ -388,7 +388,7 @@ trait HasExtendedMediaActions
                 $exportService = app(ExportImportService::class);
 
                 $fileIds = collect($items)
-                    ->filter(fn($item) => ! ($item['is_folder'] ?? false))
+                    ->filter(fn ($item) => ! ($item['is_folder'] ?? false))
                     ->pluck('id')
                     ->toArray();
 
@@ -423,7 +423,7 @@ trait HasExtendedMediaActions
                 $info = $file?->getLinkedModelInfo();
 
                 return $info
-                    ? trans('filament-media::media.parent_details') . ': ' . $info['label']
+                    ? trans('filament-media::media.parent_details').': '.$info['label']
                     : trans('filament-media::media.parent_details');
             })
             ->schema(function (array $arguments): array {

@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Codenzia\FilamentMedia\Http\Controllers\MediaFileController;
 use Codenzia\FilamentMedia\Http\Controllers\PrivateMediaController;
 use Codenzia\FilamentMedia\Http\Controllers\PublicMediaController;
+use Illuminate\Support\Facades\Route;
 
 // Public route for indirect media file access
 Route::get('media/files/{hash}/{id}', [PublicMediaController::class, 'show'])

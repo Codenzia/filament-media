@@ -9,7 +9,5 @@ class MediaFileRenamed
 {
     use Dispatchable;
 
-    public function __construct(public MediaFile $file)
-    {
-    }
+    public function __construct(public MediaFile $file) {}
 }

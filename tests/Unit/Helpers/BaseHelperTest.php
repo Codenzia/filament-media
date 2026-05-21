@@ -4,7 +4,7 @@ use Codenzia\FilamentMedia\Helpers\BaseHelper;
 
 describe('BaseHelper', function () {
     beforeEach(function () {
-        $this->helper = new BaseHelper();
+        $this->helper = new BaseHelper;
     });
 
     describe('stringify method', function () {
@@ -62,7 +62,7 @@ describe('BaseHelper', function () {
         });
 
         it('returns null for objects', function () {
-            $object = new stdClass();
+            $object = new stdClass;
             $object->property = 'value';
 
             expect($this->helper->stringify($object))->toBeNull();

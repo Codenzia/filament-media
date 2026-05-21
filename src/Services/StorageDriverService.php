@@ -2,6 +2,7 @@
 
 namespace Codenzia\FilamentMedia\Services;
 
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,7 +17,7 @@ class StorageDriverService
         return $this->getConfig('disk') ?? $this->getConfig('driver') ?? 'public';
     }
 
-    public function getMediaDisk(): \Illuminate\Contracts\Filesystem\Filesystem
+    public function getMediaDisk(): Filesystem
     {
         return Storage::disk($this->getMediaDriver());
     }
@@ -94,7 +95,7 @@ class StorageDriverService
     {
         $customPath = trim(\setting('media_s3_path', $this->getConfig('custom_s3_path')), '/');
 
-        return $customPath ? $customPath . '/' : '';
+        return $customPath ? $customPath.'/' : '';
     }
 
     protected function getConfig(?string $key = null, mixed $default = null): mixed
@@ -219,7 +220,7 @@ class StorageDriverService
             'url' => $config['url'] ?? null,
             'endpoint' => str_starts_with($config['endpoint'], 'https://')
                 ? $config['endpoint']
-                : 'https://' . $config['endpoint'],
+                : 'https://'.$config['endpoint'],
             'use_path_style_endpoint' => (bool) ($config['use_path_style_endpoint'] ?? false),
             'options' => ['StorageClass' => 'STANDARD'],
             'request_checksum_calculation' => 'when_required',

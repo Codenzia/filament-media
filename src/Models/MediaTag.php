@@ -97,7 +97,7 @@ class MediaTag extends Model
         $counter = 1;
 
         while (self::where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter++;
+            $slug = $baseSlug.'-'.$counter++;
         }
 
         return $slug;

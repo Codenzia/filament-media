@@ -4,8 +4,8 @@ namespace Codenzia\FilamentMedia\Livewire;
 
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
-use Codenzia\FilamentMedia\Services\MediaUrlService;
-use Illuminate\Support\Arr;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -69,7 +69,7 @@ class MediaPicker extends Component
         $this->viewMode = config('media.picker.default_view', 'grid');
     }
 
-    public function getFilesProperty(): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getFilesProperty(): LengthAwarePaginator
     {
         $query = MediaFile::inFolder($this->folderId)
             ->filterByType($this->filter)
@@ -81,7 +81,7 @@ class MediaPicker extends Component
                 foreach ($this->acceptedFileTypes as $type) {
                     if (str_ends_with($type, '/*')) {
                         $prefix = str_replace('/*', '/', $type);
-                        $q->orWhere('mime_type', 'LIKE', $prefix . '%');
+                        $q->orWhere('mime_type', 'LIKE', $prefix.'%');
                     } else {
                         $q->orWhere('mime_type', $type);
                     }
@@ -92,7 +92,7 @@ class MediaPicker extends Component
         return $query->paginate(config('media.pagination.per_page', 30));
     }
 
-    public function getFoldersProperty(): \Illuminate\Database\Eloquent\Collection
+    public function getFoldersProperty(): Collection
     {
         if (config('media.picker.show_folders', true) === false) {
             return collect();

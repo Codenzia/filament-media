@@ -193,9 +193,9 @@ class UploadService
             }
 
             return response(
-                '<script>window.parent.CKEDITOR.tools.callFunction(' .
-                json_encode($request->input('CKEditorFuncNum')) . ', "", ' .
-                json_encode($errorMessage) . ');</script>'
+                '<script>window.parent.CKEDITOR.tools.callFunction('.
+                json_encode($request->input('CKEditorFuncNum')).', "", '.
+                json_encode($errorMessage).');</script>'
             )->header('Content-Type', 'text/html');
         }
 
@@ -213,8 +213,8 @@ class UploadService
             }
 
             return response(
-                '<script>window.parent.CKEDITOR.tools.callFunction("' . $request->input('CKEditorFuncNum') .
-                '", "' . $this->urlService->url($file->url) . '", "");</script>'
+                '<script>window.parent.CKEDITOR.tools.callFunction("'.$request->input('CKEditorFuncNum').
+                '", "'.$this->urlService->url($file->url).'", "");</script>'
             )->header('Content-Type', 'text/html');
         } catch (MediaUploadException $e) {
             $errorMessage = $e->getMessage();
@@ -227,9 +227,9 @@ class UploadService
             }
 
             return response(
-                '<script>window.parent.CKEDITOR.tools.callFunction(' .
-                json_encode($request->input('CKEditorFuncNum')) . ', "", ' .
-                json_encode($errorMessage) . ');</script>'
+                '<script>window.parent.CKEDITOR.tools.callFunction('.
+                json_encode($request->input('CKEditorFuncNum')).', "", '.
+                json_encode($errorMessage).');</script>'
             )->header('Content-Type', 'text/html');
         }
     }
@@ -316,7 +316,7 @@ class UploadService
             $isAllowed = false;
             foreach ($allowedDomains as $domain) {
                 $domain = strtolower($domain);
-                if ($host === $domain || Str::endsWith($host, '.' . $domain)) {
+                if ($host === $domain || Str::endsWith($host, '.'.$domain)) {
                     $isAllowed = true;
                     break;
                 }
@@ -400,10 +400,10 @@ class UploadService
             $folderPath = MediaFolder::getFullPath($folderId);
             $diskFileName = MediaFile::createSlug($file->name, $fileExtension, $folderPath ?: '');
 
-            $filePath = $folderPath ? $folderPath . '/' . $diskFileName : $diskFileName;
+            $filePath = $folderPath ? $folderPath.'/'.$diskFileName : $diskFileName;
 
             if ($this->storageDriver->getMediaDriver() === 's3') {
-                $filePath = $this->storageDriver->getCustomS3Path() . $filePath;
+                $filePath = $this->storageDriver->getCustomS3Path().$filePath;
             }
 
             $content = ($fileUpload instanceof TemporaryUploadedFile)
@@ -516,7 +516,7 @@ class UploadService
             $fileExtension = Arr::first((new MimeTypes)->getExtensions($mimeType)) ?: $fileExtension;
         }
 
-        return new UploadedFile($path, $fileName . '.' . $fileExtension, $mimeType, null, true);
+        return new UploadedFile($path, $fileName.'.'.$fileExtension, $mimeType, null, true);
     }
 
     public function getServerConfigMaxUploadFileSize(): float

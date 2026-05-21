@@ -28,7 +28,7 @@ class SyncMediaCommand extends Command
 
         $this->disk = FilamentMedia::getMediaDriver();
         $storage = Storage::disk($this->disk);
-        
+
         // Start from root
         $this->processDirectory($storage, '', 0);
 
@@ -44,7 +44,7 @@ class SyncMediaCommand extends Command
 
         foreach ($directories as $directory) {
             $folderName = basename($directory);
-            
+
             // Skip thumbnails or internal folders if any
             if ($folderName === 'thumbnails') {
                 continue;
@@ -67,7 +67,7 @@ class SyncMediaCommand extends Command
 
         // Get all files in the current path
         $files = $storage->files($path);
-        
+
         $sizes = FilamentMedia::getSizes();
 
         foreach ($files as $filePath) {
@@ -80,7 +80,7 @@ class SyncMediaCommand extends Command
 
             // Check if it's a thumbnail
             foreach ($sizes as $size) {
-                if (Str::endsWith($fileName, '-' . $size . '.' . pathinfo($fileName, PATHINFO_EXTENSION))) {
+                if (Str::endsWith($fileName, '-'.$size.'.'.pathinfo($fileName, PATHINFO_EXTENSION))) {
                     continue 2;
                 }
             }
@@ -95,23 +95,23 @@ class SyncMediaCommand extends Command
             if ($existingFile) {
                 // Verify by storage path to avoid duplicates with the same display name
                 if (MediaFile::where('url', $filePath)->exists()) {
-                     continue;
+                    continue;
                 }
             }
 
             $mimeType = $storage->mimeType($filePath);
             $size = $storage->size($filePath);
-            
-            $file = new MediaFile();
+
+            $file = new MediaFile;
             $file->name = pathinfo($fileName, PATHINFO_FILENAME);
-            
+
             $file->folder_id = $parentId;
             $file->user_id = 0;
             $file->size = $size;
             $file->mime_type = $mimeType;
             $file->url = $filePath; // Stores relative path to storage root
             $file->visibility = 'public'; // Default
-            
+
             $file->save();
         }
     }

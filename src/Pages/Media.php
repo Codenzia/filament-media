@@ -2,13 +2,13 @@
 
 namespace Codenzia\FilamentMedia\Pages;
 
+use Codenzia\FilamentMedia\Pages\Concerns\HasConditionalPageShield;
 use Codenzia\FilamentMedia\Pages\Concerns\HasExtendedMediaActions;
 use Codenzia\FilamentMedia\Pages\Concerns\HasFileManagementActions;
 use Codenzia\FilamentMedia\Pages\Concerns\HasMediaHelpers;
 use Codenzia\FilamentMedia\Pages\Concerns\InteractsWithMediaEvents;
 use Codenzia\FilamentMedia\Pages\Concerns\InteractsWithMediaQueries;
 use Codenzia\FilamentMedia\Pages\Concerns\InteractsWithMediaState;
-use Codenzia\FilamentMedia\Pages\Concerns\HasConditionalPageShield;
 use Filament\Pages\Page;
 use Livewire\Attributes\Url;
 use Livewire\WithFileUploads;
@@ -22,13 +22,13 @@ use Livewire\WithFileUploads;
 class Media extends Page
 {
     use HasConditionalPageShield;
-    use WithFileUploads;
+    use HasExtendedMediaActions;
+    use HasFileManagementActions;
     use HasMediaHelpers;
+    use InteractsWithMediaEvents;
     use InteractsWithMediaQueries;
     use InteractsWithMediaState;
-    use InteractsWithMediaEvents;
-    use HasFileManagementActions;
-    use HasExtendedMediaActions;
+    use WithFileUploads;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-photo';
 
@@ -53,18 +53,28 @@ class Media extends Page
     public int $collectionId = 0;
 
     public string $viewType = 'grid';
+
     public array $selectedItems = [];
+
     public ?array $previewItem = null;
+
     public bool $showDetailsPanel = true;
+
     public bool $isLoading = false;
+
     public $uploadedFiles = [];
 
     // Pagination (overridden from config in mount)
     public int $perPage = 200;
+
     public int $currentPage = 1;
+
     public int $refreshKey = 0;
+
     public bool $hasMorePages = false;
+
     public int $totalFileCount = 0;
+
     public int $displayedFileCount = 0;
 
     public static function getNavigationIcon(): string|\BackedEnum|null

@@ -96,7 +96,7 @@ class ImageService
         $destinationPath = sprintf(
             '%s/%s',
             trim(File::dirname($image), '/'),
-            File::name($image) . '.' . File::extension($image)
+            File::name($image).'.'.File::extension($image)
         );
 
         $this->uploadManager->saveFile($destinationPath, $imageSource->encode(new AutoEncoder));
@@ -156,8 +156,8 @@ class ImageService
             $sizeValue = $this->getSize($size);
 
             $url = str_replace(
-                $fileName . '.' . $fileExtension,
-                $fileName . '-' . $sizeValue . '.' . $fileExtension,
+                $fileName.'.'.$fileExtension,
+                $fileName.'-'.$sizeValue.'.'.$fileExtension,
                 $url
             );
         }
@@ -179,17 +179,18 @@ class ImageService
 
         foreach ($sizes as $name => $size) {
             $size = explode('x', $size);
-            $settingName = 'media_sizes_' . $name;
+            $settingName = 'media_sizes_'.$name;
 
-            $width = \setting($settingName . '_width', $size[0]);
-            $height = \setting($settingName . '_height', $size[1]);
+            $width = \setting($settingName.'_width', $size[0]);
+            $height = \setting($settingName.'_height', $size[1]);
 
             if (! $width && ! $height) {
                 unset($sizes[$name]);
+
                 continue;
             }
 
-            $sizes[$name] = ($width ?: 'auto') . 'x' . ($height ?: 'auto');
+            $sizes[$name] = ($width ?: 'auto').'x'.($height ?: 'auto');
         }
 
         return $sizes;
@@ -230,9 +231,9 @@ class ImageService
             }
         }
 
-        $thumbnailFileName = File::name($file->url) . '-' . $size . '.' . File::extension($file->url);
+        $thumbnailFileName = File::name($file->url).'-'.$size.'.'.File::extension($file->url);
         $dirName = File::dirname($file->url);
-        $thumbnailPath = ($dirName === '.' || ! $dirName) ? $thumbnailFileName : $dirName . '/' . $thumbnailFileName;
+        $thumbnailPath = ($dirName === '.' || ! $dirName) ? $thumbnailFileName : $dirName.'/'.$thumbnailFileName;
 
         if (! $this->storageDriver->isUsingCloud() && Storage::disk($disk)->exists($thumbnailPath)) {
             return;
@@ -244,7 +245,7 @@ class ImageService
             $storagePath = Storage::disk($disk)->path('');
             $destinationPath = ($dirName === '.' || ! $dirName)
                 ? rtrim($storagePath, '/\\')
-                : $storagePath . $dirName;
+                : $storagePath.$dirName;
         }
 
         $this->thumbnailService

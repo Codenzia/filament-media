@@ -2,8 +2,11 @@
 
 namespace Codenzia\FilamentMedia\Services;
 
+use Codenzia\FilamentMedia\Exceptions\MediaUploadException;
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
+use Codenzia\FilamentMedia\Models\MediaMetadataField;
+use Codenzia\FilamentMedia\Models\MediaTag;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -57,7 +60,7 @@ class ExportImportService
 
     public function importFromZip(UploadedFile $zipFile, int $folderId = 0): array
     {
-        $tempDir = sys_get_temp_dir() . '/media_import_' . uniqid();
+        $tempDir = sys_get_temp_dir().'/media_import_'.uniqid();
         mkdir($tempDir, 0755, true);
 
         $zip = new ZipArchive;
@@ -69,7 +72,7 @@ class ExportImportService
         $zip->close();
 
         // Check for manifest.json for metadata import
-        $manifestPath = $tempDir . '/manifest.json';
+        $manifestPath = $tempDir.'/manifest.json';
         if (file_exists($manifestPath)) {
             $result = $this->importWithManifest($tempDir, $manifestPath, $folderId);
         } else {
@@ -108,7 +111,7 @@ class ExportImportService
 
             readfile($tempFile);
             @unlink($tempFile);
-        }, $name . '.zip', ['Content-Type' => 'application/zip']);
+        }, $name.'.zip', ['Content-Type' => 'application/zip']);
     }
 
     protected function createZipResponseWithManifest($files, array $manifest, string $name): StreamedResponse
@@ -130,7 +133,7 @@ class ExportImportService
 
             readfile($tempFile);
             @unlink($tempFile);
-        }, $name . '.zip', ['Content-Type' => 'application/zip']);
+        }, $name.'.zip', ['Content-Type' => 'application/zip']);
     }
 
     protected function addFileToZip(ZipArchive $zip, MediaFile $file): void
@@ -203,8 +206,8 @@ class ExportImportService
             try {
                 $this->uploadService->uploadFromPath($fileInfo->getRealPath(), $folderId);
                 $imported++;
-            } catch (\Codenzia\FilamentMedia\Exceptions\MediaUploadException $e) {
-                $errors[] = $fileInfo->getFilename() . ': ' . $e->getMessage();
+            } catch (MediaUploadException $e) {
+                $errors[] = $fileInfo->getFilename().': '.$e->getMessage();
             }
         }
 
@@ -227,17 +230,19 @@ class ExportImportService
         $errors = [];
 
         foreach ($manifest['files'] as $entry) {
-            $filePath = $tempDir . '/' . basename($entry['path']);
+            $filePath = $tempDir.'/'.basename($entry['path']);
 
             if (! file_exists($filePath)) {
-                $errors[] = ($entry['name'] ?? basename($entry['path'])) . ': File not found in ZIP';
+                $errors[] = ($entry['name'] ?? basename($entry['path'])).': File not found in ZIP';
+
                 continue;
             }
 
             try {
                 $file = $this->uploadService->uploadFromPath($filePath, $folderId);
-            } catch (\Codenzia\FilamentMedia\Exceptions\MediaUploadException $e) {
-                $errors[] = ($entry['name'] ?? '') . ': ' . $e->getMessage();
+            } catch (MediaUploadException $e) {
+                $errors[] = ($entry['name'] ?? '').': '.$e->getMessage();
+
                 continue;
             }
 
@@ -257,7 +262,7 @@ class ExportImportService
 
             if (! empty($entry['collections'])) {
                 foreach ($entry['collections'] as $collectionName) {
-                    $tag = \Codenzia\FilamentMedia\Models\MediaTag::findOrCreateByName($collectionName, 'collection');
+                    $tag = MediaTag::findOrCreateByName($collectionName, 'collection');
                     $file->tags()->syncWithoutDetaching([$tag->id]);
                 }
             }
@@ -265,7 +270,7 @@ class ExportImportService
             if (! empty($entry['metadata'])) {
                 $fieldValues = [];
                 foreach ($entry['metadata'] as $slug => $value) {
-                    $field = \Codenzia\FilamentMedia\Models\MediaMetadataField::where('slug', $slug)->first();
+                    $field = MediaMetadataField::where('slug', $slug)->first();
                     if ($field) {
                         $fieldValues[$field->id] = $value;
                     }

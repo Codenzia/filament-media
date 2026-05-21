@@ -3,13 +3,13 @@
 namespace Codenzia\FilamentMedia\Services;
 
 use Carbon\Carbon;
+use Codenzia\FilamentMedia\Facades\FilamentMedia;
 use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToRetrieveMetadata;
-use Codenzia\FilamentMedia\Facades\FilamentMedia;
 
 /**
  * Low-level filesystem operations for saving, deleting, and inspecting uploaded files,
@@ -102,12 +102,12 @@ class UploadsManager
         if (! FilamentMedia::isChunkUploadEnabled() || ! $file) {
             try {
                 return $storage->put($this->cleanFolder($path), $content, ['visibility' => $visibility]);
-            } catch (Exception | FilesystemException) {
+            } catch (Exception|FilesystemException) {
                 return $storage->put($this->cleanFolder($path), $content);
             }
         }
 
-        $currentChunksPath = FilamentMedia::getConfig('chunk.storage.chunks') . '/' . $file->getFilename();
+        $currentChunksPath = FilamentMedia::getConfig('chunk.storage.chunks').'/'.$file->getFilename();
         $disk = Storage::disk(FilamentMedia::getConfig('chunk.storage.disk'));
 
         try {
@@ -115,14 +115,14 @@ class UploadsManager
 
             try {
                 $result = Storage::writeStream($path, $stream, ['visibility' => $visibility]);
-            } catch (Exception | FilesystemException) {
+            } catch (Exception|FilesystemException) {
                 $result = Storage::writeStream($path, $stream);
             }
 
             if ($result) {
                 $disk->delete($currentChunksPath);
             }
-        } catch (Exception | FilesystemException) {
+        } catch (Exception|FilesystemException) {
             return $storage->put($this->cleanFolder($path), $content);
         }
 

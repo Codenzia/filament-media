@@ -89,9 +89,8 @@ class MediaSetting extends BaseModel
     /**
      * Get a system-wide setting value.
      *
-     * @param string $key The setting key
-     * @param mixed $default Default value if not found
-     * @return mixed
+     * @param  string  $key  The setting key
+     * @param  mixed  $default  Default value if not found
      */
     public static function getSystemSetting(string $key, mixed $default = null): mixed
     {
@@ -105,9 +104,8 @@ class MediaSetting extends BaseModel
     /**
      * Set a system-wide setting value.
      *
-     * @param string $key The setting key
-     * @param mixed $value The value to store
-     * @return static
+     * @param  string  $key  The setting key
+     * @param  mixed  $value  The value to store
      */
     public static function setSystemSetting(string $key, mixed $value): static
     {
@@ -123,8 +121,6 @@ class MediaSetting extends BaseModel
 
     /**
      * Get all system settings as an array.
-     *
-     * @return array
      */
     public static function getAllSystemSettings(): array
     {
@@ -136,8 +132,7 @@ class MediaSetting extends BaseModel
     /**
      * Set multiple system settings at once.
      *
-     * @param array $settings Key-value pairs
-     * @return void
+     * @param  array  $settings  Key-value pairs
      */
     public static function setSystemSettings(array $settings): void
     {

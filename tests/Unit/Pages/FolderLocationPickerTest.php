@@ -27,7 +27,7 @@ class FolderLocationPickerTestClass
 beforeEach(function () {
     Storage::fake('public');
     MediaFolder::withoutGlobalScopes();
-    $this->helper = new FolderLocationPickerTestClass();
+    $this->helper = new FolderLocationPickerTestClass;
 });
 
 describe('buildFolderTree', function () {

@@ -5,6 +5,7 @@ namespace Codenzia\FilamentMedia\Services;
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Laravel\Scout\Searchable;
 
 /**
  * Handles media file searching via database queries or Laravel Scout,
@@ -85,7 +86,7 @@ class SearchService
         }
 
         if ($dateTo = Arr::get($criteria, 'date_to')) {
-            $query->where('created_at', '<=', $dateTo . ' 23:59:59');
+            $query->where('created_at', '<=', $dateTo.' 23:59:59');
         }
 
         if ($sizeMin = Arr::get($criteria, 'size_min')) {
@@ -108,7 +109,7 @@ class SearchService
         $config = config('filament-media.media.search.driver')
             ?? config('media.search.driver', 'database');
 
-        return $config === 'scout' && class_exists(\Laravel\Scout\Searchable::class);
+        return $config === 'scout' && class_exists(Searchable::class);
     }
 
     public function reindexAll(): void

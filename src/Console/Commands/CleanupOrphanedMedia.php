@@ -39,7 +39,7 @@ class CleanupOrphanedMedia extends Command
             $this->output->progressAdvance();
 
             // Check if the file exists on disk
-            if (!$disk->exists($file->url)) {
+            if (! $disk->exists($file->url)) {
                 $orphaned->push($file);
             }
         }
@@ -48,6 +48,7 @@ class CleanupOrphanedMedia extends Command
 
         if ($orphaned->isEmpty()) {
             $this->info('No orphaned media entries found.');
+
             return self::SUCCESS;
         }
 
@@ -68,11 +69,13 @@ class CleanupOrphanedMedia extends Command
 
         if ($dryRun) {
             $this->info('Dry run complete. No changes made.');
+
             return self::SUCCESS;
         }
 
-        if (!$force && !$this->confirm('Do you want to permanently delete these database entries?')) {
+        if (! $force && ! $this->confirm('Do you want to permanently delete these database entries?')) {
             $this->info('Operation cancelled.');
+
             return self::SUCCESS;
         }
 

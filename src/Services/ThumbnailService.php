@@ -16,16 +16,23 @@ use Intervention\Image\ImageManager;
 class ThumbnailService
 {
     protected string $image;
+
     protected int $width = 0;
+
     protected int $height = 0;
+
     protected int $x = 0;
+
     protected int $y = 0;
+
     protected string $destinationPath = '';
+
     protected string $fileName = '';
 
     public function setImage(string $image): static
     {
         $this->image = $image;
+
         return $this;
     }
 
@@ -33,6 +40,7 @@ class ThumbnailService
     {
         $this->width = $width;
         $this->height = $height;
+
         return $this;
     }
 
@@ -40,18 +48,21 @@ class ThumbnailService
     {
         $this->x = $x;
         $this->y = $y;
+
         return $this;
     }
 
     public function setDestinationPath(string $path): static
     {
         $this->destinationPath = $path;
+
         return $this;
     }
 
     public function setFileName(string $fileName): static
     {
         $this->fileName = $fileName;
+
         return $this;
     }
 
@@ -61,17 +72,18 @@ class ThumbnailService
     protected function getDriver(): GdDriver|ImagickDriver
     {
         if (extension_loaded('imagick')) {
-            return new ImagickDriver();
+            return new ImagickDriver;
         }
 
-        return new GdDriver();
+        return new GdDriver;
     }
 
     /**
      * Save the processed image (crop or resize).
      *
-     * @param string $type 'crop' or 'resize'
+     * @param  string  $type  'crop' or 'resize'
      * @return string The path to the saved image
+     *
      * @throws \Exception
      */
     public function save(string $type = 'crop'): string
@@ -106,7 +118,7 @@ class ThumbnailService
         }
 
         // Ensure destination directory exists
-        $fullPath = $this->destinationPath . '/' . $this->fileName;
+        $fullPath = $this->destinationPath.'/'.$this->fileName;
 
         if (FilamentMedia::isUsingCloud()) {
             // For cloud storage, encode and put
@@ -124,9 +136,7 @@ class ThumbnailService
     /**
      * Generate a thumbnail with the specified size.
      *
-     * @param string $sourcePath
-     * @param string $size Format: "WIDTHxHEIGHT" (e.g., "150x150")
-     * @param string $destinationPath
+     * @param  string  $size  Format: "WIDTHxHEIGHT" (e.g., "150x150")
      * @return string The path to the saved thumbnail
      */
     public function generateThumbnail(string $sourcePath, string $size, string $destinationPath): string

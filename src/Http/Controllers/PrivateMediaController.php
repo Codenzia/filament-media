@@ -4,8 +4,8 @@ namespace Codenzia\FilamentMedia\Http\Controllers;
 
 use Codenzia\FilamentMedia\FilamentMedia;
 use Codenzia\FilamentMedia\Models\MediaFile;
-use Codenzia\FilamentMedia\Support\MediaHash;
 use Codenzia\FilamentMedia\Services\StorageDriverService;
+use Codenzia\FilamentMedia\Support\MediaHash;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -108,7 +108,7 @@ class PrivateMediaController extends Controller
 
         $response = response()->file($path, [
             'Content-Type' => $mimeType,
-            'Content-Disposition' => $disposition . '; filename="' . $fileName . '"',
+            'Content-Disposition' => $disposition.'; filename="'.$fileName.'"',
         ]);
 
         $response->setPrivate();
@@ -176,17 +176,17 @@ class PrivateMediaController extends Controller
     protected function buildThumbnailPath(string $url, string $size): string
     {
         $info = pathinfo($url);
-        $dir = ($info['dirname'] && $info['dirname'] !== '.') ? $info['dirname'] . '/' : '';
+        $dir = ($info['dirname'] && $info['dirname'] !== '.') ? $info['dirname'].'/' : '';
 
-        return $dir . $info['filename'] . '-' . $size . '.' . ($info['extension'] ?? '');
+        return $dir.$info['filename'].'-'.$size.'.'.($info['extension'] ?? '');
     }
 
     protected function buildFileName(string $name, string $url): string
     {
         $extension = pathinfo($url, PATHINFO_EXTENSION);
 
-        if ($extension && ! str_ends_with($name, '.' . $extension)) {
-            return $name . '.' . $extension;
+        if ($extension && ! str_ends_with($name, '.'.$extension)) {
+            return $name.'.'.$extension;
         }
 
         return $name;

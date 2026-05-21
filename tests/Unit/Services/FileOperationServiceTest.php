@@ -1,8 +1,6 @@
 <?php
 
 use Codenzia\FilamentMedia\Events\MediaFileCopied;
-use Codenzia\FilamentMedia\Events\MediaFileDeleted;
-use Codenzia\FilamentMedia\Events\MediaFileDeleting;
 use Codenzia\FilamentMedia\Events\MediaFileMoved;
 use Codenzia\FilamentMedia\Events\MediaFileRenamed;
 use Codenzia\FilamentMedia\Events\MediaFileRenaming;

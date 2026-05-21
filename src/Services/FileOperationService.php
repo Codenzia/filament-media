@@ -3,15 +3,15 @@
 namespace Codenzia\FilamentMedia\Services;
 
 use Codenzia\FilamentMedia\Events\MediaFileCopied;
-use Codenzia\FilamentMedia\Events\MediaFileDeleted;
-use Codenzia\FilamentMedia\Events\MediaFileDeleting;
 use Codenzia\FilamentMedia\Events\MediaFileMoved;
 use Codenzia\FilamentMedia\Events\MediaFileRenamed;
 use Codenzia\FilamentMedia\Events\MediaFileRenaming;
 use Codenzia\FilamentMedia\Events\MediaFolderRenamed;
 use Codenzia\FilamentMedia\Events\MediaFolderRenaming;
+use Codenzia\FilamentMedia\FilamentMedia;
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -28,7 +28,7 @@ class FileOperationService
         protected ImageService $imageService
     ) {}
 
-    protected function storage(): \Illuminate\Contracts\Filesystem\Filesystem
+    protected function storage(): Filesystem
     {
         return Storage::disk($this->storageDriver->getMediaDriver());
     }
@@ -63,7 +63,7 @@ class FileOperationService
         $files = [];
 
         foreach ($this->imageService->getSizes() as $size) {
-            $files[] = str_replace($filename, $filename . '-' . $size, $file->url);
+            $files[] = str_replace($filename, $filename.'-'.$size, $file->url);
         }
 
         try {
@@ -162,7 +162,7 @@ class FileOperationService
         $folderPath = MediaFolder::getFullPath($newFile->folder_id);
         $extension = pathinfo($file->url, PATHINFO_EXTENSION);
         $newSlug = MediaFile::createSlug($newFile->name, $extension, $folderPath ?: '');
-        $newUrl = $folderPath ? $folderPath . '/' . $newSlug : $newSlug;
+        $newUrl = $folderPath ? $folderPath.'/'.$newSlug : $newSlug;
 
         try {
             Storage::copy($file->url, $newUrl);
@@ -190,7 +190,7 @@ class FileOperationService
         $folderPath = MediaFolder::getFullPath($newFolderId);
         $extension = pathinfo($file->url, PATHINFO_EXTENSION);
         $newSlug = MediaFile::createSlug($file->name, $extension, $folderPath ?: '');
-        $newUrl = $folderPath ? $folderPath . '/' . $newSlug : $newSlug;
+        $newUrl = $folderPath ? $folderPath.'/'.$newSlug : $newSlug;
 
         $disk = $this->storage();
 
@@ -249,7 +249,7 @@ class FileOperationService
 
     protected function moveFileBetweenDisks(MediaFile $file, string $fromVisibility, string $toVisibility): void
     {
-        $privateDisk = \Codenzia\FilamentMedia\FilamentMedia::getConfig('private_files.private_disk') ?? 'local';
+        $privateDisk = FilamentMedia::getConfig('private_files.private_disk') ?? 'local';
         $publicDisk = $this->storageDriver->getMediaDriver();
 
         $sourceDisk = $fromVisibility === 'private' ? $privateDisk : $publicDisk;
@@ -281,7 +281,7 @@ class FileOperationService
         $filename = pathinfo($file->url, PATHINFO_FILENAME);
 
         foreach ($this->imageService->getSizes() as $size) {
-            $thumbUrl = str_replace($filename, $filename . '-' . $size, $file->url);
+            $thumbUrl = str_replace($filename, $filename.'-'.$size, $file->url);
 
             if (Storage::disk($sourceDisk)->exists($thumbUrl)) {
                 $content = Storage::disk($sourceDisk)->get($thumbUrl);

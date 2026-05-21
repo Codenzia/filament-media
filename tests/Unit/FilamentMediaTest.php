@@ -1,11 +1,13 @@
 <?php
 
-use Codenzia\FilamentMedia\FilamentMedia;
 use Codenzia\FilamentMedia\Facades\FilamentMedia as FilamentMediaFacade;
+use Codenzia\FilamentMedia\FilamentMedia;
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
-use Illuminate\Support\Facades\Storage;
+use Codenzia\FilamentMedia\Services\ImageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -144,7 +146,7 @@ describe('FilamentMedia Thumbnail Configuration', function () {
     });
 
     it('returns thumbnail sizes from ImageService', function () {
-        $imageService = app(\Codenzia\FilamentMedia\Services\ImageService::class);
+        $imageService = app(ImageService::class);
         $sizes = $imageService->getSizes();
 
         expect($sizes)->toBeArray();
@@ -155,7 +157,7 @@ describe('FilamentMedia Response Helpers', function () {
     it('creates success response', function () {
         $response = FilamentMediaFacade::responseSuccess(['data' => 'test']);
 
-        expect($response)->toBeInstanceOf(\Illuminate\Http\JsonResponse::class);
+        expect($response)->toBeInstanceOf(JsonResponse::class);
 
         $content = json_decode($response->getContent(), true);
         expect($content['error'])->toBeFalse()
@@ -165,7 +167,7 @@ describe('FilamentMedia Response Helpers', function () {
     it('creates error response', function () {
         $response = FilamentMediaFacade::responseError('Error message');
 
-        expect($response)->toBeInstanceOf(\Illuminate\Http\JsonResponse::class);
+        expect($response)->toBeInstanceOf(JsonResponse::class);
 
         $content = json_decode($response->getContent(), true);
         expect($content['error'])->toBeTrue()

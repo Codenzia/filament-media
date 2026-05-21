@@ -5,7 +5,10 @@ namespace Codenzia\FilamentMedia\Models;
 use Codenzia\FilamentMedia\Database\Factories\MediaFileFactory;
 use Codenzia\FilamentMedia\Facades\FilamentMedia;
 use Codenzia\FilamentMedia\Helpers\BaseHelper;
+use Codenzia\FilamentMedia\Services\StorageDriverService;
 use Codenzia\FilamentMedia\Support\MediaHash;
+use Filament\Facades\Filament;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -191,7 +195,7 @@ class MediaFile extends Model
 
     public function scopeOfType(Builder $query, string $type): Builder
     {
-        $mimeTypes = config('media.mime_types.' . $type, []);
+        $mimeTypes = config('media.mime_types.'.$type, []);
 
         if (empty($mimeTypes)) {
             return $query;
@@ -246,7 +250,7 @@ class MediaFile extends Model
             return $query;
         }
 
-        $term = '%' . $search . '%';
+        $term = '%'.$search.'%';
 
         return $query->where(function (Builder $q) use ($term): void {
             $q->where('media_files.name', 'LIKE', $term)
@@ -364,7 +368,7 @@ class MediaFile extends Model
                 && Request::ip() !== '127.0.0.1'
                 && in_array($this->mime_type, Arr::get($config, 'mime_types', []))
             ) {
-                $provider = Arr::get($config, 'providers.' . Arr::get($config, 'default'));
+                $provider = Arr::get($config, 'providers.'.Arr::get($config, 'default'));
                 if ($provider) {
                     return Str::replace('{url}', urlencode(FilamentMedia::url($this->url)), $provider);
                 }
@@ -421,7 +425,7 @@ class MediaFile extends Model
         $url = null;
 
         try {
-            $resource = \Filament\Facades\Filament::getModelResource($modelClass);
+            $resource = Filament::getModelResource($modelClass);
 
             if ($resource) {
                 $url = $resource::getUrl('edit', ['record' => $modelId]);
@@ -460,12 +464,12 @@ class MediaFile extends Model
     public function deleteWithFile(?string $successMessage = null, ?string $failedMessage = null): bool
     {
         try {
-            $storageService = app(\Codenzia\FilamentMedia\Services\StorageDriverService::class);
+            $storageService = app(StorageDriverService::class);
 
             // Private files on local storage live on the private disk, not the media disk
             if ($this->visibility === 'private' && ! $storageService->isUsingCloud()) {
                 $diskName = FilamentMedia::getConfig('private_files.private_disk') ?? 'local';
-                $disk = \Illuminate\Support\Facades\Storage::disk($diskName);
+                $disk = Storage::disk($diskName);
             } else {
                 $disk = $storageService->getMediaDisk();
             }
@@ -477,7 +481,7 @@ class MediaFile extends Model
             $result = $this->delete();
 
             if ($successMessage) {
-                \Filament\Notifications\Notification::make()
+                Notification::make()
                     ->title($successMessage)
                     ->success()
                     ->send();
@@ -486,7 +490,7 @@ class MediaFile extends Model
             return $result;
         } catch (\Throwable $e) {
             if ($failedMessage) {
-                \Filament\Notifications\Notification::make()
+                Notification::make()
                     ->title($failedMessage)
                     ->danger()
                     ->send();
@@ -515,7 +519,7 @@ class MediaFile extends Model
             ->where('folder_id', $folder)
             ->where(function ($query) use ($likePattern, $baseName) {
                 $query->where('name', $baseName)
-                    ->orWhere('name', 'LIKE', $likePattern . '-%');
+                    ->orWhere('name', 'LIKE', $likePattern.'-%');
             })
             ->withTrashed()
             ->pluck('name')
@@ -527,18 +531,18 @@ class MediaFile extends Model
 
         $maxSuffix = 0;
         foreach ($existingNames as $existingName) {
-            if (preg_match('/^' . preg_quote($baseName, '/') . '-(\d+)$/', $existingName, $matches)) {
+            if (preg_match('/^'.preg_quote($baseName, '/').'-(\d+)$/', $existingName, $matches)) {
                 $maxSuffix = max($maxSuffix, (int) $matches[1]);
             }
         }
 
-        return $baseName . '-' . ($maxSuffix + 1);
+        return $baseName.'-'.($maxSuffix + 1);
     }
 
     public static function createSlug(string $name, string $extension, ?string $folderPath): string
     {
         if (\setting('media_convert_file_name_to_uuid')) {
-            return Str::uuid() . '.' . $extension;
+            return Str::uuid().'.'.$extension;
         }
 
         $slug = \setting('media_use_original_name_for_file_path')
@@ -549,15 +553,15 @@ class MediaFile extends Model
         $baseSlug = $slug;
 
         while (File::exists(FilamentMedia::getRealPath(
-            rtrim($folderPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $slug . '.' . $extension
+            rtrim($folderPath, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$slug.'.'.$extension
         ))) {
-            $slug = $baseSlug . '-' . $index++;
+            $slug = $baseSlug.'-'.$index++;
         }
 
         if (empty($slug)) {
-            $slug = 'file-' . time();
+            $slug = 'file-'.time();
         }
 
-        return Str::limit($slug, end: '') . '.' . $extension;
+        return Str::limit($slug, end: '').'.'.$extension;
     }
 }

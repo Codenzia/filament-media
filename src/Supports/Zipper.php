@@ -36,12 +36,10 @@ class Zipper
 
     /**
      * Constructor
-     *
-     * @param Filesystem|null $fs
      */
     public function __construct(?Filesystem $fs = null)
     {
-        $this->file = $fs ?: new Filesystem();
+        $this->file = $fs ?: new Filesystem;
     }
 
     /**
@@ -58,11 +56,11 @@ class Zipper
      * Create a new zip Archive if the file does not exist
      * opens a zip archive if the file exists
      *
-     * @param string $pathToFile The file to open
+     * @param  string  $pathToFile  The file to open
      * @return $this Zipper instance
+     *
      * @throws Exception
      * @throws InvalidArgumentException
-     *
      * @throws RuntimeException
      */
     public function make($pathToFile)
@@ -77,9 +75,9 @@ class Zipper
     }
 
     /**
-     * @param string $pathToZip
-     *
+     * @param  string  $pathToZip
      * @return bool
+     *
      * @throws Exception
      */
     protected function createArchiveFile($pathToZip)
@@ -101,9 +99,8 @@ class Zipper
     /**
      * Add one or multiple files to the zip.
      *
-     * @param array|string $pathToAdd An array or string of files and folders to add
-     * @param null|mixed $fileName
-     *
+     * @param  array|string  $pathToAdd  An array or string of files and folders to add
+     * @param  null|mixed  $fileName
      * @return $this Zipper instance
      */
     public function add($pathToAdd, $fileName = null)
@@ -128,19 +125,19 @@ class Zipper
     /**
      * Add the file to the zip
      *
-     * @param string $pathToAdd
-     * @param string $fileName
+     * @param  string  $pathToAdd
+     * @param  string  $fileName
      */
     protected function addFile($pathToAdd, $fileName = null)
     {
         if (! $fileName) {
             $info = pathinfo($pathToAdd);
             $fileName = isset($info['extension']) ?
-                $info['filename'] . '.' . $info['extension'] :
+                $info['filename'].'.'.$info['extension'] :
                 $info['filename'];
         }
 
-        $this->repository->addFile($pathToAdd, $this->getInternalPath() . $fileName);
+        $this->repository->addFile($pathToAdd, $this->getInternalPath().$fileName);
     }
 
     /**
@@ -150,24 +147,24 @@ class Zipper
      */
     public function getInternalPath()
     {
-        return empty($this->currentFolder) ? '' : $this->currentFolder . '/';
+        return empty($this->currentFolder) ? '' : $this->currentFolder.'/';
     }
 
     /**
-     * @param string $pathToDir
+     * @param  string  $pathToDir
      */
     protected function addDir($pathToDir)
     {
         // First go over the files in this directory and add them to the repository.
         foreach ($this->file->files($pathToDir) as $file) {
-            $this->addFile($pathToDir . '/' . basename($file));
+            $this->addFile($pathToDir.'/'.basename($file));
         }
 
         // Now let's visit the subdirectories and add them, too.
         foreach ($this->file->directories($pathToDir) as $dir) {
             $oldFolder = $this->currentFolder;
-            $this->currentFolder = empty($this->currentFolder) ? basename($dir) : $this->currentFolder . '/' . basename($dir);
-            $this->addDir($pathToDir . '/' . basename($dir));
+            $this->currentFolder = empty($this->currentFolder) ? basename($dir) : $this->currentFolder.'/'.basename($dir);
+            $this->addDir($pathToDir.'/'.basename($dir));
             $this->currentFolder = $oldFolder;
         }
     }
@@ -175,14 +172,13 @@ class Zipper
     /**
      * Add a file to the zip using its contents
      *
-     * @param string $filename The name of the file to create
-     * @param string $content The file contents
-     *
+     * @param  string  $filename  The name of the file to create
+     * @param  string  $content  The file contents
      * @return $this Zipper instance
      */
     public function addString($filename, $content)
     {
-        $this->repository->addFromString($this->getInternalPath() . $filename, $content);
+        $this->repository->addFromString($this->getInternalPath().$filename, $content);
 
         return $this;
     }
@@ -192,7 +188,7 @@ class Zipper
      */
     public function close()
     {
-        if (null !== $this->repository) {
+        if ($this->repository !== null) {
             $this->repository->close();
             $this->repository = null;
         }

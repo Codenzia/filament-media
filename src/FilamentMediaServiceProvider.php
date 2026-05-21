@@ -2,6 +2,12 @@
 
 namespace Codenzia\FilamentMedia;
 
+use Codenzia\FilamentMedia\Livewire\MediaFileGrid;
+use Codenzia\FilamentMedia\Livewire\MediaFileList;
+use Codenzia\FilamentMedia\Livewire\MediaFiles;
+use Codenzia\FilamentMedia\Livewire\MediaPicker;
+use Codenzia\FilamentMedia\Livewire\PreviewModal;
+use Codenzia\FilamentMedia\Livewire\UploadModal;
 use Codenzia\FilamentMedia\Services\ExportImportService;
 use Codenzia\FilamentMedia\Services\FavoriteService;
 use Codenzia\FilamentMedia\Services\FileOperationService;
@@ -16,7 +22,7 @@ use Codenzia\FilamentMedia\Services\ThumbnailService;
 use Codenzia\FilamentMedia\Services\UploadService;
 use Codenzia\FilamentMedia\Services\UploadsManager;
 use Codenzia\FilamentMedia\Services\VersionService;
-use Filament\Support\Assets\Asset;
+use Codenzia\FilamentMedia\Widgets\FilesUploadWidget;
 use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
@@ -95,20 +101,20 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', static::$viewNamespace);
-        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'filament-media');
-        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', static::$viewNamespace);
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'filament-media');
+        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
         // Register Livewire components
         $components = [
-            'filament-media::upload-modal' => \Codenzia\FilamentMedia\Livewire\UploadModal::class,
-            'filament-media::preview-modal' => \Codenzia\FilamentMedia\Livewire\PreviewModal::class,
-            'filament-media::media-picker' => \Codenzia\FilamentMedia\Livewire\MediaPicker::class,
-            'filament-media::files-upload-widget' => \Codenzia\FilamentMedia\Widgets\FilesUploadWidget::class,
-            'filament-media::media-file-grid' => \Codenzia\FilamentMedia\Livewire\MediaFileGrid::class,
-            'filament-media::media-file-list' => \Codenzia\FilamentMedia\Livewire\MediaFileList::class,
-            'filament-media::media-files' => \Codenzia\FilamentMedia\Livewire\MediaFiles::class,
+            'filament-media::upload-modal' => UploadModal::class,
+            'filament-media::preview-modal' => PreviewModal::class,
+            'filament-media::media-picker' => MediaPicker::class,
+            'filament-media::files-upload-widget' => FilesUploadWidget::class,
+            'filament-media::media-file-grid' => MediaFileGrid::class,
+            'filament-media::media-file-list' => MediaFileList::class,
+            'filament-media::media-files' => MediaFiles::class,
         ];
 
         foreach ($components as $alias => $class) {
@@ -128,7 +134,7 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
 
         // Stubs
         if (app()->runningInConsole()) {
-            foreach (app(Filesystem::class)->files(__DIR__ . '/../stubs/') as $file) {
+            foreach (app(Filesystem::class)->files(__DIR__.'/../stubs/') as $file) {
                 $this->publishes([
                     $file->getRealPath() => base_path("stubs/filament-media/{$file->getFilename()}"),
                 ], 'filament-media-stubs');
@@ -138,7 +144,7 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
 
     protected function loadHelpers(): void
     {
-        $helperPath = __DIR__ . '/Helpers/helpers.php';
+        $helperPath = __DIR__.'/Helpers/helpers.php';
 
         if (file_exists($helperPath)) {
             require_once $helperPath;
@@ -153,8 +159,8 @@ class FilamentMediaServiceProvider extends PackageServiceProvider
     protected function getAssets(): array
     {
         return [
-            Css::make('filament-media', __DIR__ . '/../resources/dist/filament-media.css'),
-            Js::make('filament-media', __DIR__ . '/../resources/dist/filament-media.js')->module(),
+            Css::make('filament-media', __DIR__.'/../resources/dist/filament-media.css'),
+            Js::make('filament-media', __DIR__.'/../resources/dist/filament-media.js')->module(),
         ];
     }
 

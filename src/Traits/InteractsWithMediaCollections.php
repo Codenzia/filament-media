@@ -3,7 +3,6 @@
 namespace Codenzia\FilamentMedia\Traits;
 
 use Codenzia\FilamentMedia\Models\MediaFile;
-use Codenzia\FilamentMedia\Models\MediaTag;
 use Codenzia\FilamentMedia\Support\MediaCollection;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 

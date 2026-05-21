@@ -5,6 +5,7 @@ namespace Codenzia\FilamentMedia\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
@@ -48,7 +49,7 @@ class MediaMetadataField extends Model
         return $query->orderBy('sort_order');
     }
 
-    public static function getSearchableFields(): \Illuminate\Support\Collection
+    public static function getSearchableFields(): Collection
     {
         return self::searchable()->ordered()->get();
     }

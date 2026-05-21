@@ -28,13 +28,13 @@ use Livewire\WithFileUploads;
  */
 abstract class MediaFileBase extends Component implements HasActions, HasForms
 {
+    use HasExtendedMediaActions;
+    use HasFileManagementActions;
+    use HasMediaHelpers;
     use InteractsWithActions;
     use InteractsWithForms;
-    use WithFileUploads;
-    use HasMediaHelpers;
-    use HasFileManagementActions;
-    use HasExtendedMediaActions;
     use InteractsWithMediaEvents;
+    use WithFileUploads;
 
     // ──────────────────────────────────────────────────
     // Component Props (mount parameters)

@@ -10,7 +10,5 @@ class MediaFileVersionCreated
 {
     use Dispatchable;
 
-    public function __construct(public MediaFile $file, public MediaFileVersion $version)
-    {
-    }
+    public function __construct(public MediaFile $file, public MediaFileVersion $version) {}
 }

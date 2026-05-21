@@ -37,7 +37,7 @@ class MediaUrlService
             $customDomain = \setting('media_do_spaces_cdn_custom_domain');
 
             if ($customDomain) {
-                return $this->normalizeUrl(rtrim($customDomain, '/') . '/' . ltrim($path, '/'));
+                return $this->normalizeUrl(rtrim($customDomain, '/').'/'.ltrim($path, '/'));
             }
 
             return $this->normalizeUrl(
@@ -50,7 +50,7 @@ class MediaUrlService
             $currentEndpoint = \setting('media_backblaze_endpoint');
 
             if ($customDomain) {
-                return $this->normalizeUrl(rtrim($customDomain, '/') . '/' . ltrim($path, '/'));
+                return $this->normalizeUrl(rtrim($customDomain, '/').'/'.ltrim($path, '/'));
             }
 
             return $this->normalizeUrl(str_replace($currentEndpoint, $customDomain, Storage::disk($driver)->url($path)));
@@ -86,7 +86,7 @@ class MediaUrlService
 
             return Arr::first(explode('?v=', $path));
         } catch (Throwable $e) {
-            logger()->error('Failed to get real path: ' . $e->getMessage(), ['url' => $url]);
+            logger()->error('Failed to get real path: '.$e->getMessage(), ['url' => $url]);
 
             return null;
         }
@@ -105,7 +105,7 @@ class MediaUrlService
 
             return $this->getMimeTypeFromLocalPath($url);
         } catch (Throwable $e) {
-            logger()->error('Failed to get MIME type: ' . $e->getMessage(), ['url' => $url]);
+            logger()->error('Failed to get MIME type: '.$e->getMessage(), ['url' => $url]);
 
             return null;
         }

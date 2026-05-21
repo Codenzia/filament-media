@@ -2,8 +2,8 @@
 
 namespace Codenzia\FilamentMedia\Helpers;
 
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\File;
 
 /**
  * General-purpose utility methods for file size formatting, date formatting,
@@ -19,7 +19,7 @@ class BaseHelper
             $bytes /= 1024;
         }
 
-        return round($bytes, $precision) . ' ' . $units[$i];
+        return round($bytes, $precision).' '.$units[$i];
     }
 
     public static function clean(?string $content): string
@@ -29,7 +29,7 @@ class BaseHelper
 
     public static function renderIcon(string $icon): string
     {
-        return Blade::render('<x-filament::icon icon="' . $icon . '"></x-filament::icon>');
+        return Blade::render('<x-filament::icon icon="'.$icon.'"></x-filament::icon>');
     }
 
     public static function logError(\Throwable $exception): void
@@ -74,5 +74,4 @@ class BaseHelper
 
         return null;
     }
-
 }

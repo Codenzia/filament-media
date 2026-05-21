@@ -4,6 +4,7 @@ namespace Codenzia\FilamentMedia;
 
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
+use Codenzia\FilamentMedia\Services\FileOperationService;
 use Codenzia\FilamentMedia\Services\ImageService;
 use Codenzia\FilamentMedia\Services\MediaUrlService;
 use Codenzia\FilamentMedia\Services\StorageDriverService;
@@ -242,7 +243,7 @@ class FilamentMedia
 
     public function deleteFile($file): bool
     {
-        return app(\Codenzia\FilamentMedia\Services\FileOperationService::class)->deleteFile($file);
+        return app(FileOperationService::class)->deleteFile($file);
     }
 
     public function getDefaultImage(bool $relative = false, ?string $size = null): string

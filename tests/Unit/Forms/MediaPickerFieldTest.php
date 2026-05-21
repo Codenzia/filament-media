@@ -290,11 +290,11 @@ describe('MediaPickerField displayStyle()', function () {
 
     it('throws exception for invalid displayStyle argument', function () {
         MediaPickerField::make('media')->displayStyle('invalid');
-    })->throws(\InvalidArgumentException::class);
+    })->throws(InvalidArgumentException::class);
 
     it('throws exception for old integrated value', function () {
         MediaPickerField::make('media')->displayStyle('integrated');
-    })->throws(\InvalidArgumentException::class);
+    })->throws(InvalidArgumentException::class);
 
     it('supports chaining with other methods', function () {
         $field = MediaPickerField::make('media')
@@ -435,7 +435,7 @@ describe('MediaPickerField chipSize()', function () {
 
     it('throws exception for invalid chipSize', function () {
         MediaPickerField::make('media')->chipSize('invalid');
-    })->throws(\InvalidArgumentException::class);
+    })->throws(InvalidArgumentException::class);
 
     it('respects config default', function () {
         config()->set('media.picker.chip_size', 'lg');

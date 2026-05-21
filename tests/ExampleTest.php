@@ -1,8 +1,8 @@
 <?php
 
+use Codenzia\FilamentMedia\Facades\FilamentMedia as FilamentMediaFacade;
 use Codenzia\FilamentMedia\FilamentMedia;
 use Codenzia\FilamentMedia\FilamentMediaServiceProvider;
-use Codenzia\FilamentMedia\Facades\FilamentMedia as FilamentMediaFacade;
 
 it('can test', function () {
     expect(true)->toBeTrue();

@@ -14,7 +14,7 @@ class HasMediaHelpersTestClass
 
 describe('HasMediaHelpers Trait', function () {
     beforeEach(function () {
-        $this->helper = new HasMediaHelpersTestClass();
+        $this->helper = new HasMediaHelpersTestClass;
     });
 
     describe('separateItemsByType', function () {

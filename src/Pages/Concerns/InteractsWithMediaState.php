@@ -132,12 +132,12 @@ trait InteractsWithMediaState
     {
         if ($addToSelection) {
             $exists = collect($this->selectedItems)->contains(
-                fn($i) => $i['id'] === $item['id'] && $i['is_folder'] === $item['is_folder']
+                fn ($i) => $i['id'] === $item['id'] && $i['is_folder'] === $item['is_folder']
             );
 
             if ($exists) {
                 $this->selectedItems = collect($this->selectedItems)
-                    ->reject(fn($i) => $i['id'] === $item['id'] && $i['is_folder'] === $item['is_folder'])
+                    ->reject(fn ($i) => $i['id'] === $item['id'] && $i['is_folder'] === $item['is_folder'])
                     ->values()
                     ->all();
             } else {
@@ -152,7 +152,7 @@ trait InteractsWithMediaState
 
     public function selectAll(): void
     {
-        $this->selectedItems = $this->items->map(fn($item) => [
+        $this->selectedItems = $this->items->map(fn ($item) => [
             'id' => $item['id'],
             'is_folder' => $item['is_folder'] ?? false,
         ])->all();
@@ -170,7 +170,7 @@ trait InteractsWithMediaState
             $this->navigateToFolder($item['id']);
         } else {
             $fileIds = $this->items
-                ->filter(fn($i) => ! ($i['is_folder'] ?? false))
+                ->filter(fn ($i) => ! ($i['is_folder'] ?? false))
                 ->pluck('id')
                 ->values()
                 ->all();
@@ -210,12 +210,12 @@ trait InteractsWithMediaState
         ];
 
         $isSelected = collect($this->selectedItems)->contains(
-            fn($i) => $i['id'] === $itemData['id'] && ($i['is_folder'] ?? false) === $itemData['is_folder']
+            fn ($i) => $i['id'] === $itemData['id'] && ($i['is_folder'] ?? false) === $itemData['is_folder']
         );
 
         if ($isSelected) {
             $this->selectedItems = collect($this->selectedItems)
-                ->reject(fn($i) => $i['id'] === $itemData['id'] && ($i['is_folder'] ?? false) === $itemData['is_folder'])
+                ->reject(fn ($i) => $i['id'] === $itemData['id'] && ($i['is_folder'] ?? false) === $itemData['is_folder'])
                 ->values()
                 ->all();
         } else {

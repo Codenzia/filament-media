@@ -8,6 +8,7 @@ use Codenzia\FilamentMedia\Services\MediaUrlService;
 use Codenzia\FilamentMedia\Services\UploadService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
@@ -101,8 +102,8 @@ class MediaFileController extends Controller
                 return FilamentMedia::responseError(__('filament-media::media.no_file_uploaded'));
             }
 
-            $chunkDir = 'chunks/' . $uuid;
-            $chunkPath = $chunkDir . '/' . $chunkIndex;
+            $chunkDir = 'chunks/'.$uuid;
+            $chunkPath = $chunkDir.'/'.$chunkIndex;
 
             Storage::disk('local')->put($chunkPath, file_get_contents($file->getRealPath()));
 
@@ -125,7 +126,7 @@ class MediaFileController extends Controller
             $mimeType = $finfo->file($mergedFile) ?: 'application/octet-stream';
 
             $mediaFile = $uploadService->handleUpload(
-                new \Illuminate\Http\UploadedFile(
+                new UploadedFile(
                     $mergedFile,
                     $fileName,
                     $mimeType,
@@ -153,7 +154,7 @@ class MediaFileController extends Controller
 
     protected function mergeChunks(string $chunkDir, string $fileName, int $totalChunks): ?string
     {
-        $tempFile = storage_path('app/' . $chunkDir . '/' . $fileName);
+        $tempFile = storage_path('app/'.$chunkDir.'/'.$fileName);
 
         $out = fopen($tempFile, 'wb');
 
@@ -162,7 +163,7 @@ class MediaFileController extends Controller
         }
 
         for ($i = 0; $i < $totalChunks; $i++) {
-            $chunkPath = storage_path('app/' . $chunkDir . '/' . $i);
+            $chunkPath = storage_path('app/'.$chunkDir.'/'.$i);
 
             if (! file_exists($chunkPath)) {
                 fclose($out);

@@ -9,7 +9,5 @@ class MediaFolderMoved
 {
     use Dispatchable;
 
-    public function __construct(public MediaFolder $folder, public int|string|null $oldParentId, public int|string|null $newParentId)
-    {
-    }
+    public function __construct(public MediaFolder $folder, public int|string|null $oldParentId, public int|string|null $newParentId) {}
 }

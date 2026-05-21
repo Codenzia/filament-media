@@ -4,8 +4,8 @@ namespace Codenzia\FilamentMedia\Http\Controllers;
 
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Services\MediaUrlService;
-use Codenzia\FilamentMedia\Support\MediaHash;
 use Codenzia\FilamentMedia\Services\StorageDriverService;
+use Codenzia\FilamentMedia\Support\MediaHash;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,13 +49,13 @@ class PublicMediaController extends Controller
         $fileName = $file->name;
 
         $extension = pathinfo($file->url, PATHINFO_EXTENSION);
-        if ($extension && ! str_ends_with($fileName, '.' . $extension)) {
-            $fileName .= '.' . $extension;
+        if ($extension && ! str_ends_with($fileName, '.'.$extension)) {
+            $fileName .= '.'.$extension;
         }
 
         return response()->file($path, [
             'Content-Type' => $mimeType,
-            'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+            'Content-Disposition' => 'inline; filename="'.$fileName.'"',
             'Cache-Control' => 'public, max-age=31536000',
         ]);
     }

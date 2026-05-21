@@ -4,7 +4,7 @@ use Codenzia\FilamentMedia\Models\MediaSetting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
-if (!function_exists('setting')) {
+if (! function_exists('setting')) {
     /**
      * Get a setting value from database, then config, with caching.
      *
@@ -14,14 +14,13 @@ if (!function_exists('setting')) {
      * 2. Config file (config/media.php) - for default/fallback values
      * 3. Provided default value
      *
-     * @param string $key The setting key (e.g., 'media_driver', 'media_max_file_size')
-     * @param mixed $default Default value if setting is not found
-     * @return mixed
+     * @param  string  $key  The setting key (e.g., 'media_driver', 'media_max_file_size')
+     * @param  mixed  $default  Default value if setting is not found
      */
     function setting(string $key, mixed $default = null): mixed
     {
         // Cache key for this setting
-        $cacheKey = 'filament-media.setting.' . $key;
+        $cacheKey = 'filament-media.setting.'.$key;
 
         // Try to get from cache first (5 minute cache)
         return Cache::remember($cacheKey, 300, function () use ($key, $default) {
@@ -31,7 +30,7 @@ if (!function_exists('setting')) {
                 if ($dbValue !== null) {
                     return $dbValue;
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // Database might not be available (during migrations, etc.)
                 // Continue to config fallback
             }
@@ -65,7 +64,7 @@ if (!function_exists('setting')) {
 
             // Try to find in media config with the key directly
             if (Str::startsWith($key, 'media_')) {
-                $configKey = 'media.' . Str::after($key, 'media_');
+                $configKey = 'media.'.Str::after($key, 'media_');
                 $value = config($configKey);
                 if ($value !== null) {
                     return $value;
@@ -73,7 +72,7 @@ if (!function_exists('setting')) {
             }
 
             // Try the key as-is in media config
-            $value = config('media.' . $key);
+            $value = config('media.'.$key);
             if ($value !== null) {
                 return $value;
             }
@@ -83,19 +82,18 @@ if (!function_exists('setting')) {
     }
 }
 
-if (!function_exists('clear_media_settings_cache')) {
+if (! function_exists('clear_media_settings_cache')) {
     /**
      * Clear all cached media settings.
      *
      * Call this after updating settings in the database.
      *
-     * @param string|null $key Specific key to clear, or null to clear all
-     * @return void
+     * @param  string|null  $key  Specific key to clear, or null to clear all
      */
     function clear_media_settings_cache(?string $key = null): void
     {
         if ($key) {
-            Cache::forget('filament-media.setting.' . $key);
+            Cache::forget('filament-media.setting.'.$key);
         } else {
             // Clear all known setting keys
             $keys = [
@@ -117,18 +115,17 @@ if (!function_exists('clear_media_settings_cache')) {
             ];
 
             foreach ($keys as $k) {
-                Cache::forget('filament-media.setting.' . $k);
+                Cache::forget('filament-media.setting.'.$k);
             }
         }
     }
 }
 
-if (!function_exists('clean')) {
+if (! function_exists('clean')) {
     /**
      * Clean/sanitize content to prevent XSS attacks.
      *
-     * @param mixed $content The content to clean
-     * @return mixed
+     * @param  mixed  $content  The content to clean
      */
     function clean(mixed $content): mixed
     {
@@ -140,7 +137,7 @@ if (!function_exists('clean')) {
             return array_map('clean', $content);
         }
 
-        if (!is_string($content)) {
+        if (! is_string($content)) {
             return $content;
         }
 
@@ -153,4 +150,3 @@ if (!function_exists('clean')) {
         return $content;
     }
 }
-

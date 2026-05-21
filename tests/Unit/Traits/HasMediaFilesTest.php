@@ -4,6 +4,7 @@ use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
 use Codenzia\FilamentMedia\Traits\HasMediaFiles;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 
@@ -14,7 +15,7 @@ beforeEach(function () {
     MediaFolder::withoutGlobalScopes();
 
     // Create a test table for our fake model
-    if (!Schema::hasTable('test_models')) {
+    if (! Schema::hasTable('test_models')) {
         Schema::create('test_models', function ($table) {
             $table->id();
             $table->string('name');
@@ -33,6 +34,7 @@ class TestModelWithMedia extends Model
     use HasMediaFiles;
 
     protected $table = 'test_models';
+
     protected $fillable = ['name'];
 }
 
@@ -40,13 +42,13 @@ describe('HasMediaFiles Trait', function () {
     it('provides files relationship', function () {
         $model = TestModelWithMedia::create(['name' => 'Test']);
 
-        expect($model->files())->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\MorphMany::class);
+        expect($model->files())->toBeInstanceOf(MorphMany::class);
     });
 
     it('provides folders relationship', function () {
         $model = TestModelWithMedia::create(['name' => 'Test']);
 
-        expect($model->folders())->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\MorphMany::class);
+        expect($model->folders())->toBeInstanceOf(MorphMany::class);
     });
 
     it('can attach media file', function () {

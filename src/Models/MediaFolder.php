@@ -4,6 +4,7 @@ namespace Codenzia\FilamentMedia\Models;
 
 use Codenzia\FilamentMedia\Database\Factories\MediaFolderFactory;
 use Codenzia\FilamentMedia\Facades\FilamentMedia as RvMedia;
+use Codenzia\FilamentMedia\FilamentMedia;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -75,7 +76,7 @@ class MediaFolder extends BaseModel
                 return;
             }
 
-            $scopeCallback = app(\Codenzia\FilamentMedia\FilamentMedia::class)->getMediaQueryScope();
+            $scopeCallback = app(FilamentMedia::class)->getMediaQueryScope();
 
             if ($scopeCallback) {
                 call_user_func($scopeCallback, $query, $user);
@@ -163,7 +164,7 @@ class MediaFolder extends BaseModel
             return $query;
         }
 
-        $term = '%' . $search . '%';
+        $term = '%'.$search.'%';
 
         return $query->where('media_folders.name', 'LIKE', $term);
     }
@@ -189,7 +190,7 @@ class MediaFolder extends BaseModel
     protected function parents(): Attribute
     {
         return Attribute::get(function (): Collection {
-            if (!$this->parent_id) {
+            if (! $this->parent_id) {
                 return collect();
             }
 
@@ -207,7 +208,7 @@ class MediaFolder extends BaseModel
 
             while ($currentParentId && $depth < $maxDepth) {
                 $parent = $allFolders->get($currentParentId);
-                if (!$parent || !$parent->id) {
+                if (! $parent || ! $parent->id) {
                     break;
                 }
                 $parents->push($parent);
@@ -221,7 +222,7 @@ class MediaFolder extends BaseModel
 
     public static function getFullPath(int|string|null $folderId, ?string $path = ''): ?string
     {
-        if (!$folderId) {
+        if (! $folderId) {
             return $path;
         }
 
@@ -240,7 +241,7 @@ class MediaFolder extends BaseModel
 
         while ($currentId && $depth < $maxDepth) {
             $folder = $allFolders->get($currentId);
-            if (!$folder) {
+            if (! $folder) {
                 break;
             }
             $pathParts[] = $folder->slug;
@@ -256,7 +257,7 @@ class MediaFolder extends BaseModel
         $builtPath = implode('/', array_reverse($pathParts));
 
         if ($path) {
-            return rtrim($builtPath, '/') . '/' . ltrim($path, '/');
+            return rtrim($builtPath, '/').'/'.ltrim($path, '/');
         }
 
         return $builtPath;
@@ -433,7 +434,7 @@ class MediaFolder extends BaseModel
 
     public static function createSlug(string $name, int|string|null $parentId): string
     {
-        $slug = Str::slug($name, '-', !RvMedia::turnOffAutomaticUrlTranslationIntoLatin() ? 'en' : false);
+        $slug = Str::slug($name, '-', ! RvMedia::turnOffAutomaticUrlTranslationIntoLatin() ? 'en' : false);
         $baseSlug = $slug;
         $likePattern = str_replace(['%', '_'], ['\%', '\_'], $baseSlug);
 
@@ -442,13 +443,13 @@ class MediaFolder extends BaseModel
             ->where('parent_id', $parentId)
             ->where(function ($query) use ($likePattern, $baseSlug) {
                 $query->where('slug', $baseSlug)
-                    ->orWhere('slug', 'LIKE', $likePattern . '-%');
+                    ->orWhere('slug', 'LIKE', $likePattern.'-%');
             })
             ->withTrashed()
             ->pluck('slug')
             ->toArray();
 
-        if (empty($existingSlugs) || !in_array($baseSlug, $existingSlugs)) {
+        if (empty($existingSlugs) || ! in_array($baseSlug, $existingSlugs)) {
             return $slug;
         }
 
@@ -457,12 +458,12 @@ class MediaFolder extends BaseModel
         foreach ($existingSlugs as $existingSlug) {
             if ($existingSlug === $baseSlug) {
                 $maxSuffix = max($maxSuffix, 0);
-            } elseif (preg_match('/^' . preg_quote($baseSlug, '/') . '-(\d+)$/', $existingSlug, $matches)) {
+            } elseif (preg_match('/^'.preg_quote($baseSlug, '/').'-(\d+)$/', $existingSlug, $matches)) {
                 $maxSuffix = max($maxSuffix, (int) $matches[1]);
             }
         }
 
-        return $baseSlug . '-' . ($maxSuffix + 1);
+        return $baseSlug.'-'.($maxSuffix + 1);
     }
 
     public static function createName(string $name, int|string|null $parentId): string
@@ -475,13 +476,13 @@ class MediaFolder extends BaseModel
             ->where('parent_id', $parentId)
             ->where(function ($query) use ($likePattern, $baseName) {
                 $query->where('name', $baseName)
-                    ->orWhere('name', 'LIKE', $likePattern . '-%');
+                    ->orWhere('name', 'LIKE', $likePattern.'-%');
             })
             ->withTrashed()
             ->pluck('name')
             ->toArray();
 
-        if (empty($existingNames) || !in_array($baseName, $existingNames)) {
+        if (empty($existingNames) || ! in_array($baseName, $existingNames)) {
             return $name;
         }
 
@@ -490,11 +491,11 @@ class MediaFolder extends BaseModel
         foreach ($existingNames as $existingName) {
             if ($existingName === $baseName) {
                 $maxSuffix = max($maxSuffix, 0);
-            } elseif (preg_match('/^' . preg_quote($baseName, '/') . '-(\d+)$/', $existingName, $matches)) {
+            } elseif (preg_match('/^'.preg_quote($baseName, '/').'-(\d+)$/', $existingName, $matches)) {
                 $maxSuffix = max($maxSuffix, (int) $matches[1]);
             }
         }
 
-        return $baseName . '-' . ($maxSuffix + 1);
+        return $baseName.'-'.($maxSuffix + 1);
     }
 }

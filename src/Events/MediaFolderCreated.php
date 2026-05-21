@@ -9,7 +9,5 @@ class MediaFolderCreated
 {
     use Dispatchable;
 
-    public function __construct(public MediaFolder $folder)
-    {
-    }
+    public function __construct(public MediaFolder $folder) {}
 }

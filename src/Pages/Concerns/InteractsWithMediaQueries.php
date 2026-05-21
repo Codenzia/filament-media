@@ -11,6 +11,7 @@ use Codenzia\FilamentMedia\Models\MediaFolder;
 use Codenzia\FilamentMedia\Models\MediaTag;
 use Codenzia\FilamentMedia\Services\FavoriteService;
 use Codenzia\FilamentMedia\Services\MediaUrlService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
@@ -265,12 +266,12 @@ trait InteractsWithMediaQueries
         }
 
         $fileIds = collect($recentItems)
-            ->filter(fn($item) => ! ($item['is_folder'] ?? false))
+            ->filter(fn ($item) => ! ($item['is_folder'] ?? false))
             ->pluck('id')
             ->all();
 
         $folderIds = collect($recentItems)
-            ->filter(fn($item) => $item['is_folder'] ?? false)
+            ->filter(fn ($item) => $item['is_folder'] ?? false)
             ->pluck('id')
             ->all();
 
@@ -302,12 +303,12 @@ trait InteractsWithMediaQueries
         }
 
         $fileIds = collect($favoriteItems)
-            ->filter(fn($item) => ! ($item['is_folder'] ?? false))
+            ->filter(fn ($item) => ! ($item['is_folder'] ?? false))
             ->pluck('id')
             ->all();
 
         $folderIds = collect($favoriteItems)
-            ->filter(fn($item) => $item['is_folder'] ?? false)
+            ->filter(fn ($item) => $item['is_folder'] ?? false)
             ->pluck('id')
             ->all();
 
@@ -345,7 +346,7 @@ trait InteractsWithMediaQueries
      * Run a cumulative "load more" query: fetches perPage * currentPage items
      * and sets $this->hasMorePages so the view can show a Load More button.
      */
-    protected function paginatedFiles(\Illuminate\Database\Eloquent\Builder $query): Collection
+    protected function paginatedFiles(Builder $query): Collection
     {
         $limit = $this->perPage * $this->currentPage;
         $total = (clone $query)->count();

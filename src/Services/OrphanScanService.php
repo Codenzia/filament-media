@@ -3,6 +3,7 @@
 namespace Codenzia\FilamentMedia\Services;
 
 use Codenzia\FilamentMedia\Models\MediaFile;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Mime\MimeTypes;
@@ -109,7 +110,7 @@ class OrphanScanService
         return $deleted;
     }
 
-    protected function getDisk(): \Illuminate\Contracts\Filesystem\Filesystem
+    protected function getDisk(): Filesystem
     {
         return Storage::disk($this->storageDriver->getMediaDriver());
     }

@@ -2,8 +2,6 @@
 
 namespace Codenzia\FilamentMedia\Forms;
 
-use Closure;
-use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Services\UploadService;
 use Filament\Forms\Components\Field;
 
@@ -144,7 +142,7 @@ class MediaPickerField extends Field
     {
         if (! in_array($style, self::DISPLAY_STYLES)) {
             throw new \InvalidArgumentException(
-                "Invalid display style '{$style}'. Use: " . implode(', ', array_map(fn ($s) => "'{$s}'", self::DISPLAY_STYLES)) . '.'
+                "Invalid display style '{$style}'. Use: ".implode(', ', array_map(fn ($s) => "'{$s}'", self::DISPLAY_STYLES)).'.'
             );
         }
 
@@ -245,7 +243,7 @@ class MediaPickerField extends Field
     {
         if (! in_array($size, self::CHIP_SIZES)) {
             throw new \InvalidArgumentException(
-                "Invalid chip size '{$size}'. Use: " . implode(', ', array_map(fn ($s) => "'{$s}'", self::CHIP_SIZES)) . '.'
+                "Invalid chip size '{$size}'. Use: ".implode(', ', array_map(fn ($s) => "'{$s}'", self::CHIP_SIZES)).'.'
             );
         }
 

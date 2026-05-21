@@ -4,18 +4,18 @@ namespace Codenzia\FilamentMedia\Pages;
 
 use Codenzia\FilamentMedia\Helpers\BaseHelper;
 use Codenzia\FilamentMedia\Models\MediaSetting;
+use Codenzia\FilamentMedia\Pages\Concerns\HasConditionalPageShield;
 use Codenzia\FilamentMedia\Services\OrphanScanService;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
-use Codenzia\FilamentMedia\Pages\Concerns\HasConditionalPageShield;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
@@ -144,6 +144,7 @@ class MediaSettings extends Page implements HasForms
                 ];
             }
         }
+
         return $result;
     }
 
@@ -180,18 +181,18 @@ class MediaSettings extends Page implements HasForms
                                     ->components([
                                         TextInput::make('s3_bucket')
                                             ->label(trans('filament-media::media.settings.bucket_name'))
-                                            ->visible(fn($get) => in_array($get('storage_driver'), ['s3', 'r2', 'do_spaces', 'wasabi', 'backblaze'])),
+                                            ->visible(fn ($get) => in_array($get('storage_driver'), ['s3', 'r2', 'do_spaces', 'wasabi', 'backblaze'])),
 
                                         TextInput::make('s3_region')
                                             ->label(trans('filament-media::media.settings.region'))
-                                            ->visible(fn($get) => in_array($get('storage_driver'), ['s3', 'do_spaces'])),
+                                            ->visible(fn ($get) => in_array($get('storage_driver'), ['s3', 'do_spaces'])),
                                     ]),
 
                                 TextInput::make('s3_cdn_url')
                                     ->label(trans('filament-media::media.settings.cdn_url'))
                                     ->url()
                                     ->placeholder('https://cdn.example.com')
-                                    ->visible(fn($get) => in_array($get('storage_driver'), ['s3', 'r2', 'do_spaces', 'wasabi', 'backblaze']))
+                                    ->visible(fn ($get) => in_array($get('storage_driver'), ['s3', 'r2', 'do_spaces', 'wasabi', 'backblaze']))
                                     ->helperText(trans('filament-media::media.settings.cdn_url_help')),
 
                                 Toggle::make('custom_upload_path')
@@ -201,7 +202,7 @@ class MediaSettings extends Page implements HasForms
                                 TextInput::make('upload_path')
                                     ->label(trans('filament-media::media.settings.upload_path'))
                                     ->placeholder('media')
-                                    ->visible(fn($get) => $get('custom_upload_path'))
+                                    ->visible(fn ($get) => $get('custom_upload_path'))
                                     ->helperText(trans('filament-media::media.settings.upload_path_help')),
 
                                 Toggle::make('use_symlink')
@@ -239,7 +240,7 @@ class MediaSettings extends Page implements HasForms
 
                                 Repeater::make('thumbnail_sizes')
                                     ->label(trans('filament-media::media.settings.thumbnail_sizes'))
-                                    ->visible(fn($get) => $get('generate_thumbnails'))
+                                    ->visible(fn ($get) => $get('generate_thumbnails'))
                                     ->schema([
                                         TextInput::make('name')
                                             ->label(trans('filament-media::media.settings.size_name'))
@@ -283,7 +284,7 @@ class MediaSettings extends Page implements HasForms
                                     ->live(),
 
                                 Grid::make(2)
-                                    ->visible(fn($get) => $get('watermark_enabled'))
+                                    ->visible(fn ($get) => $get('watermark_enabled'))
                                     ->components([
                                         Select::make('watermark_position')
                                             ->label(trans('filament-media::media.settings.watermark_position'))
@@ -325,7 +326,7 @@ class MediaSettings extends Page implements HasForms
 
                                 TextInput::make('chunk_size')
                                     ->label(trans('filament-media::media.settings.chunk_size'))
-                                    ->visible(fn($get) => $get('chunk_enabled'))
+                                    ->visible(fn ($get) => $get('chunk_enabled'))
                                     ->numeric()
                                     ->suffix('MB')
                                     ->default(1)
@@ -385,8 +386,8 @@ class MediaSettings extends Page implements HasForms
         // Convert thumbnail sizes array to the expected format
         $sizes = [];
         foreach ($data['thumbnail_sizes'] ?? [] as $size) {
-            if (!empty($size['name']) && !empty($size['width']) && !empty($size['height'])) {
-                $sizes[$size['name']] = $size['width'] . 'x' . $size['height'];
+            if (! empty($size['name']) && ! empty($size['width']) && ! empty($size['height'])) {
+                $sizes[$size['name']] = $size['width'].'x'.$size['height'];
             }
         }
         MediaSetting::setSystemSetting('media_sizes', $sizes);

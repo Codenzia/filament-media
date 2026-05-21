@@ -1,6 +1,7 @@
 <?php
 
 use Codenzia\FilamentMedia\Models\MediaMetadataField;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 describe('MediaMetadataField Model', function () {
     it('can be created with type text', function () {
@@ -159,6 +160,6 @@ describe('MediaMetadataField Relations', function () {
             'type' => 'text',
         ]);
 
-        expect($field->files())->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class);
+        expect($field->files())->toBeInstanceOf(BelongsToMany::class);
     });
 });

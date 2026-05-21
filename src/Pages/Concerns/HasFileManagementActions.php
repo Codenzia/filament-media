@@ -14,9 +14,9 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 
 /**
  * Provides core file management Filament actions for the media manager.
@@ -53,7 +53,7 @@ trait HasFileManagementActions
             ->label(trans('filament-media::media.upload'))
             ->icon('heroicon-o-arrow-up-tray')
             ->color('primary')
-            ->action(fn() => $this->dispatch('open-upload-modal'));
+            ->action(fn () => $this->dispatch('open-upload-modal'));
     }
 
     public function create_folderAction(): Action
@@ -71,7 +71,7 @@ trait HasFileManagementActions
                     ->maxLength(120)
                     ->autofocus()
                     ->rules([
-                        fn(Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
+                        fn (Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
                             $parentId = $get('parent_id') ?? $this->folderId ?? 0;
 
                             $exists = MediaFolder::withoutGlobalScopes()
@@ -120,7 +120,7 @@ trait HasFileManagementActions
             ->schema([
                 Textarea::make('urls')
                     ->label(trans('filament-media::media.url'))
-                    ->placeholder('https://example.com/image1.jpg' . "\n" . 'https://example.com/image2.png')
+                    ->placeholder('https://example.com/image1.jpg'."\n".'https://example.com/image2.png')
                     ->helperText(trans('filament-media::media.download_explain'))
                     ->required()
                     ->rows(5),
@@ -162,7 +162,7 @@ trait HasFileManagementActions
             ->label(trans('filament-media::media.move'))
             ->requiresConfirmation()
             ->modalHeading(trans('filament-media::media.move_to'))
-            ->modalDescription(fn(array $arguments) => trans(
+            ->modalDescription(fn (array $arguments) => trans(
                 'filament-media::media.confirm_move_to_folder',
                 ['folder' => $arguments['folderName'] ?? '']
             ))
@@ -452,7 +452,7 @@ trait HasFileManagementActions
                     $file->forceDelete();
                 });
 
-                MediaFolder::onlyTrashed()->each(fn(MediaFolder $folder) => $folder->forceDelete());
+                MediaFolder::onlyTrashed()->each(fn (MediaFolder $folder) => $folder->forceDelete());
 
                 $this->refresh();
 

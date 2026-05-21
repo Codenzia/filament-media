@@ -1,7 +1,7 @@
 <?php
 
-use Codenzia\FilamentMedia\Models\MediaTag;
 use Codenzia\FilamentMedia\Models\MediaFile;
+use Codenzia\FilamentMedia\Models\MediaTag;
 
 beforeEach(function () {
     MediaFile::withoutGlobalScopes();

@@ -3,7 +3,6 @@
 use Codenzia\FilamentMedia\Http\Resources\FolderResource;
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
-use Codenzia\FilamentMedia\Models\MediaTag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;

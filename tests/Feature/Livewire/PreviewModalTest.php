@@ -27,11 +27,16 @@ class PreviewModalTest extends TestCase
 
     protected function createUser(): Authenticatable
     {
-        return new class implements Authenticatable {
+        return new class implements Authenticatable
+        {
             public int $id = 1;
+
             public string $name = 'Test User';
+
             public string $email = 'test@example.com';
+
             public string $password = 'password';
+
             public ?string $remember_token = null;
 
             public function getAuthIdentifierName(): string

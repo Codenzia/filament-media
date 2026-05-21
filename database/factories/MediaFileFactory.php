@@ -32,7 +32,7 @@ class MediaFileFactory extends Factory
         ];
 
         $extension = $this->faker->randomElement($extensions[$type]);
-        $fileName = $this->faker->slug(3) . '.' . $extension;
+        $fileName = $this->faker->slug(3).'.'.$extension;
 
         return [
             'name' => $this->faker->words(3, true),
@@ -51,7 +51,7 @@ class MediaFileFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'mime_type' => $this->faker->randomElement(['image/jpeg', 'image/png', 'image/gif']),
-            'url' => $this->faker->slug(2) . '.' . $this->faker->randomElement(['jpg', 'png', 'gif']),
+            'url' => $this->faker->slug(2).'.'.$this->faker->randomElement(['jpg', 'png', 'gif']),
         ]);
     }
 
@@ -59,7 +59,7 @@ class MediaFileFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'mime_type' => $this->faker->randomElement(['application/pdf', 'application/msword']),
-            'url' => $this->faker->slug(2) . '.' . $this->faker->randomElement(['pdf', 'doc']),
+            'url' => $this->faker->slug(2).'.'.$this->faker->randomElement(['pdf', 'doc']),
         ]);
     }
 
@@ -67,7 +67,7 @@ class MediaFileFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'mime_type' => 'video/mp4',
-            'url' => $this->faker->slug(2) . '.mp4',
+            'url' => $this->faker->slug(2).'.mp4',
         ]);
     }
 

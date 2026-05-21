@@ -18,6 +18,7 @@ use Livewire\Component;
 class UploadModal extends Component
 {
     public bool $isOpen = false;
+
     public int $folderId = 0;
 
     /** Per-field allowed extensions override (comma-separated), or null for global default. */
@@ -30,6 +31,7 @@ class UploadModal extends Component
     public array $uploadQueue = [];
 
     public int $completedCount = 0;
+
     public int $failedCount = 0;
 
     protected int $maxFilesPerUpload = 50;

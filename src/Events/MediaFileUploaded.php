@@ -9,7 +9,5 @@ class MediaFileUploaded
 {
     use Dispatchable;
 
-    public function __construct(public MediaFile $file)
-    {
-    }
+    public function __construct(public MediaFile $file) {}
 }

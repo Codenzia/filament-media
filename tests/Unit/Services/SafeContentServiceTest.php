@@ -4,8 +4,8 @@ use Codenzia\FilamentMedia\Services\SafeContentService;
 
 describe('SafeContentService', function () {
     beforeEach(function () {
-        $this->service = new SafeContentService();
-        $this->model = new stdClass(); // Fake model for testing
+        $this->service = new SafeContentService;
+        $this->model = new stdClass; // Fake model for testing
     });
 
     describe('set method', function () {

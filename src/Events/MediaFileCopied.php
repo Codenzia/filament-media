@@ -9,7 +9,5 @@ class MediaFileCopied
 {
     use Dispatchable;
 
-    public function __construct(public MediaFile $newFile, public MediaFile $originalFile)
-    {
-    }
+    public function __construct(public MediaFile $newFile, public MediaFile $originalFile) {}
 }

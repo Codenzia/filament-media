@@ -4,6 +4,7 @@ namespace Codenzia\FilamentMedia\Traits;
 
 use Codenzia\FilamentMedia\Models\MediaFile;
 use Codenzia\FilamentMedia\Models\MediaFolder;
+use Codenzia\FilamentMedia\Services\MetadataService;
 use Codenzia\FilamentMedia\Support\MediaAdder;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Http\UploadedFile;
@@ -122,7 +123,7 @@ trait HasMediaFiles
         $this->attachMediaFile($file);
 
         if (! empty($metadata)) {
-            app(\Codenzia\FilamentMedia\Services\MetadataService::class)
+            app(MetadataService::class)
                 ->setMetadata($file, $metadata);
         }
 
